@@ -1,0 +1,10 @@
+{
+  "appName": {
+    "message": "TimeRank · 网站排行榜",
+    "description": "Extension name"
+  },
+  "appDesc": {
+    "message": "看看你的时间都去哪了",
+    "description": "Extension description"
+  }
+}

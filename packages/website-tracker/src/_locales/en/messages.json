@@ -1,0 +1,10 @@
+{
+  "appName": {
+    "message": "TimeRank",
+    "description": "Extension name"
+  },
+  "appDesc": {
+    "message": "See where your time goes",
+    "description": "Extension description"
+  }
+}

@@ -1,0 +1,31 @@
+{
+  "name": "extensions-monorepo",
+  "version": "0.1.0",
+  "description": "TimeRank — 浏览器扩展 Monorepo",
+  "private": true,
+  "workspaces": [
+    "packages/*"
+  ],
+  "scripts": {
+    "lint": "eslint packages/",
+    "lint:fix": "eslint packages/ --fix",
+    "format": "prettier --check \"packages/**/*.ts\"",
+    "format:fix": "prettier --write \"packages/**/*.ts\"",
+    "build:shared": "npm run build -w packages/shared",
+    "build:tracker": "npm run build -w packages/website-tracker",
+    "build:all": "npm run build:shared && npm run build:tracker",
+    "icons": "node scripts/generate-icons.js"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.39.4",
+    "@types/chrome": "^0.0.260",
+    "esbuild": "^0.28.1",
+    "eslint": "^9.39.4",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-prettier": "^5.5.6",
+    "globals": "^16.5.0",
+    "prettier": "^3.8.5",
+    "typescript": "^5.5.0",
+    "typescript-eslint": "^8.62.0"
+  }
+}

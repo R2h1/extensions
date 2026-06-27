@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>TimeRank · 网站排行榜</title>
+  <link rel="stylesheet" href="popup.css" />
+</head>
+<body>
+  <div id="app">
+    <!-- Header -->
+    <header class="header">
+      <div class="header-left">
+        <div class="header-icon">
+          <span class="icon-bar" style="height:8px"></span>
+          <span class="icon-bar" style="height:12px"></span>
+          <span class="icon-bar" style="height:16px"></span>
+        </div>
+        <h1>TimeRank</h1>
+      </div>
+      <div class="header-right">
+        <span class="badge" id="siteCount">0 站点</span>
+      </div>
+    </header>
+
+    <!-- Period Selector -->
+    <div class="period-bar" role="tablist">
+      <button class="period-btn active" data-period="day" role="tab">今日</button>
+      <button class="period-btn" data-period="week" role="tab">本周</button>
+      <button class="period-btn" data-period="month" role="tab">本月</button>
+    </div>
+
+    <!-- Content -->
+    <main class="content">
+      <div class="content-wrap" id="contentWrap">
+        <!-- Injected by JS -->
+      </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+      <div class="footer-left">
+        <span class="footer-stat" id="footerStat">共 0 个站点 · 总计 0m</span>
+        <span class="footer-update" id="footerUpdate"></span>
+      </div>
+      <div class="footer-actions">
+        <button class="icon-btn" id="btnRefresh" title="刷新">↻</button>
+        <button class="icon-btn" id="btnSettings" title="设置">⚙</button>
+      </div>
+    </footer>
+  </div>
+
+  <script type="module" src="popup.js"></script>
+</body>
+</html>

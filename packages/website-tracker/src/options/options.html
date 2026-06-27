@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>TimeRank - 使用统计</title>
+  <link rel="stylesheet" href="options.css" />
+</head>
+<body>
+  <!-- Header -->
+  <header class="header">
+    <h1>📊 TimeRank · 使用统计</h1>
+    <div class="header-actions">
+      <button class="btn btn-ghost" id="btnRefresh">↻ 刷新</button>
+      <button class="btn btn-danger" id="btnReset">🗑 重置数据</button>
+    </div>
+  </header>
+
+  <!-- Summary Cards -->
+  <div class="summary-row" id="summaryRow">
+    <div class="card">
+      <div class="card-label">今日</div>
+      <div class="card-value" id="todayValue">—</div>
+      <div class="card-sub" id="todaySub">0 站点</div>
+    </div>
+    <div class="card">
+      <div class="card-label">本周</div>
+      <div class="card-value" id="weekValue">—</div>
+      <div class="card-sub" id="weekSub">0 站点</div>
+    </div>
+    <div class="card">
+      <div class="card-label">本月</div>
+      <div class="card-value" id="monthValue">—</div>
+      <div class="card-sub" id="monthSub">0 站点</div>
+    </div>
+    <div class="card">
+      <div class="card-label">全部</div>
+      <div class="card-value" id="allValue">—</div>
+      <div class="card-sub" id="allSub">0 站点</div>
+    </div>
+  </div>
+
+  <!-- Detailed Table -->
+  <section class="section">
+    <div class="section-header">
+      <h2>全部站点记录</h2>
+      <button class="btn btn-ghost" id="btnExport">📥 导出 CSV</button>
+    </div>
+    <div class="table-wrap" id="tableWrap">
+      <div class="loading" id="loadingState">加载中...</div>
+      <!-- Table injected by JS -->
+    </div>
+  </section>
+
+  <!-- Status -->
+  <div class="status-bar" id="statusBar"></div>
+
+  <script type="module" src="options.js"></script>
+</body>
+</html>

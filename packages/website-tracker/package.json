@@ -1,0 +1,19 @@
+{
+  "name": "@extensions/website-tracker",
+  "version": "0.1.0",
+  "description": "TimeRank — 网站使用排行榜",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "npm run build:bundle && npm run build:copy",
+    "build:bundle": "node scripts/build-bundle.cjs",
+    "build:copy": "node scripts/copy-assets.cjs",
+    "clean": "rm -rf dist"
+  },
+  "dependencies": {
+    "@extensions/shared": "*"
+  },
+  "devDependencies": {
+    "esbuild": "^0.28.1"
+  }
+}
