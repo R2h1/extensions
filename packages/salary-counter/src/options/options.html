@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>薪资跳动 · 设置</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Courier New', Courier, 'Noto Sans SC', monospace;
+      background: #0d0d0d;
+      color: #c4c4c4;
+      padding: 40px 24px;
+      min-height: 100vh;
+    }
+    .container { max-width: 380px; margin: 0 auto; }
+    .header {
+      border-bottom: 1px solid #2a2a2a;
+      padding-bottom: 14px;
+      margin-bottom: 28px;
+    }
+    h1 {
+      font-size: 18px;
+      font-weight: 700;
+      color: #e8e8e8;
+      letter-spacing: 2px;
+    }
+    .subtitle {
+      font-size: 12px;
+      color: #6b6b6b;
+      margin-top: 4px;
+      letter-spacing: 0.5px;
+    }
+    .field {
+      margin-bottom: 20px;
+    }
+    label {
+      display: block;
+      font-size: 12px;
+      color: #7a7a7a;
+      margin-bottom: 6px;
+      letter-spacing: 1px;
+    }
+    input {
+      width: 100%;
+      padding: 10px 12px;
+      font-size: 14px;
+      font-family: 'Courier New', monospace;
+      border: 1px solid #2a2a2a;
+      background: #0a0a0a;
+      color: #4ade80;
+      outline: none;
+    }
+    input:focus {
+      border-color: #4ade80;
+    }
+    input[type="number"] { -moz-appearance: textfield; }
+    input[type="number"]::-webkit-outer-spin-button,
+    input[type="number"]::-webkit-inner-spin-button { -webkit-appearance: none; }
+    input[type="time"] { color-scheme: dark; }
+    .btn {
+      width: 100%;
+      padding: 12px;
+      font-size: 13px;
+      font-weight: 600;
+      font-family: 'Courier New', monospace;
+      border: 1px solid #2a2a2a;
+      background: transparent;
+      color: #7a7a7a;
+      cursor: pointer;
+      letter-spacing: 1px;
+      transition: all 0.15s;
+      margin-top: 4px;
+    }
+    .btn:hover {
+      border-color: #4ade80;
+      color: #4ade80;
+    }
+    .status {
+      text-align: center;
+      font-size: 12px;
+      padding: 8px;
+      margin-top: 16px;
+      display: none;
+      letter-spacing: 1px;
+    }
+    .status.show { display: block; }
+    .status-success { color: #4ade80; border: 1px solid #2d4a2d; }
+    .status-error { color: #f87171; border: 1px solid #4a2020; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>⚙️ 薪资跳动</h1>
+      <p class="subtitle">离职情绪稳定器，请假次数控制器</p>
+    </div>
+
+    <div class="field">
+      <label>月收入（元）</label>
+      <input type="number" id="monthlyIncome" min="0" step="1000" placeholder="10000" />
+    </div>
+
+    <div class="field">
+      <label>上班时间</label>
+      <input type="time" id="workStart" />
+    </div>
+
+    <div class="field">
+      <label>下班时间</label>
+      <input type="time" id="workEnd" />
+    </div>
+
+    <button class="btn" id="btnSave">[ 保存 ]</button>
+    <div class="status" id="status"></div>
+  </div>
+
+  <script src="options.js"></script>
+</body>
+</html>

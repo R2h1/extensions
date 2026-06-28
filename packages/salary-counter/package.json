@@ -1,0 +1,16 @@
+{
+  "name": "@extensions/salary-counter",
+  "version": "0.1.0",
+  "description": "薪资跳动 — 实时收入计算器",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "npm run build:bundle && npm run build:copy",
+    "build:bundle": "node scripts/build-bundle.cjs",
+    "build:copy": "node scripts/copy-assets.cjs",
+    "clean": "rm -rf dist"
+  },
+  "devDependencies": {
+    "esbuild": "^0.28.1"
+  }
+}

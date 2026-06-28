@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Courier New', Courier, 'Noto Sans SC', monospace;
+      background: #0d0d0d;
+      color: #c4c4c4;
+      width: 280px;
+      padding: 0;
+    }
+    .header {
+      border-bottom: 1px solid #2a2a2a;
+      padding: 12px 16px 10px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .title {
+      font-size: 13px;
+      color: #7a7a7a;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+    }
+    .status-tag {
+      font-size: 11px;
+      padding: 2px 8px;
+      border: 1px solid #2d4a2d;
+      color: #4ade80;
+      letter-spacing: 0.5px;
+    }
+    .status-tag.idle {
+      border-color: #4a4020;
+      color: #eab308;
+    }
+    .display {
+      padding: 20px 16px 16px;
+      background: #0a0a0a;
+    }
+    .amount {
+      font-size: 32px;
+      font-weight: 700;
+      color: #4ade80;
+      font-family: 'Courier New', monospace;
+      letter-spacing: -0.5px;
+      line-height: 1;
+    }
+    .amount .unit {
+      font-size: 14px;
+      color: #6b6b6b;
+      font-weight: 400;
+      letter-spacing: 0;
+    }
+    .detail {
+      font-size: 12px;
+      color: #6b6b6b;
+      margin-top: 8px;
+      line-height: 1.8;
+      font-family: 'Courier New', monospace;
+    }
+    .actions {
+      padding: 12px 16px;
+      border-top: 1px solid #2a2a2a;
+    }
+    .btn {
+      display: block;
+      width: 100%;
+      padding: 10px;
+      font-size: 12px;
+      font-weight: 600;
+      font-family: 'Courier New', monospace;
+      border: 1px solid #2a2a2a;
+      background: transparent;
+      color: #7a7a7a;
+      cursor: pointer;
+      text-align: center;
+      letter-spacing: 1px;
+      transition: all 0.15s;
+    }
+    .btn:hover {
+      border-color: #4ade80;
+      color: #4ade80;
+    }
+    .loading {
+      text-align: center;
+      color: #4a4a4a;
+      font-size: 12px;
+      padding: 24px 0;
+    }
+    .idle-msg {
+      text-align: center;
+      color: #4a4a4a;
+      font-size: 13px;
+      padding: 24px 0;
+      letter-spacing: 1px;
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <span class="title">薪资跳动</span>
+    <span class="status-tag" id="statusTag">工作中</span>
+  </div>
+  <div class="display">
+    <div id="content">
+      <div class="loading">加载中...</div>
+    </div>
+  </div>
+  <div class="actions">
+    <button class="btn" id="btnSettings">[ 设置 ]</button>
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>

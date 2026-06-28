@@ -13,7 +13,8 @@
     "format:fix": "prettier --write \"packages/**/*.ts\"",
     "build:shared": "npm run build -w packages/shared",
     "build:tracker": "npm run build -w packages/website-tracker",
-    "build:all": "npm run build:shared && npm run build:tracker",
+    "build:salary": "npm run build -w packages/salary-counter",
+    "build:all": "npm run build:shared && npm run build:tracker && npm run build:salary",
     "icons": "node scripts/generate-icons.js"
   },
   "devDependencies": {
