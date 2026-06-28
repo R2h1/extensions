@@ -1,0 +1,18 @@
+{
+  "manifest_version": 3,
+  "name": "工位搭子",
+  "version": "0.1.0",
+  "description": "你的新标签页摸鱼搭子",
+
+  "chrome_url_overrides": {
+    "newtab": "newtab/newtab.html"
+  },
+
+  "options_page": "options/options.html",
+  "options_ui": {
+    "page": "options/options.html",
+    "open_in_tab": true
+  },
+
+  "permissions": ["storage"]
+}

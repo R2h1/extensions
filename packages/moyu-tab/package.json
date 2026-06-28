@@ -1,0 +1,16 @@
+{
+  "name": "@extensions/moyu-tab",
+  "version": "0.1.0",
+  "description": "工位搭子 — 新标签页摸鱼仪表盘",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "npm run build:bundle && npm run build:copy",
+    "build:bundle": "node scripts/build-bundle.cjs",
+    "build:copy": "node scripts/copy-assets.cjs",
+    "clean": "rm -rf dist"
+  },
+  "devDependencies": {
+    "esbuild": "^0.28.1"
+  }
+}

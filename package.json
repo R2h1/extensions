@@ -14,7 +14,8 @@
     "build:shared": "npm run build -w packages/shared",
     "build:tracker": "npm run build -w packages/website-tracker",
     "build:salary": "npm run build -w packages/salary-counter",
-    "build:all": "npm run build:shared && npm run build:tracker && npm run build:salary",
+    "build:moyu": "npm run build -w packages/moyu-tab",
+    "build:all": "npm run build:shared && npm run build:tracker && npm run build:salary && npm run build:moyu",
     "icons": "node scripts/generate-icons.js"
   },
   "devDependencies": {
