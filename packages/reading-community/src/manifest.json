@@ -1,0 +1,26 @@
+{
+  "manifest_version": 3,
+  "name": "书搭子",
+  "version": "0.1.0",
+  "description": "在浏览器中随手记录阅读笔记，你的读书搭子",
+
+  "side_panel": {
+    "default_path": "community/community.html"
+  },
+
+  "action": {
+    "default_title": "书搭子",
+    "default_icon": {
+      "16": "icons/icon16.png",
+      "48": "icons/icon48.png",
+      "128": "icons/icon128.png"
+    }
+  },
+
+  "background": {
+    "service_worker": "background/service-worker.js",
+    "type": "module"
+  },
+
+  "permissions": ["storage", "sidePanel"]
+}
