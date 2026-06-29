@@ -77,10 +77,54 @@ async function saveMerit() {
   await chrome.storage.local.set({ [STORAGE_MERIT]: merit });
 }
 
+// ─── 木鱼音效 ────────────────────────────────────────
+
+let audioCtx: AudioContext | null = null;
+
+function playFishSound() {
+  if (!audioCtx) {
+    audioCtx = new AudioContext();
+  }
+
+  // 短促噪声模拟敲击
+  const bufferSize = audioCtx.sampleRate * 0.03;
+  const noise = audioCtx.createBufferSource();
+  const noiseBuffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+  const data = noiseBuffer.getChannelData(0);
+  for (let i = 0; i < bufferSize; i++) {
+    data[i] = (Math.random() * 2 - 1) * (1 - i / bufferSize);
+  }
+  noise.buffer = noiseBuffer;
+
+  // 共鸣音 — 中低频正弦波，快速衰减
+  const osc = audioCtx.createOscillator();
+  const gain = audioCtx.createGain();
+  osc.type = 'sine';
+  osc.frequency.value = 380;
+  gain.gain.setValueAtTime(0.3, audioCtx.currentTime);
+  gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.15);
+  osc.connect(gain);
+
+  // 噪声过门控
+  const noiseGain = audioCtx.createGain();
+  noiseGain.gain.setValueAtTime(0.08, audioCtx.currentTime);
+  noiseGain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.05);
+
+  noise.connect(noiseGain);
+  gain.connect(audioCtx.destination);
+  noiseGain.connect(audioCtx.destination);
+
+  osc.start(audioCtx.currentTime);
+  osc.stop(audioCtx.currentTime + 0.15);
+  noise.start(audioCtx.currentTime);
+  noise.stop(audioCtx.currentTime + 0.03);
+}
+
 fishBtn.addEventListener('click', async () => {
   merit++;
   meritCount.textContent = String(merit);
   await saveMerit();
+  playFishSound();
   // 敲击动画
   fishBtn.classList.remove('knock');
   void fishBtn.offsetWidth; // 触发回流以重启动画
