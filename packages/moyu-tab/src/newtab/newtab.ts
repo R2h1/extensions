@@ -8,7 +8,7 @@
 
 const STORAGE_MERIT = 'moyu_merit';
 const STORAGE_TODOS = 'moyu_todos';
-const STORAGE_LUNCH = 'moyu_lunch';
+const STORAGE_SCHEDULE = 'moyu_schedule';
 
 interface TodoItem {
   id: number;
@@ -16,12 +16,19 @@ interface TodoItem {
   done: boolean;
 }
 
-interface LunchSettings {
-  hour: number; // 0-23
-  minute: number; // 0-59
+interface ScheduleSettings {
+  lunchHour: number;
+  lunchMinute: number;
+  endHour: number;
+  endMinute: number;
 }
 
-const DEFAULT_LUNCH: LunchSettings = { hour: 11, minute: 30 };
+const DEFAULT_SCHEDULE: ScheduleSettings = {
+  lunchHour: 11,
+  lunchMinute: 30,
+  endHour: 18,
+  endMinute: 0,
+};
 
 // ─── DOM ─────────────────────────────────────────────
 
@@ -45,7 +52,8 @@ function updateTime() {
   const now = new Date();
   const h = pad(now.getHours());
   const m = pad(now.getMinutes());
-  timeDisplay.textContent = `${h}:${m}`;
+  const s = pad(now.getSeconds());
+  timeDisplay.textContent = `${h}:${m}:${s}`;
 
   const y = now.getFullYear();
   const mo = pad(now.getMonth() + 1);
@@ -166,40 +174,52 @@ function escapeHtml(str: string): string {
   return d.innerHTML;
 }
 
-// ─── 午餐倒计时 ──────────────────────────────────────
+// ─── 倒计时（午餐 / 下班） ────────────────────────────
 
-let lunch: LunchSettings = { ...DEFAULT_LUNCH };
+let schedule: ScheduleSettings = { ...DEFAULT_SCHEDULE };
 
-async function loadLunch() {
-  const result = await chrome.storage.sync.get(STORAGE_LUNCH);
-  if (result[STORAGE_LUNCH]) {
-    lunch = { ...DEFAULT_LUNCH, ...result[STORAGE_LUNCH] };
+async function loadSchedule() {
+  const result = await chrome.storage.sync.get(STORAGE_SCHEDULE);
+  if (result[STORAGE_SCHEDULE]) {
+    schedule = { ...DEFAULT_SCHEDULE, ...result[STORAGE_SCHEDULE] };
   }
 }
 
-function updateLunch() {
+function todayAt(h: number, m: number): Date {
+  const d = new Date();
+  d.setHours(h, m, 0, 0);
+  return d;
+}
+
+function formatDiff(ms: number): string {
+  const totalMin = Math.round(ms / 60000);
+  const h = Math.floor(totalMin / 60);
+  const min = totalMin % 60;
+  if (h > 0) return `${h}h ${min}min`;
+  return `${min}min`;
+}
+
+function updateCountdown() {
   const now = new Date();
-  const lunchTime = new Date();
-  lunchTime.setHours(lunch.hour, lunch.minute, 0, 0);
+  const lunchTime = todayAt(schedule.lunchHour, schedule.lunchMinute);
+  const endTime = todayAt(schedule.endHour, schedule.endMinute);
 
-  const diffMs = lunchTime.getTime() - now.getTime();
-
-  if (diffMs <= 0) {
-    // 已过午餐时间 → 显示明天
-    const tomorrow = new Date(lunchTime);
-    tomorrow.setDate(tomorrow.getDate() + 1);
-    const diff = tomorrow.getTime() - now.getTime();
-    const totalMin = Math.round(diff / 60000);
-    const h = Math.floor(totalMin / 60);
-    const m = totalMin % 60;
-    lunchDisplay.textContent = `🍱 午餐 ${pad(lunch.hour)}:${pad(lunch.minute)} · ${h}h ${m}min 后`;
+  // 已下班
+  if (now >= endTime) {
+    lunchDisplay.textContent = '🕐 已下班 · 明天再来';
     return;
   }
 
-  const totalMin = Math.round(diffMs / 60000);
-  const h = Math.floor(totalMin / 60);
-  const m = totalMin % 60;
-  lunchDisplay.textContent = `🍱 午餐 ${pad(lunch.hour)}:${pad(lunch.minute)} · ${h}h ${m}min 后`;
+  // 午餐前 → 显示午餐倒计时
+  if (now < lunchTime) {
+    const diff = lunchTime.getTime() - now.getTime();
+    lunchDisplay.textContent = `🍱 午餐 ${pad(schedule.lunchHour)}:${pad(schedule.lunchMinute)} · ${formatDiff(diff)} 后`;
+    return;
+  }
+
+  // 午餐后到下班 → 显示下班倒计时
+  const diff = endTime.getTime() - now.getTime();
+  lunchDisplay.textContent = `🕐 下班 ${pad(schedule.endHour)}:${pad(schedule.endMinute)} · ${formatDiff(diff)} 后`;
 }
 
 // ─── 设置 ────────────────────────────────────────────
@@ -212,13 +232,13 @@ settingsBtn.addEventListener('click', () => {
 
 async function init() {
   updateTime();
-  await Promise.all([loadMerit(), loadTodos(), loadLunch()]);
-  updateLunch();
+  await Promise.all([loadMerit(), loadTodos(), loadSchedule()]);
+  updateCountdown();
 
   // 定时更新
   setInterval(() => {
     updateTime();
-    updateLunch();
+    updateCountdown();
   }, 1000);
 }
 
