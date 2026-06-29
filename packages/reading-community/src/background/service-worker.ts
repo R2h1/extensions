@@ -18,7 +18,7 @@ interface UserProfile {
   booklists: number;
 }
 
-// ── 程序化生成书本图标（纯像素操作，无外部文件） ──
+// ── 程序化生成图标：暖棕圆角背景 + 白色展开书本 ──
 function generateIcons(): void {
   const imageData: Record<number, ImageData> = {};
   for (const size of [16, 32, 48, 128]) {
@@ -30,50 +30,82 @@ function generateIcons(): void {
 function createBookIcon(size: number): ImageData {
   const s = size;
   const pixels = new Uint8ClampedArray(s * s * 4);
-  const pad = Math.max(2, Math.round(s * 0.18));
-  const bookL = pad, bookR = s - pad;
-  const bookT = Math.max(2, Math.round(s * 0.2)), bookB = Math.round(s * 0.82);
-  const spineW = Math.max(1, Math.round((bookR - bookL) * 0.18));
-  const rn = Math.max(1, Math.round((bookR - bookL) * 0.15));
+  const cx = s / 2, cy = s / 2;
+  const br = Math.max(2, Math.round(s * 0.22));
+  const maxR = cx - 1;
+
+  // 配色
+  const bgR = 196, bgG = 155, bgB = 122;   // #C49B7A 暖棕
+  const pgR = 255, pgG = 252, pgB = 248;    // #FFFCF8 米白
+  const spR = 120, spG = 100, spB = 80;     // 书脊深棕
+  const lnR = 200, lnG = 185, lnB = 170;    // 文字线条
+
+  const spine = Math.round(s * 0.5);
+  const bookPad = Math.round(s * 0.14);
+  const bookT = Math.round(s * 0.22);
+  const bookB = Math.round(s * 0.78);
+  const tilt = Math.round(s * 0.04);         // 展开透视偏移
 
   for (let y = 0; y < s; y++) {
     for (let x = 0; x < s; x++) {
       const idx = (y * s + x) * 4;
-      const inX = x >= bookL && x < bookR;
-      const inY = y >= bookT && y < bookB;
-      if (!inX || !inY) { pixels[idx + 3] = 0; continue; }
+      const dx = x - cx, dy = y - cy;
 
-      const dl = x - bookL, dr = bookR - 1 - x, dt = y - bookT, db = bookB - 1 - y;
-      const isTL = dl < rn && dt < rn && dl * dl + dt * dt >= rn * rn;
-      const isTR = dr < rn && dt < rn && dr * dr + dt * dt >= rn * rn;
-      const isBL = dl < rn && db < rn && dl * dl + db * db >= rn * rn;
-      const isBR = dr < rn && db < rn && dr * dr + db * db >= rn * rn;
-      if (isTL || isTR || isBL || isBR) { pixels[idx + 3] = 0; continue; }
+      // 圆角背景裁剪
+      const cd = Math.max(Math.abs(dx) - cx + br, Math.abs(dy) - cy + br, 0);
+      const bgDist = cd > 0 ? cd : Math.max(Math.abs(dx), Math.abs(dy));
+      const alpha = bgDist >= maxR ? 0 : Math.round(Math.max(0, (maxR - bgDist) / br) * 255);
+      if (alpha === 0) { pixels[idx + 3] = 0; continue; }
 
-      // 书脊
-      if (x < bookL + spineW) {
-        pixels[idx] = 139; pixels[idx + 1] = 126; pixels[idx + 2] = 116; pixels[idx + 3] = 255;
-        continue;
-      }
+      // 暖棕背景
+      pixels[idx] = bgR; pixels[idx + 1] = bgG; pixels[idx + 2] = bgB; pixels[idx + 3] = alpha;
 
-      // 书页
-      pixels[idx] = 253; pixels[idx + 1] = 250; pixels[idx + 2] = 247; pixels[idx + 3] = 255;
+      // ── 画展开的书 ──
+      const leftL = bookPad;
+      const rightR = s - bookPad;
+      const py = y - bookT;
+      const ph = bookB - bookT;
+      const ratio = ph > 0 ? py / ph : 0;
 
-      // 文字线条
-      if (s >= 48) {
-        const margin = Math.round((bookR - bookL) * 0.16);
-        const lineH = Math.max(1, Math.floor(s * 0.02));
-        const lineL = bookL + spineW + margin;
-        const lineR = bookR - margin;
-        const y1 = bookT + Math.round((bookB - bookT) * 0.30);
-        const y2 = bookT + Math.round((bookB - bookT) * 0.50);
+      // 左页右边界（斜线，上窄下宽）
+      const leftR = spine - 1 - tilt + Math.round(ratio * tilt * 2);
+      // 右页左边界（斜线）
+      const rightL = spine + 1 + tilt - Math.round(ratio * tilt * 2);
 
-        if (y >= y1 - lineH && y < y1 + lineH && x >= lineL && x < lineR) {
-          pixels[idx] = 190; pixels[idx + 1] = 175; pixels[idx + 2] = 165;
+      const inLeftPage = x >= leftL && x <= leftR && x < spine && y >= bookT && y < bookB;
+      const inRightPage = x >= rightL && x <= rightR && x > spine && y >= bookT && y < bookB;
+      const isSpine = Math.abs(x - spine) <= 2 && y >= bookT && y < bookB;
+
+      if (inLeftPage || inRightPage) {
+        // 书页渐变（边缘暗一点）
+        const distFromCenter = Math.abs(x - spine) / Math.max(1, s / 2);
+        const shade = 1 - distFromCenter * 0.08;
+        pixels[idx] = Math.min(255, Math.round(pgR * shade));
+        pixels[idx + 1] = Math.min(255, Math.round(pgG * shade));
+        pixels[idx + 2] = Math.min(255, Math.round(pgB * shade));
+
+        // 文字线条（≥48px 才画，否则太小看不清）
+        if (s >= 48) {
+          const lineH = Math.max(1, Math.floor(s * 0.02));
+          const margins = Math.round(s * 0.02);
+          const lines = [0.32, 0.48, 0.64];
+          for (const ly of lines) {
+            const yy = bookT + Math.round(ph * ly);
+            if (Math.abs(y - yy) < lineH) {
+              if (inLeftPage) {
+                const lx2 = leftR - margins;
+                if (x >= leftL + margins && x <= lx2) { pixels[idx] = lnR; pixels[idx + 1] = lnG; pixels[idx + 2] = lnB; }
+              } else {
+                const rx1 = rightL + margins;
+                const rx2 = rightR - margins;
+                const shorten = ly === lines[2] ? 1 : 0.6;
+                if (x >= rx1 && x <= Math.round(rx1 + (rx2 - rx1) * shorten)) { pixels[idx] = lnR; pixels[idx + 1] = lnG; pixels[idx + 2] = lnB; }
+              }
+            }
+          }
         }
-        if (y >= y2 - lineH && y < y2 + lineH && x >= lineL && x < lineL + (lineR - lineL) * 0.6) {
-          pixels[idx] = 190; pixels[idx + 1] = 175; pixels[idx + 2] = 165;
-        }
+      } else if (isSpine) {
+        pixels[idx] = spR; pixels[idx + 1] = spG; pixels[idx + 2] = spB;
       }
     }
   }
