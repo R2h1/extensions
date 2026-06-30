@@ -5,6 +5,9 @@ node_modules/
 dist/
 *.tsbuildinfo
 
+# === 打包输出 ===
+releases/
+
 # === ESLint / Prettier ===
 .eslintcache
 

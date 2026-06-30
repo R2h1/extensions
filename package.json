@@ -17,6 +17,11 @@
     "build:moyu": "npm run build -w packages/moyu-tab",
     "build:community": "npm run build -w packages/reading-community",
     "build:all": "npm run build:shared && npm run build:tracker && npm run build:salary && npm run build:moyu && npm run build:community",
+    "pack:tracker": "node scripts/pack-zip.cjs website-tracker",
+    "pack:salary": "node scripts/pack-zip.cjs salary-counter",
+    "pack:moyu": "node scripts/pack-zip.cjs moyu-tab",
+    "pack:community": "node scripts/pack-zip.cjs reading-community",
+    "pack:all": "npm run pack:tracker && npm run pack:salary && npm run pack:moyu && npm run pack:community",
     "icons": "node scripts/generate-icons.js"
   },
   "devDependencies": {
