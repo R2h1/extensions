@@ -1,314 +1,130 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>新标签页</title>
-  <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    :root {
-      --bg: #1c1c1c;
-      --card: #242424;
-      --card-hover: #2a2a2a;
-      --border: #333;
-      --text: #e4e4e4;
-      --text-secondary: #a3a3a3;
-      --text-tertiary: #666;
-      --orange: #f97316;
-      --orange-light: #fb923c;
-      --orange-bg: rgba(249, 115, 22, 0.1);
-      --radius: 12px;
-      --radius-sm: 8px;
-    }
-    html, body {
-      height: 100%;
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans SC', sans-serif;
-      background: var(--bg);
-      color: var(--text);
-    }
-    body {
-      display: flex;
-      flex-direction: column;
-      max-width: 840px;
-      margin: 0 auto;
-      padding: 52px 32px 28px;
-      min-height: 100vh;
-    }
-
-    /* ── Header ── */
-    .header {
-      margin-bottom: 44px;
-      animation: fadeIn 0.6s ease-out;
-    }
-    .time {
-      font-size: 60px;
-      font-weight: 200;
-      letter-spacing: 6px;
-      font-family: 'Courier New', Courier, monospace;
-      color: var(--text);
-      line-height: 1;
-    }
-    .date {
-      font-size: 14px;
-      color: var(--text-secondary);
-      margin-top: 10px;
-      letter-spacing: 1px;
-    }
-
-    /* ── Grid ── */
-    .grid {
-      display: grid;
-      grid-template-columns: 240px 1fr;
-      gap: 16px;
-      flex: 1;
-    }
-    .card {
-      background: var(--card);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      padding: 20px;
-      transition: border-color 0.2s, background 0.2s;
-    }
-    .card:hover {
-      border-color: #444;
-    }
-    .card-title {
-      font-size: 12px;
-      font-weight: 700;
-      color: var(--text-tertiary);
-      letter-spacing: 3px;
-      margin-bottom: 16px;
-      text-transform: uppercase;
-    }
-
-    /* ── 木鱼 ── */
-    .fish-stats {
-      margin-bottom: 16px;
-    }
-    .fish-stats .label {
-      font-size: 12px;
-      color: var(--text-tertiary);
-      display: block;
-      letter-spacing: 1px;
-      margin-bottom: 2px;
-    }
-    .fish-stats .count {
-      font-size: 40px;
-      font-weight: 500;
-      color: var(--orange);
-      font-family: 'Courier New', monospace;
-      transition: transform 0.15s;
-    }
-    .fish-btn {
-      width: 100%;
-      padding: 14px;
-      font-size: 15px;
-      font-weight: 600;
-      border: none;
-      border-radius: var(--radius-sm);
-      background: var(--orange-bg);
-      color: var(--orange-light);
-      cursor: pointer;
-      transition: all 0.15s;
-      letter-spacing: 2px;
-    }
-    .fish-btn:hover {
-      background: rgba(249, 115, 22, 0.2);
-      transform: translateY(-1px);
-    }
-    .fish-btn:active {
-      transform: translateY(0) scale(0.98);
-    }
-    .fish-btn.knock {
-      animation: knock 0.2s ease;
-    }
-    @keyframes knock {
-      0% { transform: scale(1); }
-      40% { transform: scale(0.95); }
-      70% { transform: scale(1.02); }
-      100% { transform: scale(1); }
-    }
-
-    /* ── Todo ── */
-    .todo-input-wrap {
-      display: flex;
-      gap: 8px;
-      margin-bottom: 14px;
-    }
-    .todo-input {
-      flex: 1;
-      padding: 10px 12px;
-      font-size: 14px;
-      background: var(--bg);
-      border: 1px solid var(--border);
-      border-radius: var(--radius-sm);
-      color: var(--text);
-      outline: none;
-      font-family: inherit;
-      transition: border-color 0.2s;
-    }
-    .todo-input:focus {
-      border-color: var(--orange);
-    }
-    .todo-add-btn {
-      padding: 10px 16px;
-      font-size: 16px;
-      background: transparent;
-      border: 1px solid var(--border);
-      border-radius: var(--radius-sm);
-      color: var(--text-secondary);
-      cursor: pointer;
-      font-family: inherit;
-      transition: all 0.15s;
-    }
-    .todo-add-btn:hover {
-      border-color: var(--orange);
-      color: var(--orange);
-      background: var(--orange-bg);
-    }
-    .todo-list {
-      list-style: none;
-    }
-    .todo-item {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      padding: 10px 0;
-      border-bottom: 1px solid #2a2a2a;
-      font-size: 14px;
-      animation: slideIn 0.25s ease-out;
-    }
-    .todo-item:last-child { border-bottom: none; }
-    .todo-check {
-      width: 18px;
-      height: 18px;
-      border: 1.5px solid var(--border);
-      border-radius: 4px;
-      background: transparent;
-      cursor: pointer;
-      flex-shrink: 0;
-      transition: all 0.2s;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: transparent;
-      font-size: 11px;
-      font-weight: 700;
-    }
-    .todo-check:hover { border-color: var(--orange); }
-    .todo-check.done {
-      background: var(--orange);
-      border-color: var(--orange);
-      color: #1c1c1c;
-    }
-    .todo-text {
-      flex: 1;
-      color: var(--text);
-      transition: color 0.2s;
-    }
-    .todo-text.done {
-      text-decoration: line-through;
-      color: var(--text-tertiary);
-    }
-    .todo-del {
-      background: none;
-      border: none;
-      color: #4a4a4a;
-      cursor: pointer;
-      font-size: 14px;
-      padding: 2px 6px;
-      border-radius: 4px;
-      transition: all 0.15s;
-      opacity: 0;
-    }
-    .todo-item:hover .todo-del { opacity: 1; }
-    .todo-del:hover { color: #888; background: #2a2a2a; }
-    .todo-empty {
-      font-size: 13px;
-      color: #4a4a4a;
-      text-align: center;
-      padding: 28px 0;
-      letter-spacing: 1px;
-    }
-
-    /* ── Footer ── */
-    .footer {
-      margin-top: 28px;
-      padding-top: 16px;
-      border-top: 1px solid #2a2a2a;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-    }
-    .lunch {
-      font-size: 13px;
-      color: var(--text-secondary);
-      letter-spacing: 0.5px;
-    }
-    .lunch .time-val {
-      color: var(--orange);
-      font-weight: 600;
-    }
-    .settings-btn {
-      background: none;
-      border: none;
-      color: var(--text-tertiary);
-      cursor: pointer;
-      font-size: 16px;
-      padding: 6px 10px;
-      border-radius: var(--radius-sm);
-      transition: all 0.2s;
-    }
-    .settings-btn:hover {
-      color: var(--text-secondary);
-      background: #2a2a2a;
-    }
-
-    /* ── Animations ── */
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(-8px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-    @keyframes slideIn {
-      from { opacity: 0; transform: translateY(-6px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-    .fade-in {
-      animation: fadeIn 0.4s ease-out;
-    }
-  </style>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>新标签页</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--glass:rgba(255,255,255,0.6);--glass-hover:rgba(255,255,255,0.75);--glass-border:rgba(0,0,0,0.04);--glass-border-h:rgba(0,0,0,0.08);--glass-accent:rgba(217,119,6,0.08);--shadow-sm:0 0.5px 1.5px rgba(0,0,0,0.04);--shadow-md:0 4px 12px rgba(0,0,0,0.05);--text:#1d1d1f;--text-secondary:#86868b;--text-tertiary:#aeaeb2;--accent:#d97706;--radius:14px;--radius-sm:9px;--radius-xs:7px}
+html,body{height:100%;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Noto Sans SC',sans-serif;background:#f2f2f4;color:var(--text)}
+body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse 70% 55% at 15% 25%,rgba(200,200,210,0.15),transparent),radial-gradient(ellipse 60% 45% at 85% 75%,rgba(180,180,200,0.1),transparent);pointer-events:none;z-index:0}
+.app{display:flex;height:100vh;position:relative;z-index:1}
+.sidebar{width:160px;flex-shrink:0;display:flex;flex-direction:column;padding:28px 8px 12px;background:rgba(255,255,255,0.35);backdrop-filter:blur(30px);border-right:0.5px solid rgba(0,0,0,0.03)}
+.sidebar-nav{flex:1;display:flex;flex-direction:column;gap:2px}
+.sb-btn{display:flex;align-items:center;gap:8px;padding:9px 12px;border-radius:var(--radius-xs);background:transparent;border:none;color:var(--text-tertiary);font-size:13px;font-weight:500;font-family:inherit;cursor:pointer;transition:all 0.2s;text-align:left;width:100%;position:relative}
+.sb-btn:hover{color:var(--text-secondary);background:rgba(0,0,0,0.03)}
+.sb-btn.active{color:var(--accent);background:var(--glass-accent)}
+.sb-btn.active::before{content:'';position:absolute;left:0;top:50%;transform:translateY(-50%);width:3px;height:18px;border-radius:0 3px 3px 0;background:var(--accent)}
+.sb-div{height:0.5px;background:rgba(0,0,0,0.05);margin:6px 12px}
+.sb-countdown{padding:6px 12px;font-size:11px;color:var(--text-tertiary);line-height:1.4}
+.content{flex:1;display:flex;justify-content:center;overflow-y:auto;min-width:0}
+.ci{width:100%;max-width:660px;display:flex;flex-direction:column;padding:32px 28px 20px}
+.cat-panel{display:none;flex-direction:column;flex:1;min-height:0;gap:10px;padding:4px 0}
+.cat-panel.active{display:flex}
+.cat-panel .empty{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;color:var(--text-tertiary);font-size:13px}
+.cat-panel .add-hint{font-size:11px;color:var(--text-tertiary)}
+.widget-card{background:var(--glass);backdrop-filter:blur(16px);border:0.5px solid var(--glass-border);border-radius:var(--radius);padding:16px;box-shadow:var(--shadow-sm);transition:all 0.2s}
+.widget-card:hover{border-color:var(--glass-border-h);background:var(--glass-hover);box-shadow:var(--shadow-md)}
+.widget-card.clickable{cursor:pointer}
+.widget-card.clickable:hover{border-color:var(--glass-accent);box-shadow:0 0 0 1px var(--glass-accent),var(--shadow-md)}
+.widget-title{font-size:10px;font-weight:600;color:var(--text-tertiary);letter-spacing:2px;margin-bottom:8px}
+.widget-entry{display:flex;align-items:center;gap:6px;font-size:13px;color:var(--text-secondary);font-weight:500}
+.widget-entry .arrow{font-size:18px;color:var(--text-tertiary);margin-left:auto}
+.mo{display:none;position:fixed;inset:0;z-index:100;background:rgba(0,0,0,0.25);backdrop-filter:blur(12px);align-items:center;justify-content:center;padding:24px}
+.mo.open{display:flex}
+.ms{background:rgba(250,248,245,0.88);backdrop-filter:blur(40px);border-radius:20px;width:100%;max-width:500px;max-height:80vh;box-shadow:0 24px 80px rgba(0,0,0,0.12);display:flex;flex-direction:column;animation:mi 0.3s ease-out;overflow:hidden}
+@keyframes mi{from{opacity:0;transform:scale(0.95)}to{opacity:1;transform:scale(1)}}
+.mh{display:flex;align-items:center;justify-content:space-between;padding:18px 20px 0;flex-shrink:0}
+.mh .mt{font-size:14px;font-weight:600}
+.mh .mc{background:none;border:none;color:var(--text-tertiary);cursor:pointer;font-size:16px;width:28px;height:28px;border-radius:7px;display:flex;align-items:center;justify-content:center;transition:all 0.15s}
+.mh .mc:hover{background:rgba(0,0,0,0.05);color:var(--text)}
+.modal-split{flex:1;display:flex;min-height:0}
+.modal-sidebar{width:90px;flex-shrink:0;padding:12px 6px;border-right:0.5px solid rgba(0,0,0,0.05);display:flex;flex-direction:column;gap:2px}
+.msb{display:flex;align-items:center;padding:8px 10px;border-radius:var(--radius-xs);background:transparent;border:none;color:var(--text-tertiary);font-size:12px;font-family:inherit;cursor:pointer;transition:all 0.2s;text-align:left;width:100%}
+.msb:hover{color:var(--text-secondary);background:rgba(0,0,0,0.03)}
+.msb.active{color:var(--accent);background:var(--glass-accent)}
+.modal-content{flex:1;padding:20px 24px;overflow-y:auto;min-width:0}
+.wg-item{display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:0.5px solid rgba(0,0,0,0.04)}
+.wg-item:last-child{border-bottom:none}
+.wg-name{font-size:13px;color:var(--text)}
+.wg-desc{font-size:11px;color:var(--text-tertiary)}
+.wg-toggle{width:36px;height:20px;border-radius:10px;border:none;cursor:pointer;transition:all 0.2s;position:relative;flex-shrink:0}
+.wg-toggle.on{background:var(--accent)}
+.wg-toggle.off{background:rgba(0,0,0,0.1)}
+.wg-toggle::after{content:'';position:absolute;top:2px;left:2px;width:16px;height:16px;border-radius:50%;background:#fff;transition:transform 0.2s}
+.wg-toggle.on::after{transform:translateX(16px)}
+.mb input[type=time], .modal-content input[type=time]{width:100%;padding:9px 12px;font-size:13px;border:0.5px solid var(--glass-border);border-radius:var(--radius-xs);background:rgba(255,255,255,0.5);color:var(--text);outline:none;font-family:inherit}
+.mb .f, .modal-content .f{margin-bottom:12px}
+.mb .f label, .modal-content .f label{font-size:12px;color:var(--text-secondary);display:block;margin-bottom:4px}
+.mb .btn, .modal-content .btn{width:100%;padding:9px;font-size:13px;font-weight:600;border:none;border-radius:var(--radius-xs);background:var(--glass-accent);color:var(--accent);cursor:pointer;font-family:inherit}
+.dc{display:flex;flex-direction:column;align-items:center;gap:2px;cursor:pointer;padding:7px 4px;border:0.5px solid var(--glass-border);border-radius:7px;background:rgba(255,255,255,0.4);transition:all 0.15s;min-width:36px;user-select:none}
+.dc:hover{border-color:rgba(0,0,0,0.1)}
+.dc span{font-size:11px;color:var(--text-tertiary)}
+.dc.active{border-color:var(--accent);background:var(--glass-accent)}
+.dc.active span{color:var(--accent);font-weight:600}
+.qi{display:flex;align-items:flex-start;gap:6px;padding:6px 0;border-bottom:0.5px solid rgba(0,0,0,0.04);font-size:11px}
+.qi .i{color:var(--text-tertiary);font-size:10px;flex-shrink:0;min-width:18px;text-align:right}
+.qi .t{flex:1;color:var(--text-secondary)}
+.qi .a button{background:none;border:0.5px solid var(--glass-border);color:var(--text-tertiary);padding:2px 7px;border-radius:5px;cursor:pointer;font-size:10px;font-family:inherit}
+.qi .a button:hover{border-color:var(--accent);color:var(--accent)}
+.aqr{display:flex;gap:6px;margin-top:8px}
+.aqr input{flex:1;padding:7px 10px;font-size:12px;border:0.5px solid var(--glass-border);border-radius:var(--radius-xs);background:rgba(255,255,255,0.5);color:var(--text);outline:none;font-family:inherit}
+.aqr button{padding:7px 12px;font-size:12px;border:0.5px solid var(--glass-border);border-radius:var(--radius-xs);background:transparent;color:var(--text-secondary);cursor:pointer;font-family:inherit}
+.aqr button:hover{border-color:var(--accent);color:var(--accent)}
+.lrow:hover .ldel{opacity:1!important}
+</style>
 </head>
 <body>
-  <header class="header">
-    <div class="time" id="timeDisplay">--:--</div>
-    <div class="date" id="dateDisplay"></div>
-  </header>
-
-  <div class="grid">
-    <div class="card">
-      <div class="card-title">敲木鱼</div>
-      <div class="fish-stats">
-        <span class="label">功德</span>
-        <span class="count" id="meritCount">0</span>
-      </div>
-      <button class="fish-btn" id="fishBtn">敲 !</button>
+<div class="app">
+  <nav class="sidebar">
+    <div class="sidebar-nav">
+      <button class="sb-btn active" data-tab="0">首页</button>
+      <button class="sb-btn" data-tab="1">摸鱼</button>
+      <button class="sb-btn" data-tab="2">效率</button>
+      <button class="sb-btn" data-tab="3">工具</button>
     </div>
-
-    <div class="card">
-      <div class="card-title">今日待办</div>
-      <div class="todo-input-wrap">
-        <input class="todo-input" id="todoInput" placeholder="写点什么..." />
-        <button class="todo-add-btn" id="todoAddBtn">+</button>
+    <div class="sb-div"></div>
+    <button class="sb-btn" id="addWidgetBtn">添加组件</button>
+    <button class="sb-btn" id="settingsBtn">设置</button>
+    <div class="sb-div"></div>
+    <div class="sb-countdown" id="sbCountdown"></div>
+  </nav>
+  <main class="content"><div class="ci">
+    <div class="cat-panel active" id="panel0"></div>
+    <div class="cat-panel" id="panel1"></div>
+    <div class="cat-panel" id="panel2"></div>
+    <div class="cat-panel" id="panel3"></div>
+  </div></main>
+</div>
+<div class="mo" id="featureModal">
+  <div class="ms"><div class="mh"><span class="mt" id="fmTitle"></span><button class="mc" id="fmClose">x</button></div><div class="modal-content" id="fmBody" style="padding:16px 20px 20px;display:flex;flex-direction:column"></div></div>
+</div>
+<div class="mo" id="widgetModal">
+  <div class="ms"><div class="mh"><span class="mt">组件库</span><button class="mc" id="wmClose">x</button></div>
+    <div class="modal-split">
+      <div class="modal-sidebar" id="wmSidebar">
+        <button class="msb active" data-c="home">首页</button>
+        <button class="msb" data-c="fish">摸鱼</button>
+        <button class="msb" data-c="efficiency">效率</button>
+        <button class="msb" data-c="tools">工具</button>
       </div>
-      <ul class="todo-list" id="todoList"></ul>
+      <div class="modal-content" id="widgetList"></div>
     </div>
   </div>
-
-  <footer class="footer">
-    <div class="lunch" id="lunchDisplay">🍱 午餐 --:-- · -- 后</div>
-    <button class="settings-btn" id="settingsBtn">⚙</button>
-  </footer>
-
-  <script src="newtab.js"></script>
+</div>
+<div class="mo" id="settingsModal">
+  <div class="ms"><div class="mh"><span class="mt">设置</span><button class="mc" id="smClose">x</button></div>
+    <div class="modal-split">
+      <div class="modal-sidebar" id="smSidebar">
+        <button class="msb active" data-s="time">时间</button>
+        <button class="msb" data-s="quote">语录</button>
+        <button class="msb" data-s="salary">发薪日</button>
+      </div>
+      <div class="modal-content" id="settingsBody"></div>
+    </div>
+  </div>
+</div>
+<script src="newtab.js"></script>
 </body>
 </html>

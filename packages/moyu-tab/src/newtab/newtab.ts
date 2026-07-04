@@ -1,289 +1,109 @@
-/**
- * 工位搭子 — 新标签页
- *
- * 敲木鱼 + 今日待办 + 午餐倒计时
- */
+const SM='moyu_merit',SS='moyu_schedule',SQ='moyu_quotes',SW='moyu_widgets',SL='moyu_links',SR='moyu_salary';
+interface Sch{lunchHour:number;lunchMinute:number;endHour:number;endMinute:number;workDays:number[]}
+const DS:Sch={lunchHour:11,lunchMinute:30,endHour:18,endMinute:0,workDays:[1,2,3,4,5]};
+interface QD{builtIn:string[];custom:string[];enabledIndices:number[]}
+interface Lk{name:string;url:string}
+const CATS=['home','fish','efficiency','tools'] as const;
+interface WID{id:string;name:string;desc:string;category:typeof CATS[number]}
+const ALL_WIDGETS:WID[]=[
+  {id:'clock',name:'时钟',desc:'时间和日期',category:'home'},{id:'quote',name:'语录',desc:'随机摸鱼语录',category:'home'},
+  {id:'salary',name:'发薪日',desc:'距发薪倒计时',category:'home'},
+  {id:'fish',name:'功德',desc:'敲木鱼计数器',category:'fish'},{id:'links',name:'链接',desc:'常用快捷网址',category:'tools'},
+];
+type WData={[K in typeof CATS[number]]:string[]};
+async function getWD():Promise<WData>{const r=await chrome.storage.sync.get(SW);const d=r[SW] as {cats:WData}|undefined;return d?.cats??{home:[],fish:[],efficiency:[],tools:[]};}
+async function setWD(d:WData){await chrome.storage.sync.set({[SW]:{cats:d}});}
+async function getLinks():Promise<Lk[]>{const r=await chrome.storage.sync.get(SL);return (r[SL] as Lk[])??[];}
+async function setLinks(ls:Lk[]){await chrome.storage.sync.set({[SL]:ls});}
+async function getSal():Promise<number>{const r=await chrome.storage.sync.get(SR);return (r[SR] as number)??10;}
+async function setSal(d:number){await chrome.storage.sync.set({[SR]:d});}
 
-// ─── Storage Keys ────────────────────────────────────
+const sbCd=document.getElementById('sbCountdown')!;
+const TABS=document.querySelectorAll('.sb-btn[data-tab]');
+function sw(i:number){['panel0','panel1','panel2','panel3'].forEach((id,idx)=>document.getElementById(id)!.classList.toggle('active',idx===i));TABS.forEach((b,idx)=>b.classList.toggle('active',idx===i));}
+TABS.forEach(b=>b.addEventListener('click',()=>sw(Number((b as HTMLElement).dataset.tab))));
 
-const STORAGE_MERIT = 'moyu_merit';
-const STORAGE_TODOS = 'moyu_todos';
-const STORAGE_SCHEDULE = 'moyu_schedule';
+let rendered:Record<string,boolean>={};
+async function renderAll(){const d=await getWD();rendered={};
+  for(let i=0;i<4;i++){const cat=CATS[i],panel=document.getElementById('panel'+i)!,ids=d[cat];
+    if(!ids.length){panel.innerHTML=`<div class="empty"><div>暂无组件</div><div class="add-hint">左侧点击 添加组件</div></div>`;continue;}
+    let h='';for(const id of ids){const w=ALL_WIDGETS.find(x=>x.id===id);if(!w)continue;h+=getCard(w);}panel.innerHTML=h;for(const id of ids)initW(id);}}
+function getCard(w:WID):string{
+  if(w.id==='clock')return`<div class="widget-card"><div class="widget-title">${w.name}</div><div id="wg-clock"><div style="font-size:32px;font-weight:300;letter-spacing:3px;font-family:'Courier New',monospace;color:var(--text)" id="timeDisplay">--:--</div><div style="font-size:11px;color:var(--text-secondary);margin-top:2px;letter-spacing:1px" id="dateDisplay"></div></div></div>`;
+  if(w.id==='quote')return`<div class="widget-card"><div class="widget-title">${w.name}</div><div style="font-size:13px;line-height:1.7;color:var(--text-secondary);text-align:center;cursor:pointer" id="quoteText">加载中...</div></div>`;
+  if(w.id==='salary')return`<div class="widget-card"><div class="widget-title">${w.name}</div><div id="wg-salary"><span style="font-size:32px;font-weight:250;color:var(--accent);font-family:'Courier New',monospace" id="salaryDays">--</span><span style="font-size:13px;color:var(--text-secondary);margin-left:6px">天</span></div><div style="font-size:11px;color:var(--text-tertiary);margin-top:4px" id="salaryLabel"></div></div>`;
+  return`<div class="widget-card clickable" data-widget="${w.id}"><div class="widget-title">${w.name}</div><div class="widget-entry"><span>${w.desc}</span><span class="arrow">→</span></div></div>`;}
+async function initW(id:string){if(rendered[id])return;rendered[id]=true;switch(id){case'fish':initFish();break;case'quote':initQuote();break;case'clock':initClock();break;case'salary':initSalary();break;}if(id==='fish'||id==='links'){document.querySelectorAll(`.clickable[data-widget="${id}"]`).forEach(card=>card.addEventListener('click',()=>openFeatureModal(id)));}}
 
-interface TodoItem {
-  id: number;
-  text: string;
-  done: boolean;
+document.getElementById('addWidgetBtn')!.addEventListener('click',openWidgetModal);
+document.getElementById('settingsBtn')!.addEventListener('click',openSettings);
+
+// ── Feature Modal ──
+const fm=document.getElementById('featureModal')!,fmT=document.getElementById('fmTitle')!,fmB=document.getElementById('fmBody')!;
+document.getElementById('fmClose')!.addEventListener('click',()=>fm.classList.remove('open'));
+fm.addEventListener('click',e=>{if(e.target===fm)fm.classList.remove('open');});
+function openFeatureModal(wid:string){const w=ALL_WIDGETS.find(x=>x.id===wid);if(!w)return;fmT.textContent=w.name;if(wid==='fish'){fmB.innerHTML=`<div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px"><span style="font-size:11px;color:var(--text-tertiary);letter-spacing:3px">功 德</span><span style="font-size:64px;font-weight:250;color:var(--accent);font-family:'Courier New',monospace;letter-spacing:6px" id="fmMerit">${merit}</span><button id="fmFishBtn" style="width:130px;height:130px;border-radius:50%;background:rgba(255,255,255,0.5);border:0.5px solid rgba(0,0,0,0.08);color:var(--accent);font-size:38px;cursor:pointer;transition:all 0.2s;display:flex;align-items:center;justify-content:center">◒</button><span style="font-size:11px;color:var(--text-tertiary)">点一下 · 积功德</span></div>`;fm.classList.add('open');setTimeout(()=>{const b=document.getElementById('fmFishBtn');if(b)b.addEventListener('click',async()=>{merit++;const el=document.getElementById('fmMerit');if(el)el.textContent=String(merit);await saveM();playF();b.classList.remove('knock');void b.offsetWidth;b.classList.add('knock');});},100);}else renderLinksModal();}
+async function renderLinksModal(){
+  const ls=await getLinks();
+  let h=ls.length?ls.map((l,i)=>`<div class="lrow" style="display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:0.5px solid rgba(0,0,0,0.04)"><a href="${l.url}" target="_blank" style="flex:1;text-decoration:none;color:var(--text);font-size:13px;transition:color 0.2s">${esc(l.name)}</a><button class="ldel" data-i="${i}" style="background:none;border:none;color:var(--text-tertiary);cursor:pointer;font-size:12px;padding:2px 6px;opacity:0.5;transition:all 0.15s">x</button></div>`).join(''):`<div style="font-size:12px;color:var(--text-tertiary);text-align:center;padding:16px 0">暂无链接 · 在下方添加</div>`;
+  h+=`<div style="display:flex;gap:6px;margin-top:12px"><input id="lnkName" placeholder="名称" style="flex:1;padding:8px 10px;font-size:12px;border:0.5px solid var(--glass-border);border-radius:var(--radius-xs);background:rgba(255,255,255,0.5);color:var(--text);outline:none;font-family:inherit"/><input id="lnkUrl" placeholder="https://..." style="flex:2;padding:8px 10px;font-size:12px;border:0.5px solid var(--glass-border);border-radius:var(--radius-xs);background:rgba(255,255,255,0.5);color:var(--text);outline:none;font-family:inherit"/><button id="lnkAdd" style="padding:8px 14px;font-size:12px;border:0.5px solid var(--glass-border);border-radius:var(--radius-xs);background:var(--glass);color:var(--text-secondary);cursor:pointer;font-family:inherit">+</button></div>`;
+  fmB.innerHTML=h;fm.classList.add('open');
+  document.querySelectorAll('.ldel').forEach(b=>b.addEventListener('click',async()=>{const i=Number((b as HTMLElement).dataset.i);const ls=await getLinks();ls.splice(i,1);await setLinks(ls);renderLinksModal();}));
+  document.getElementById('lnkAdd')!.addEventListener('click',async()=>{const n=(document.getElementById('lnkName')as HTMLInputElement).value.trim();const u=(document.getElementById('lnkUrl')as HTMLInputElement).value.trim();if(!n||!u)return;const ls=await getLinks();ls.push({name:n,url:u});await setLinks(ls);renderLinksModal();});
+  document.getElementById('lnkUrl')!.addEventListener('keydown',(e:KeyboardEvent)=>{if(e.key==='Enter')document.getElementById('lnkAdd')!.click();});
 }
 
-interface ScheduleSettings {
-  lunchHour: number;
-  lunchMinute: number;
-  endHour: number;
-  endMinute: number;
-}
+// ── Widget Modal ──
+const wm=document.getElementById('widgetModal')!;
+document.getElementById('wmClose')!.addEventListener('click',()=>wm.classList.remove('open'));
+wm.addEventListener('click',e=>{if(e.target===wm)wm.classList.remove('open');});
+let wmCat: typeof CATS[number] = CATS[0];
+async function renderWmList(cat:typeof CATS[number]){const d=await getWD();const wid=ALL_WIDGETS.filter(w=>w.category===cat);if(!wid.length){document.getElementById('widgetList')!.innerHTML='<div style="font-size:12px;color:var(--text-tertiary);text-align:center;padding:20px 0">暂无可用组件</div>';return;}let h='';wid.forEach(w=>{const on=d[cat].includes(w.id);h+=`<div class="wg-item"><div><div class="wg-name">${w.name}</div><div class="wg-desc">${w.desc}</div></div><button class="wg-toggle ${on?'on':'off'}" data-id="${w.id}" data-cat="${cat}"></button></div>`;});document.getElementById('widgetList')!.innerHTML=h;document.getElementById('widgetList')!.querySelectorAll('.wg-toggle').forEach(b=>b.addEventListener('click',async function(this:HTMLElement){const id=this.dataset.id!,c=this.dataset.cat! as typeof CATS[number];const d=await getWD();if(this.classList.contains('on')){this.classList.replace('on','off');d[c]=d[c].filter(x=>x!==id);}else{this.classList.replace('off','on');d[c]=[...d[c],id];}await setWD(d);renderAll();renderWmList(c);}));}
+async function openWidgetModal(){wmCat=CATS[0];document.querySelectorAll('#wmSidebar .msb').forEach(b=>b.classList.remove('active'));document.querySelector('#wmSidebar [data-c="home"]')!.classList.add('active');await renderWmList(wmCat);wm.classList.add('open');}
+document.querySelectorAll('#wmSidebar .msb').forEach(b=>b.addEventListener('click',async function(this:HTMLElement){wmCat=this.dataset.c as typeof CATS[number];document.querySelectorAll('#wmSidebar .msb').forEach(x=>x.classList.remove('active'));this.classList.add('active');renderWmList(wmCat);}));
 
-const DEFAULT_SCHEDULE: ScheduleSettings = {
-  lunchHour: 11,
-  lunchMinute: 30,
-  endHour: 18,
-  endMinute: 0,
-};
+// ── Settings ──
+const sm=document.getElementById('settingsModal')!;
+document.getElementById('smClose')!.addEventListener('click',()=>sm.classList.remove('open'));
+sm.addEventListener('click',e=>{if(e.target===sm)sm.classList.remove('open');});
+document.querySelectorAll('#smSidebar .msb').forEach(b=>b.addEventListener('click',function(this:HTMLElement){document.querySelectorAll('#smSidebar .msb').forEach(x=>x.classList.remove('active'));this.classList.add('active');if(this.dataset.s==='time')renderSetTime();else if(this.dataset.s==='quote')renderSetQuote();else renderSetSalary();}));
+async function openSettings(){document.querySelectorAll('#smSidebar .msb').forEach(b=>b.classList.remove('active'));document.querySelector('#smSidebar [data-s="time"]')!.classList.add('active');renderSetTime();sm.classList.add('open');}
+async function renderSetTime(){const r=await chrome.storage.sync.get(SS);const s=r[SS]||DS;const wd:number[]=s.workDays??[1,2,3,4,5];const dhtml=['一','二','三','四','五','六','日'].map((d,i)=>{return`<label class="dc${wd.includes(i<5?i+1:0)?' active':''}" data-v="${i<5?i+1:0}"><span>${d}</span></label>`;}).join('');document.getElementById('settingsBody')!.innerHTML=`<div class="f"><label>午餐</label><input type="time" id="sLunch" value="${String(s.lunchHour).padStart(2,'0')}:${String(s.lunchMinute).padStart(2,'0')}"/></div><div class="f"><label>下班</label><input type="time" id="sEnd" value="${String(s.endHour).padStart(2,'0')}:${String(s.endMinute).padStart(2,'0')}"/></div><div class="f"><label>工作日</label><div style="display:flex;gap:5px" id="sDays">${dhtml}</div></div><button class="btn" id="sSave">保存</button><div id="sStatus" style="text-align:center;font-size:12px;padding:6px;display:none;color:var(--accent)"></div>`;document.querySelectorAll('#sDays .dc').forEach(el=>el.addEventListener('click',function(this:HTMLElement){this.classList.toggle('active');}));document.getElementById('sSave')!.addEventListener('click',async()=>{const[lh,lm]=(document.getElementById('sLunch')as HTMLInputElement).value.split(':').map(Number);const[eh,em]=(document.getElementById('sEnd')as HTMLInputElement).value.split(':').map(Number);if(isNaN(lh)||isNaN(lm)||isNaN(eh)||isNaN(em))return;const wd:number[]=[];document.querySelectorAll('#sDays .dc.active').forEach(el=>wd.push(Number((el as HTMLElement).dataset.v)));await chrome.storage.sync.set({[SS]:{lunchHour:lh,lunchMinute:lm,endHour:eh,endMinute:em,workDays:wd}});schedule={lunchHour:lh,lunchMinute:lm,endHour:eh,endMinute:em,workDays:wd};updC();document.getElementById('sStatus')!.textContent='已保存';document.getElementById('sStatus')!.style.display='block';setTimeout(()=>document.getElementById('sStatus')!.style.display='none',2500);});}
+async function renderSetQuote(){const d=await loadQD();const en=new Set(d.enabledIndices);let h='';d.builtIn.forEach((q,i)=>{h+=`<div class="qi"><span class="i">#${i+1}</span><span class="t">${esc(q)}</span><span class="a"><button class="tq" data-i="${i}" data-e="${en.has(i)?'0':'1'}">${en.has(i)?'隐藏':'显示'}</button></span></div>`;});d.custom.forEach((q,i)=>{h+=`<div class="qi"><span class="i">C${i+1}</span><span class="t">${esc(q)}</span><span class="a"><button class="dq" data-i="${i}">删除</button></span></div>`;});if(!d.custom.length)h+='<div style="font-size:11px;color:var(--text-tertiary);text-align:center;padding:10px 0">暂无自定义语录</div>';h+=`<div class="aqr"><input id="sNewQ" placeholder="新语录"/><button id="sAddQ">添加</button></div><div id="sQStat" style="text-align:center;font-size:11px;padding:4px;display:none;color:var(--accent)"></div>`;document.getElementById('settingsBody')!.innerHTML=h;document.querySelectorAll('.tq').forEach(b=>b.addEventListener('click',async()=>{const i=Number((b as HTMLElement).dataset.i),e=(b as HTMLElement).dataset.e==='1';const d=await loadQD();if(e)d.enabledIndices.push(i);else d.enabledIndices=d.enabledIndices.filter(x=>x!==i);await saveQD(d);renderSetQuote();}));document.querySelectorAll('.dq').forEach(b=>b.addEventListener('click',async()=>{const i=Number((b as HTMLElement).dataset.i);const d=await loadQD();d.custom.splice(i,1);await saveQD(d);renderSetQuote();}));document.getElementById('sAddQ')!.addEventListener('click',async()=>{const t=(document.getElementById('sNewQ')as HTMLInputElement).value.trim();if(!t)return;const d=await loadQD();d.custom.push(t);await saveQD(d);(document.getElementById('sNewQ')as HTMLInputElement).value='';renderSetQuote();document.getElementById('sQStat')!.textContent='已添加';document.getElementById('sQStat')!.style.display='block';setTimeout(()=>document.getElementById('sQStat')!.style.display='none',2000);});}
+async function renderSetSalary(){const day=await getSal();document.getElementById('settingsBody')!.innerHTML=`<div class="f"><label>发薪日</label><div style="display:flex;align-items:center;gap:8px"><span style="font-size:13px;color:var(--text-secondary)">每月</span><input type="number" id="sSalDay" value="${day}" min="1" max="31" style="width:80px;padding:9px 12px;font-size:13px;border:0.5px solid var(--glass-border);border-radius:var(--radius-xs);background:rgba(255,255,255,0.5);color:var(--text);outline:none;font-family:inherit;text-align:center"/><span style="font-size:13px;color:var(--text-secondary)">号</span></div></div><button class="btn" id="sSalSave">保存</button><div id="sSalStat" style="text-align:center;font-size:12px;padding:6px;display:none;color:var(--accent)"></div>`;document.getElementById('sSalSave')!.addEventListener('click',async()=>{const d=Number((document.getElementById('sSalDay')as HTMLInputElement).value);if(d<1||d>31)return;await setSal(d);salDay=d;updSalary();document.getElementById('sSalStat')!.textContent='已保存';document.getElementById('sSalStat')!.style.display='block';setTimeout(()=>document.getElementById('sSalStat')!.style.display='none',2500);});}
 
-// ─── DOM ─────────────────────────────────────────────
+document.addEventListener('keydown',e=>{if(e.key==='Escape'){wm.classList.remove('open');sm.classList.remove('open');fm.classList.remove('open');}});
 
-const timeDisplay = document.getElementById('timeDisplay')!;
-const dateDisplay = document.getElementById('dateDisplay')!;
-const meritCount = document.getElementById('meritCount')!;
-const fishBtn = document.getElementById('fishBtn')!;
-const todoInput = document.getElementById('todoInput') as HTMLInputElement;
-const todoAddBtn = document.getElementById('todoAddBtn')!;
-const todoList = document.getElementById('todoList')!;
-const lunchDisplay = document.getElementById('lunchDisplay')!;
-const settingsBtn = document.getElementById('settingsBtn')!;
+function pad(n:number){return String(n).padStart(2,'0');}
+function initClock(){updT();}
+function updT(){const n=new Date();const td=document.getElementById('timeDisplay');if(td)td.textContent=`${pad(n.getHours())}:${pad(n.getMinutes())}:${pad(n.getSeconds())}`;const dd=document.getElementById('dateDisplay');if(dd)dd.textContent=`${n.getFullYear()}.${pad(n.getMonth()+1)}.${pad(n.getDate())} 周${['日','一','二','三','四','五','六'][n.getDay()]}`;}
 
-// ─── 时间 ────────────────────────────────────────────
+let cQ='';
+const BI=['摸鱼是一种态度','上班不摸鱼回家睡不香','工作总会做完的不急这一时','摸鱼五分钟精神两小时','不是在摸鱼在给大脑充电','生活不止眼前的KPI还有摸鱼和远方','高效的摸鱼是一门艺术','你今天摸鱼了吗','工作是为了更好的摸鱼','不急不躁慢慢来反正也做不完','真正的自由是心在摸鱼','摸鱼是成年人的课间休息','不想工作就摸摸鱼','人生苦短及时摸鱼','摸鱼不是懒是战略性休整','摸鱼使我快乐','适度摸鱼益脑过度摸鱼伤身'];
+function gQD():QD{return{builtIn:BI,custom:[],enabledIndices:BI.map((_,i)=>i)};}
+async function loadQD():Promise<QD>{const r=await chrome.storage.sync.get(SQ);const d=r[SQ]as QD|undefined;if(d&&Array.isArray(d.builtIn)&&d.builtIn.length)return d;const def=gQD();await chrome.storage.sync.set({[SQ]:def});return def;}
+async function saveQD(d:QD){await chrome.storage.sync.set({[SQ]:d});}
+function aQ(d:QD){const e:string[]=[];for(const i of d.enabledIndices)if(i>=0&&i<d.builtIn.length)e.push(d.builtIn[i]);return[...e,...d.custom].filter(Boolean);}
+function initQuote(){const qt=document.getElementById('quoteText');if(!qt)return;qt.addEventListener('click',async()=>{const d=await loadQD();sRQ(d);});loadQD().then(d=>sRQ(d));}
+function sRQ(d:QD){const qt=document.getElementById('quoteText');if(!qt)return;const all=aQ(d);if(!all.length){qt.textContent='暂无';return;}let n='';do{n=all[Math.floor(Math.random()*all.length)];}while(n===cQ&&all.length>1);cQ=n;qt.textContent=cQ;}
+function esc(s:string){const d=document.createElement('div');d.textContent=s;return d.innerHTML;}
 
-function pad(n: number): string {
-  return String(n).padStart(2, '0');
-}
+let merit=0;
+async function loadM(){const r=await chrome.storage.local.get(SM);merit=r[SM]??0;}
+async function saveM(){await chrome.storage.local.set({[SM]:merit});}
+let aCtx:AudioContext|null=null;
+function playF(){if(!aCtx)aCtx=new AudioContext();const bs=aCtx.sampleRate*0.03,noise=aCtx.createBufferSource(),nb=aCtx.createBuffer(1,bs,aCtx.sampleRate),d=nb.getChannelData(0);for(let i=0;i<bs;i++)d[i]=(Math.random()*2-1)*(1-i/bs);noise.buffer=nb;const o=aCtx.createOscillator(),g=aCtx.createGain();o.type='sine';o.frequency.value=380;g.gain.setValueAtTime(0.3,aCtx.currentTime);g.gain.exponentialRampToValueAtTime(0.001,aCtx.currentTime+0.15);o.connect(g);const ng=aCtx.createGain();ng.gain.setValueAtTime(0.08,aCtx.currentTime);ng.gain.exponentialRampToValueAtTime(0.001,aCtx.currentTime+0.05);noise.connect(ng);g.connect(aCtx.destination);ng.connect(aCtx.destination);o.start(aCtx.currentTime);o.stop(aCtx.currentTime+0.15);noise.start(aCtx.currentTime);noise.stop(aCtx.currentTime+0.03);}
+function initFish(){loadM();}
 
-function updateTime() {
-  const now = new Date();
-  const h = pad(now.getHours());
-  const m = pad(now.getMinutes());
-  const s = pad(now.getSeconds());
-  timeDisplay.textContent = `${h}:${m}:${s}`;
+let salDay=10;
+async function loadSal(){salDay=await getSal();updSalary();}
+function updSalary(){const sd=document.getElementById('salaryDays'),sl=document.getElementById('salaryLabel');if(!sd)return;const n=new Date(),y=n.getFullYear(),m=n.getMonth(),d=n.getDate();let nd=new Date(y,m,salDay);if(d>=salDay)nd=new Date(y,m+1,salDay);const diff=Math.ceil((nd.getTime()-new Date(y,m,d).getTime())/86400000);sd.textContent=diff===0?'🎉':String(diff);if(sl)sl.textContent=diff===0?'今天发薪日':`距离发薪 · ${pad(nd.getMonth()+1)}月${pad(salDay)}日`;}
+function initSalary(){loadSal();}
 
-  const y = now.getFullYear();
-  const mo = pad(now.getMonth() + 1);
-  const d = pad(now.getDate());
-  const days = ['日', '一', '二', '三', '四', '五', '六'];
-  const wd = days[now.getDay()];
-  dateDisplay.textContent = `${y}.${mo}.${d} 周${wd}`;
-}
-
-// ─── 木鱼 ────────────────────────────────────────────
-
-let merit = 0;
-
-async function loadMerit() {
-  const result = await chrome.storage.local.get(STORAGE_MERIT);
-  merit = result[STORAGE_MERIT] ?? 0;
-  meritCount.textContent = String(merit);
-}
-
-async function saveMerit() {
-  await chrome.storage.local.set({ [STORAGE_MERIT]: merit });
-}
-
-// ─── 木鱼音效 ────────────────────────────────────────
-
-let audioCtx: AudioContext | null = null;
-
-function playFishSound() {
-  if (!audioCtx) {
-    audioCtx = new AudioContext();
-  }
-
-  // 短促噪声模拟敲击
-  const bufferSize = audioCtx.sampleRate * 0.03;
-  const noise = audioCtx.createBufferSource();
-  const noiseBuffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
-  const data = noiseBuffer.getChannelData(0);
-  for (let i = 0; i < bufferSize; i++) {
-    data[i] = (Math.random() * 2 - 1) * (1 - i / bufferSize);
-  }
-  noise.buffer = noiseBuffer;
-
-  // 共鸣音 — 中低频正弦波，快速衰减
-  const osc = audioCtx.createOscillator();
-  const gain = audioCtx.createGain();
-  osc.type = 'sine';
-  osc.frequency.value = 380;
-  gain.gain.setValueAtTime(0.3, audioCtx.currentTime);
-  gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.15);
-  osc.connect(gain);
-
-  // 噪声过门控
-  const noiseGain = audioCtx.createGain();
-  noiseGain.gain.setValueAtTime(0.08, audioCtx.currentTime);
-  noiseGain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.05);
-
-  noise.connect(noiseGain);
-  gain.connect(audioCtx.destination);
-  noiseGain.connect(audioCtx.destination);
-
-  osc.start(audioCtx.currentTime);
-  osc.stop(audioCtx.currentTime + 0.15);
-  noise.start(audioCtx.currentTime);
-  noise.stop(audioCtx.currentTime + 0.03);
-}
-
-fishBtn.addEventListener('click', async () => {
-  merit++;
-  meritCount.textContent = String(merit);
-  await saveMerit();
-  playFishSound();
-  // 敲击动画
-  fishBtn.classList.remove('knock');
-  void fishBtn.offsetWidth; // 触发回流以重启动画
-  fishBtn.classList.add('knock');
-});
-
-// ─── 待办 ────────────────────────────────────────────
-
-let todos: TodoItem[] = [];
-let nextId = 1;
-
-async function loadTodos() {
-  const result = await chrome.storage.local.get(STORAGE_TODOS);
-  const data = result[STORAGE_TODOS];
-  if (data) {
-    todos = data.items;
-    nextId = data.nextId;
-  }
-  renderTodos();
-}
-
-async function saveTodos() {
-  await chrome.storage.local.set({
-    [STORAGE_TODOS]: { items: todos, nextId },
-  });
-}
-
-function renderTodos() {
-  if (todos.length === 0) {
-    todoList.innerHTML = '<li class="todo-empty">今天没有任务</li>';
-    return;
-  }
-
-  todoList.innerHTML = todos
-    .map(
-      (t) => `
-    <li class="todo-item">
-      <button class="todo-check${t.done ? ' done' : ''}" data-id="${t.id}">${t.done ? '✓' : ''}</button>
-      <span class="todo-text${t.done ? ' done' : ''}">${escapeHtml(t.text)}</span>
-      <button class="todo-del" data-id="${t.id}">✕</button>
-    </li>`,
-    )
-    .join('');
-
-  // 勾选
-  todoList.querySelectorAll('.todo-check').forEach((btn) => {
-    btn.addEventListener('click', () => {
-      const id = Number((btn as HTMLElement).dataset.id);
-      const todo = todos.find((t) => t.id === id);
-      if (todo) {
-        todo.done = !todo.done;
-        renderTodos();
-        saveTodos();
-      }
-    });
-  });
-
-  // 删除
-  todoList.querySelectorAll('.todo-del').forEach((btn) => {
-    btn.addEventListener('click', () => {
-      const id = Number((btn as HTMLElement).dataset.id);
-      todos = todos.filter((t) => t.id !== id);
-      renderTodos();
-      saveTodos();
-    });
-  });
-}
-
-function addTodo(text: string) {
-  if (!text.trim()) return;
-  todos.push({ id: nextId++, text: text.trim(), done: false });
-  renderTodos();
-  saveTodos();
-}
-
-todoAddBtn.addEventListener('click', () => {
-  addTodo(todoInput.value);
-  todoInput.value = '';
-});
-
-todoInput.addEventListener('keydown', (e) => {
-  if (e.key === 'Enter') {
-    addTodo(todoInput.value);
-    todoInput.value = '';
-  }
-});
-
-function escapeHtml(str: string): string {
-  const d = document.createElement('div');
-  d.textContent = str;
-  return d.innerHTML;
-}
-
-// ─── 倒计时（午餐 / 下班） ────────────────────────────
-
-let schedule: ScheduleSettings = { ...DEFAULT_SCHEDULE };
-
-async function loadSchedule() {
-  const result = await chrome.storage.sync.get(STORAGE_SCHEDULE);
-  if (result[STORAGE_SCHEDULE]) {
-    schedule = { ...DEFAULT_SCHEDULE, ...result[STORAGE_SCHEDULE] };
-  }
-}
-
-function todayAt(h: number, m: number): Date {
-  const d = new Date();
-  d.setHours(h, m, 0, 0);
-  return d;
-}
-
-function formatDiff(ms: number): string {
-  const totalMin = Math.round(ms / 60000);
-  const h = Math.floor(totalMin / 60);
-  const min = totalMin % 60;
-  if (h > 0) return `${h}h ${min}min`;
-  return `${min}min`;
-}
-
-function updateCountdown() {
-  const now = new Date();
-  const lunchTime = todayAt(schedule.lunchHour, schedule.lunchMinute);
-  const endTime = todayAt(schedule.endHour, schedule.endMinute);
-
-  // 已下班
-  if (now >= endTime) {
-    lunchDisplay.textContent = '🕐 已下班 · 明天再来';
-    return;
-  }
-
-  // 午餐前 → 显示午餐倒计时
-  if (now < lunchTime) {
-    const diff = lunchTime.getTime() - now.getTime();
-    lunchDisplay.textContent = `🍱 午餐 ${pad(schedule.lunchHour)}:${pad(schedule.lunchMinute)} · ${formatDiff(diff)} 后`;
-    return;
-  }
-
-  // 午餐后到下班 → 显示下班倒计时
-  const diff = endTime.getTime() - now.getTime();
-  lunchDisplay.textContent = `🕐 下班 ${pad(schedule.endHour)}:${pad(schedule.endMinute)} · ${formatDiff(diff)} 后`;
-}
-
-// ─── 设置 ────────────────────────────────────────────
-
-settingsBtn.addEventListener('click', () => {
-  chrome.runtime.openOptionsPage();
-});
-
-// ─── Boot ────────────────────────────────────────────
-
-async function init() {
-  updateTime();
-  await Promise.all([loadMerit(), loadTodos(), loadSchedule()]);
-  updateCountdown();
-
-  // 定时更新
-  setInterval(() => {
-    updateTime();
-    updateCountdown();
-  }, 1000);
-}
-
+let schedule:Sch={...DS};
+async function loadSch(){const r=await chrome.storage.sync.get(SS);if(r[SS])schedule={...DS,...r[SS]};updC();}
+function th(h:number,m:number){const d=new Date();d.setHours(h,m,0,0);return d;}
+function fd(ms:number){const tm=Math.round(ms/60000),h=Math.floor(tm/60),min=tm%60;return h>0?`${h}h ${min}min`:`${min}min`;}
+function updC(){const n=new Date(),t=n.getDay();if(!schedule.workDays.includes(t)){sbCd.textContent='今天休息';return;}const lt=th(schedule.lunchHour,schedule.lunchMinute),et=th(schedule.endHour,schedule.endMinute);if(n>=et){sbCd.textContent='已下班 · 明天再来';return;}if(n<lt){sbCd.textContent=`午餐 ${pad(schedule.lunchHour)}:${pad(schedule.lunchMinute)} · ${fd(lt.getTime()-n.getTime())} 后`;return;}sbCd.textContent=`下班 ${pad(schedule.endHour)}:${pad(schedule.endMinute)} · ${fd(et.getTime()-n.getTime())} 后`;}
+async function init(){await loadSch();await loadM();renderAll();setInterval(()=>{updT();updC();updSalary();},1000);}
 init();

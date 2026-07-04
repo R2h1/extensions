@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "工位搭子",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "你的新标签页摸鱼搭子",
 
   "chrome_url_overrides": {
@@ -14,5 +14,14 @@
     "open_in_tab": true
   },
 
-  "permissions": ["storage"]
+  "background": {
+    "service_worker": "background/sw.js",
+    "type": "module"
+  },
+
+  "permissions": [
+    "storage",
+    "alarms",
+    "notifications"
+  ]
 }

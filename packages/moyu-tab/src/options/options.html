@@ -13,25 +13,27 @@
       padding: 48px 24px;
       min-height: 100vh;
     }
-    .container { max-width: 380px; margin: 0 auto; }
-    .header {
+    .container { max-width: 520px; margin: 0 auto; }
+    .section {
       border-bottom: 1px solid #333;
-      padding-bottom: 16px;
-      margin-bottom: 32px;
+      padding-bottom: 24px;
+      margin-bottom: 28px;
     }
-    h1 {
-      font-size: 20px;
+    .section:last-child { border-bottom: none; }
+    .section-title {
+      font-size: 16px;
       font-weight: 700;
       color: #e8e8e8;
-      letter-spacing: 2px;
+      letter-spacing: 1px;
+      margin-bottom: 20px;
     }
     .subtitle {
       font-size: 13px;
       color: #a3a3a3;
-      margin-top: 4px;
+      margin-bottom: 16px;
     }
     .field {
-      margin-bottom: 24px;
+      margin-bottom: 18px;
     }
     label {
       display: block;
@@ -53,8 +55,58 @@
       transition: border-color 0.2s;
       color-scheme: dark;
     }
-    input[type="time"]:focus {
+    input[type="time"]:focus,
+    input[type="text"]:focus {
       border-color: #f97316;
+    }
+    input[type="text"] {
+      width: 100%;
+      padding: 10px 12px;
+      font-size: 14px;
+      font-family: inherit;
+      border: 1px solid #333;
+      border-radius: 8px;
+      background: #242424;
+      color: #e4e4e4;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    .day-check-group {
+      display: flex;
+      gap: 8px;
+    }
+    .day-check {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      cursor: pointer;
+      padding: 10px 6px;
+      border: 1px solid #333;
+      border-radius: 8px;
+      background: #242424;
+      transition: all 0.15s;
+      min-width: 44px;
+      user-select: none;
+    }
+    .day-check:hover {
+      border-color: #555;
+    }
+    .day-check input {
+      display: none;
+    }
+    .day-check span {
+      font-size: 13px;
+      color: #888;
+      transition: color 0.15s;
+    }
+    .day-check.active {
+      border-color: #f97316;
+      background: rgba(249, 115, 22, 0.1);
+    }
+    .day-check.active span {
+      color: #fb923c;
+      font-weight: 600;
     }
     .btn {
       width: 100%;
@@ -72,6 +124,36 @@
     .btn:hover {
       background: rgba(249, 115, 22, 0.2);
     }
+    .btn-secondary {
+      background: transparent;
+      border: 1px solid #333;
+      color: #a3a3a3;
+      padding: 10px 16px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 13px;
+      font-family: inherit;
+      transition: all 0.15s;
+    }
+    .btn-secondary:hover {
+      border-color: #555;
+      color: #e4e4e4;
+    }
+    .btn-danger {
+      background: transparent;
+      border: 1px solid #555;
+      color: #888;
+      padding: 4px 10px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 12px;
+      font-family: inherit;
+      transition: all 0.15s;
+    }
+    .btn-danger:hover {
+      border-color: #ef4444;
+      color: #ef4444;
+    }
     .status {
       text-align: center;
       font-size: 13px;
@@ -86,6 +168,58 @@
       color: #fb923c;
       border: 1px solid #7c3a0a;
     }
+    .status-error {
+      background: rgba(239, 68, 68, 0.1);
+      color: #ef4444;
+      border: 1px solid #7c3a0a;
+    }
+
+    /* ── 语录列表 ── */
+    .quote-list {
+      list-style: none;
+      margin: 12px 0;
+    }
+    .quote-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      padding: 10px 0;
+      border-bottom: 1px solid #2a2a2a;
+      font-size: 13px;
+      line-height: 1.5;
+    }
+    .quote-item:last-child { border-bottom: none; }
+    .quote-item .index {
+      color: #555;
+      font-size: 11px;
+      flex-shrink: 0;
+      min-width: 24px;
+      text-align: right;
+    }
+    .quote-item .text {
+      flex: 1;
+      color: #ccc;
+    }
+    .quote-item .text.built-in {
+      color: #888;
+    }
+    .quote-item .actions {
+      flex-shrink: 0;
+      display: flex;
+      gap: 6px;
+    }
+    .add-quote-row {
+      display: flex;
+      gap: 8px;
+      margin-top: 8px;
+    }
+    .add-quote-row input {
+      flex: 1;
+    }
+    .add-quote-row button {
+      flex-shrink: 0;
+    }
+
     @keyframes fadeIn {
       from { opacity: 0; transform: translateY(-4px); }
       to { opacity: 1; transform: translateY(0); }
@@ -94,23 +228,71 @@
 </head>
 <body>
   <div class="container">
-    <div class="header">
-      <h1>⚙️ 工位搭子</h1>
-      <p class="subtitle">配置时间</p>
+    <div class="section">
+      <div class="section-title">⚙️ 工位搭子</div>
+      <p class="subtitle">配置时间与个性化内容</p>
     </div>
 
-    <div class="field">
-      <label>午餐时间</label>
-      <input type="time" id="lunchTime" value="11:30" />
+    <!-- 时间设置 -->
+    <div class="section">
+      <div class="section-title">⏰ 时间设置</div>
+
+      <div class="field">
+        <label>午餐时间</label>
+        <input type="time" id="lunchTime" value="11:30" />
+      </div>
+
+      <div class="field">
+        <label>下班时间</label>
+        <input type="time" id="endTime" value="18:00" />
+      </div>
+
+      <div class="field">
+        <label>工作日</label>
+        <div class="day-check-group" id="dayCheckGroup">
+          <label class="day-check">
+            <input type="checkbox" value="1" /> <span>一</span>
+          </label>
+          <label class="day-check">
+            <input type="checkbox" value="2" /> <span>二</span>
+          </label>
+          <label class="day-check">
+            <input type="checkbox" value="3" /> <span>三</span>
+          </label>
+          <label class="day-check">
+            <input type="checkbox" value="4" /> <span>四</span>
+          </label>
+          <label class="day-check">
+            <input type="checkbox" value="5" /> <span>五</span>
+          </label>
+          <label class="day-check">
+            <input type="checkbox" value="6" /> <span>六</span>
+          </label>
+          <label class="day-check">
+            <input type="checkbox" value="0" /> <span>日</span>
+          </label>
+        </div>
+      </div>
+
+      <button class="btn" id="btnSave">保存</button>
+      <div class="status" id="saveStatus"></div>
     </div>
 
-    <div class="field">
-      <label>下班时间</label>
-      <input type="time" id="endTime" value="18:00" />
-    </div>
+    <!-- 语录管理 -->
+    <div class="section">
+      <div class="section-title">🧘 摸鱼语录</div>
+      <p class="subtitle">管理新标签页显示的摸鱼语录。内置语录不可删除，自定义语录可自由增删。</p>
 
-    <button class="btn" id="btnSave">保存</button>
-    <div class="status" id="status"></div>
+      <ul class="quote-list" id="quoteList">
+        <!-- 动态渲染 -->
+      </ul>
+
+      <div class="add-quote-row">
+        <input type="text" id="newQuoteInput" placeholder="输入新的语录..." />
+        <button class="btn-secondary" id="addQuoteBtn">➕ 添加</button>
+      </div>
+      <div class="status" id="quoteStatus"></div>
+    </div>
   </div>
 
   <script src="options.js"></script>
