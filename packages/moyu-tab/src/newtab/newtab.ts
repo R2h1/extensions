@@ -452,7 +452,7 @@ const LUNAR_DAY = [
   '廿九',
   '三十',
 ];
-const LUNAR_NY: Record<number, [number, number, number]> = {
+const LUNAR_NY: Record<number, [number, number]> = {
   2025: [1, 29],
   2026: [2, 17],
   2027: [2, 6],
@@ -744,6 +744,7 @@ function updC() {
 
 // ── Wallpaper ──
 const WP_KEY = 'moyu_wallpaper';
+const WP_LIST = 'moyu_wp_list';
 const ctxMenu = document.getElementById('ctxMenu')!;
 const wpModal = document.getElementById('wallpaperModal')!;
 document
@@ -764,19 +765,31 @@ document.getElementById('ctxWallpaper')!.addEventListener('click', async () => {
   await openWallpaperModal();
 });
 
+async function getWpList(): Promise<{ name: string; dataUrl: string }[]> {
+  const r = await chrome.storage.local.get(WP_LIST);
+  return (r[WP_LIST] as any[]) || [];
+}
+async function saveWpList(list: { name: string; dataUrl: string }[]) {
+  await chrome.storage.local.set({ [WP_LIST]: list });
+}
+
 async function openWallpaperModal() {
+  const list = await getWpList();
   const current = localStorage.getItem(WP_KEY) || '';
-  let html = '<div class="wp-grid">';
-  try {
-    const res = await fetch('https://peapix.com/bing/feed?format=json');
-    const data = await res.json();
-    data.forEach((img: any) => {
-      html += `<div class="wp-item${img.imageUrl === current ? ' active' : ''}" data-url="${img.imageUrl}" style="background-image:url(${img.thumbUrl})" title="${img.title}"></div>`;
+  let html = `<div style="margin-bottom:12px;text-align:right"><input type="file" id="wpUpload" accept="image/*" multiple style="display:none"/><button id="wpUploadBtn" style="padding:6px 16px;font-size:12px;font-weight:500;border:0.5px solid var(--glass-border);border-radius:var(--radius-xs);background:var(--glass);color:var(--text-secondary);cursor:pointer;font-family:inherit">上传图片</button></div>`;
+  if (list.length) {
+    html += '<div class="wp-grid">';
+    list.forEach((img, i) => {
+      html += `<div class="wp-item${img.dataUrl === current ? ' active' : ''}" data-url="${img.dataUrl}" style="background-image:url(${img.dataUrl})" title="${img.name}"><button class="wp-del" data-i="${i}" style="position:absolute;top:4px;right:4px;background:rgba(0,0,0,0.4);border:none;color:#fff;width:20px;height:20px;border-radius:50%;cursor:pointer;font-size:10px;display:none">x</button></div>`;
     });
-  } catch (e) {}
-  html += '</div>';
+    html += '</div>';
+  } else {
+    html +=
+      '<div style="text-align:center;padding:48px 0;color:var(--text-tertiary);font-size:13px">暂无壁纸 · 点击上方按钮上传</div>';
+  }
   document.getElementById('wpBody')!.innerHTML = html;
   wpModal.classList.add('open');
+  // click to apply
   document.querySelectorAll('.wp-item').forEach((el) =>
     el.addEventListener('click', function (this: HTMLElement) {
       const url = this.dataset.url!;
@@ -786,7 +799,54 @@ async function openWallpaperModal() {
       this.classList.add('active');
     }),
   );
+  // hover to show delete
+  document.querySelectorAll('.wp-item').forEach((el) => {
+    el.addEventListener('mouseenter', function (this: HTMLElement) {
+      const d = this.querySelector('.wp-del') as HTMLElement;
+      if (d) d.style.display = 'block';
+    });
+    el.addEventListener('mouseleave', function (this: HTMLElement) {
+      const d = this.querySelector('.wp-del') as HTMLElement;
+      if (d) d.style.display = 'none';
+    });
+  });
+  // delete
+  document.querySelectorAll('.wp-del').forEach((b) =>
+    b.addEventListener('click', async (e) => {
+      e.stopPropagation();
+      const i = Number((b as HTMLElement).dataset.i);
+      const list = await getWpList();
+      const removed = list[i];
+      list.splice(i, 1);
+      await saveWpList(list);
+      if (localStorage.getItem(WP_KEY) === removed.dataUrl) {
+        localStorage.removeItem(WP_KEY);
+        document.body.style.backgroundImage = 'none';
+      }
+      openWallpaperModal();
+    }),
+  );
+  // upload
+  const fileInput = document.getElementById('wpUpload') as HTMLInputElement;
+  document.getElementById('wpUploadBtn')!.addEventListener('click', () => fileInput.click());
+  fileInput.onchange = async () => {
+    const files = fileInput.files;
+    if (!files) return;
+    const list = await getWpList();
+    for (const f of files) {
+      const dataUrl = await new Promise<string>((resolve) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result as string);
+        reader.readAsDataURL(f);
+      });
+      list.push({ name: f.name, dataUrl });
+    }
+    await saveWpList(list);
+    fileInput.value = '';
+    openWallpaperModal();
+  };
 }
+
 function loadWallpaper() {
   const url = localStorage.getItem(WP_KEY);
   if (url) document.body.style.backgroundImage = `url(${url})`;
