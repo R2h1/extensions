@@ -10,21 +10,22 @@
 html,body{height:100%;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Noto Sans SC',sans-serif;background:#f2f2f4;color:var(--text)}
 body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse 70% 55% at 15% 25%,rgba(200,200,210,0.15),transparent),radial-gradient(ellipse 60% 45% at 85% 75%,rgba(180,180,200,0.1),transparent);pointer-events:none;z-index:0}
 .app{display:flex;height:100vh;position:relative;z-index:1}
-.sidebar{width:160px;flex-shrink:0;display:flex;flex-direction:column;padding:28px 8px 12px;background:rgba(255,255,255,0.35);backdrop-filter:blur(30px);border-right:0.5px solid rgba(0,0,0,0.03)}
+.sidebar{width:120px;flex-shrink:0;display:flex;flex-direction:column;padding:28px 8px 12px;background:rgba(255,255,255,0.35);backdrop-filter:blur(30px);border-right:0.5px solid rgba(0,0,0,0.03)}
 .sidebar-nav{flex:1;display:flex;flex-direction:column;gap:2px}
-.sb-btn{display:flex;align-items:center;gap:8px;padding:9px 12px;border-radius:var(--radius-xs);background:transparent;border:none;color:var(--text-tertiary);font-size:13px;font-weight:500;font-family:inherit;cursor:pointer;transition:all 0.2s;text-align:left;width:100%;position:relative}
-.sb-btn:hover{color:var(--text-secondary);background:rgba(0,0,0,0.03)}
-.sb-btn.active{color:var(--accent);background:var(--glass-accent)}
-.sb-btn.active::before{content:'';position:absolute;left:0;top:50%;transform:translateY(-50%);width:3px;height:18px;border-radius:0 3px 3px 0;background:var(--accent)}
-.sb-div{height:0.5px;background:rgba(0,0,0,0.05);margin:6px 12px}
-.sb-countdown{padding:6px 12px;font-size:11px;color:var(--text-tertiary);line-height:1.4}
+.ic{width:20px;text-align:center;font-size:14px;flex-shrink:0}
+.sb-btn{display:flex;align-items:center;gap:4px;padding:8px 12px;border-radius:var(--radius-xs);background:transparent;border:none;color:var(--text-tertiary);font-size:13px;font-weight:500;font-family:inherit;cursor:pointer;transition:all 0.15s;text-align:left;width:100%;position:relative}
+.sb-btn:hover{color:var(--text);background:rgba(0,0,0,0.04)}
+.sb-btn.active{color:var(--accent);background:var(--glass-accent);font-weight:600}
+.sb-btn.active::before{content:'';position:absolute;left:0;top:50%;transform:translateY(-50%);width:3px;height:16px;border-radius:3px;background:var(--accent)}
+.sb-div{height:0.5px;background:rgba(0,0,0,0.06);margin:6px 12px}
+.sb-countdown{padding:8px 12px 4px;font-size:11px;color:var(--text-tertiary);line-height:1.4}
 .content{flex:1;display:flex;justify-content:center;overflow-y:auto;min-width:0}
 .ci{width:100%;max-width:660px;display:flex;flex-direction:column;padding:32px 28px 20px}
 .cat-panel{display:none;flex-direction:column;flex:1;min-height:0;gap:10px;padding:4px 0}
 .cat-panel.active{display:flex}
 .cat-panel .empty{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;color:var(--text-tertiary);font-size:13px}
 .cat-panel .add-hint{font-size:11px;color:var(--text-tertiary)}
-.widget-card{background:var(--glass);backdrop-filter:blur(16px);border:0.5px solid var(--glass-border);border-radius:var(--radius);padding:16px;box-shadow:var(--shadow-sm);transition:all 0.2s}
+.widget-card{background:var(--glass);backdrop-filter:blur(16px);border:0.5px solid var(--glass-border);border-radius:var(--radius);padding:16px;box-shadow:var(--shadow-sm);transition:all 0.15s}
 .widget-card:hover{border-color:var(--glass-border-h);background:var(--glass-hover);box-shadow:var(--shadow-md)}
 .widget-card.clickable{cursor:pointer}
 .widget-card.clickable:hover{border-color:var(--glass-accent);box-shadow:0 0 0 1px var(--glass-accent),var(--shadow-md)}
@@ -41,20 +42,20 @@ body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellips
 .mh .mc:hover{background:rgba(0,0,0,0.05);color:var(--text)}
 .modal-split{flex:1;display:flex;min-height:0}
 .modal-sidebar{width:90px;flex-shrink:0;padding:12px 6px;border-right:0.5px solid rgba(0,0,0,0.05);display:flex;flex-direction:column;gap:2px}
-.msb{display:flex;align-items:center;padding:8px 10px;border-radius:var(--radius-xs);background:transparent;border:none;color:var(--text-tertiary);font-size:12px;font-family:inherit;cursor:pointer;transition:all 0.2s;text-align:left;width:100%}
-.msb:hover{color:var(--text-secondary);background:rgba(0,0,0,0.03)}
+.msb{display:flex;align-items:center;padding:8px 10px;border-radius:var(--radius-xs);background:transparent;border:none;color:var(--text-tertiary);font-size:12px;font-family:inherit;cursor:pointer;transition:all 0.15s;text-align:left;width:100%}
+.msb:hover{color:var(--text);background:rgba(0,0,0,0.04)}
 .msb.active{color:var(--accent);background:var(--glass-accent)}
 .modal-content{flex:1;padding:20px 24px;overflow-y:auto;min-width:0}
 .wg-item{display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:0.5px solid rgba(0,0,0,0.04)}
 .wg-item:last-child{border-bottom:none}
 .wg-name{font-size:13px;color:var(--text)}
 .wg-desc{font-size:11px;color:var(--text-tertiary)}
-.wg-toggle{width:36px;height:20px;border-radius:10px;border:none;cursor:pointer;transition:all 0.2s;position:relative;flex-shrink:0}
+.wg-toggle{width:36px;height:20px;border-radius:10px;border:none;cursor:pointer;transition:all 0.15s;position:relative;flex-shrink:0}
 .wg-toggle.on{background:var(--accent)}
 .wg-toggle.off{background:rgba(0,0,0,0.1)}
 .wg-toggle::after{content:'';position:absolute;top:2px;left:2px;width:16px;height:16px;border-radius:50%;background:#fff;transition:transform 0.2s}
 .wg-toggle.on::after{transform:translateX(16px)}
-.mb input[type=time], .modal-content input[type=time]{width:100%;padding:9px 12px;font-size:13px;border:0.5px solid var(--glass-border);border-radius:var(--radius-xs);background:rgba(255,255,255,0.5);color:var(--text);outline:none;font-family:inherit}
+.mb input[type=time], .modal-content input[type=time]{width:100%;padding:8px 12px;font-size:13px;border:0.5px solid var(--glass-border);border-radius:var(--radius-xs);background:rgba(255,255,255,0.5);color:var(--text);outline:none;font-family:inherit}
 .mb .f, .modal-content .f{margin-bottom:12px}
 .mb .f label, .modal-content .f label{font-size:12px;color:var(--text-secondary);display:block;margin-bottom:4px}
 .mb .btn, .modal-content .btn{width:100%;padding:9px;font-size:13px;font-weight:600;border:none;border-radius:var(--radius-xs);background:var(--glass-accent);color:var(--accent);cursor:pointer;font-family:inherit}
@@ -79,14 +80,14 @@ body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellips
 <div class="app">
   <nav class="sidebar">
     <div class="sidebar-nav">
-      <button class="sb-btn active" data-tab="0">首页</button>
-      <button class="sb-btn" data-tab="1">摸鱼</button>
-      <button class="sb-btn" data-tab="2">效率</button>
-      <button class="sb-btn" data-tab="3">工具</button>
+      <button class="sb-btn active" data-tab="0"><span class="ic">⌂</span>首页</button>
+      <button class="sb-btn" data-tab="1"><span class="ic">〰</span>摸鱼</button>
+      <button class="sb-btn" data-tab="2"><span class="ic">◈</span>效率</button>
+      <button class="sb-btn" data-tab="3"><span class="ic">⊞</span>工具</button>
     </div>
     <div class="sb-div"></div>
-    <button class="sb-btn" id="addWidgetBtn">添加组件</button>
-    <button class="sb-btn" id="settingsBtn">设置</button>
+    <button class="sb-btn" id="addWidgetBtn"><span class="ic">+</span>添加组件</button>
+    <button class="sb-btn" id="settingsBtn"><span class="ic">⚙</span>设置</button>
     <div class="sb-div"></div>
     <div class="sb-countdown" id="sbCountdown"></div>
   </nav>
@@ -104,10 +105,10 @@ body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellips
   <div class="ms"><div class="mh"><span class="mt">组件库</span><button class="mc" id="wmClose">x</button></div>
     <div class="modal-split">
       <div class="modal-sidebar" id="wmSidebar">
-        <button class="msb active" data-c="home">首页</button>
-        <button class="msb" data-c="fish">摸鱼</button>
-        <button class="msb" data-c="efficiency">效率</button>
-        <button class="msb" data-c="tools">工具</button>
+        <button class="msb active" data-c="home"><span class="ic">⌂</span>首页</button>
+        <button class="msb" data-c="fish"><span class="ic">〰</span>摸鱼</button>
+        <button class="msb" data-c="efficiency"><span class="ic">◈</span>效率</button>
+        <button class="msb" data-c="tools"><span class="ic">⊞</span>工具</button>
       </div>
       <div class="modal-content" id="widgetList"></div>
     </div>
