@@ -20,7 +20,7 @@ body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellips
 .sb-div{height:0.5px;background:rgba(0,0,0,0.06);margin:6px 12px}
 .sb-countdown{padding:8px 12px 4px;font-size:11px;color:var(--text-tertiary);line-height:1.4}
 .content{flex:1;display:flex;justify-content:center;overflow-y:auto;min-width:0}
-.ci{width:100%;max-width:660px;display:flex;flex-direction:column;padding:32px 28px 20px}
+.ci{width:100%;max-width:1000px;display:flex;flex-direction:column;padding:32px 28px 20px}
 .cat-panel{display:none;flex-direction:column;flex:1;min-height:0;gap:10px;padding:4px 0}
 .cat-panel.active{display:flex}
 .cat-panel .empty{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;color:var(--text-tertiary);font-size:13px}
@@ -74,6 +74,10 @@ body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellips
 .aqr button{padding:7px 12px;font-size:12px;border:0.5px solid var(--glass-border);border-radius:var(--radius-xs);background:transparent;color:var(--text-secondary);cursor:pointer;font-family:inherit}
 .aqr button:hover{border-color:var(--accent);color:var(--accent)}
 .lrow:hover .ldel{opacity:1!important}
+.app.locked .sidebar,.app.locked .content>*:not(#wg-clock,.modal-overlay),.app.locked .tab-panel{display:none}
+.app.locked .ci{display:contents}
+.app.locked #wg-clock{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);cursor:pointer}
+.app.locked #timeDisplay{font-size:80px!important}
 </style>
 </head>
 <body>

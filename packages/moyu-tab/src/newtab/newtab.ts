@@ -31,10 +31,10 @@ async function renderAll(){const d=await getWD();rendered={};
     if(!ids.length){panel.innerHTML=`<div class="empty"><div>暂无组件</div><div class="add-hint">左侧点击 添加组件</div></div>`;continue;}
     let h='';for(const id of ids){const w=ALL_WIDGETS.find(x=>x.id===id);if(!w)continue;h+=getCard(w);}panel.innerHTML=h;for(const id of ids)initW(id);}}
 function getCard(w:WID):string{
-  if(w.id==='clock')return`<div class="widget-card"><div class="widget-title">${w.name}</div><div id="wg-clock"><div style="font-size:32px;font-weight:300;letter-spacing:3px;font-family:'Courier New',monospace;color:var(--text)" id="timeDisplay">--:--</div><div style="font-size:11px;color:var(--text-secondary);margin-top:2px;letter-spacing:1px" id="dateDisplay"></div></div></div>`;
-  if(w.id==='quote')return`<div class="widget-card"><div class="widget-title">${w.name}</div><div style="font-size:13px;line-height:1.7;color:var(--text-secondary);text-align:center;cursor:pointer" id="quoteText">加载中...</div></div>`;
-  if(w.id==='salary')return`<div class="widget-card"><div class="widget-title">${w.name}</div><div id="wg-salary"><div style="display:flex;align-items:baseline;gap:4px"><span style="font-size:28px;font-weight:250;color:var(--accent);font-family:'Courier New',monospace" id="salAmount">0.00</span><span style="font-size:13px;color:var(--text-secondary)">元</span></div><div style="font-size:11px;color:var(--text-tertiary);margin-top:4px" id="salDetail"></div><div style="font-size:10px;font-weight:500;margin-top:2px;display:inline-block;padding:2px 8px;border-radius:4px" id="salTag"></div><div style="font-size:10px;color:var(--text-tertiary);margin-top:4px;border-top:0.5px solid rgba(0,0,0,0.04);padding-top:4px" id="salPayDay"></div></div>`;
-  return`<div class="widget-card clickable" data-widget="${w.id}"><div class="widget-title">${w.name}</div><div class="widget-entry"><span>${w.desc}</span><span class="arrow">→</span></div></div>`;}
+  if(w.id==='clock')return`<div style="text-align:center;padding:24px 20px 16px"><div id="wg-clock"><div style="font-size:48px;font-weight:200;letter-spacing:6px;font-family:'Courier New',monospace;color:var(--text);line-height:1" id="timeDisplay">--:--</div><div style="font-size:13px;color:var(--text-secondary);margin-top:10px;letter-spacing:2px" id="dateDisplay"></div></div></div>`;
+  if(w.id==='quote')return`<div class="widget-card"><div style="font-size:13px;line-height:1.7;color:var(--text-secondary);text-align:center;cursor:pointer" id="quoteText">加载中...</div></div>`;
+  if(w.id==='salary')return`<div class="widget-card"><div id="wg-salary"><div style="display:flex;align-items:baseline;gap:4px"><span style="font-size:28px;font-weight:250;color:var(--accent);font-family:'Courier New',monospace" id="salAmount">0.00</span><span style="font-size:13px;color:var(--text-secondary)">元</span></div><div style="font-size:11px;color:var(--text-tertiary);margin-top:4px" id="salDetail"></div><div style="font-size:10px;font-weight:500;margin-top:2px;display:inline-block;padding:2px 8px;border-radius:4px" id="salTag"></div><div style="font-size:10px;color:var(--text-tertiary);margin-top:4px;border-top:0.5px solid rgba(0,0,0,0.04);padding-top:4px" id="salPayDay"></div></div>`;
+  return`<div class="widget-card clickable" data-widget="${w.id}"><div class="widget-entry"><span>${w.desc}</span><span class="arrow">→</span></div></div>`;}
 async function initW(id:string){if(rendered[id])return;rendered[id]=true;switch(id){case'fish':initFish();break;case'quote':initQuote();break;case'clock':initClock();break;case'salary':initSalary();break;}if(id==='fish'||id==='links'){document.querySelectorAll(`.clickable[data-widget="${id}"]`).forEach(card=>card.addEventListener('click',()=>openFeatureModal(id)));}}
 
 document.getElementById('addWidgetBtn')!.addEventListener('click',openWidgetModal);
@@ -92,8 +92,52 @@ async function renderSetSalary(){
 document.addEventListener('keydown',e=>{if(e.key==='Escape'){wm.classList.remove('open');sm.classList.remove('open');fm.classList.remove('open');}});
 
 function pad(n:number){return String(n).padStart(2,'0');}
-function initClock(){updT();}
-function updT(){const n=new Date();const td=document.getElementById('timeDisplay');if(td)td.textContent=`${pad(n.getHours())}:${pad(n.getMinutes())}:${pad(n.getSeconds())}`;const dd=document.getElementById('dateDisplay');if(dd)dd.textContent=`${n.getFullYear()}.${pad(n.getMonth()+1)}.${pad(n.getDate())} 周${['日','一','二','三','四','五','六'][n.getDay()]}`;}
+function initClock(){const app=document.querySelector(".app")!;document.getElementById("timeDisplay")?.addEventListener("click",()=>app.classList.toggle("locked"));updT();}
+
+// ── Lunar Calendar ──
+const LUNAR_MONTH=['正','二','三','四','五','六','七','八','九','十','冬','腊'];
+const LUNAR_DAY=['','初一','初二','初三','初四','初五','初六','初七','初八','初九','初十','十一','十二','十三','十四','十五','十六','十七','十八','十九','二十','廿一','廿二','廿三','廿四','廿五','廿六','廿七','廿八','廿九','三十'];
+// lunar year start: encoded as [year, month, day] (Gregorian date of 正月初一)
+const LUNAR_NY:Record<number,[number,number,number]>={2025:[1,29],2026:[2,17],2027:[2,6],2028:[1,26]};
+// lunar month days: 0=29, 1=30
+const LUNAR_MD:Record<number,number[]>={2025:[1,0,1,0,0,0,1,0,1,0,1,1],2026:[0,1,0,1,0,1,0,1,0,1,0,0],2027:[0,1,0,1,0,1,0,0,1,0,1,1],2028:[0,1,0,1,0,0,1,0,1,0,1,0]};
+
+function getLunar(y:number,m:number,d:number):{lm:number,ld:number,cY:string,cM:string,cD:string,cG:string}{
+  const ny=LUNAR_NY[y];if(!ny)return{lm:0,ld:0,cY:'',cM:'',cD:'',cG:''};
+  const [nyM,nyD]=ny,cY=`${y}`;
+  // days since lunar new year
+  const gDate=new Date(y,m-1,d),nyDate=new Date(y,nyM-1,nyD);
+  let diff=Math.floor((gDate.getTime()-nyDate.getTime())/86400000);
+  let cG='';
+  if(diff<0){// before lunar new year, use previous year
+    const py=y-1;const pny=LUNAR_NY[py];if(!pny)return{lm:0,ld:0,cY:'',cM:'',cD:'',cG:''};
+    const pnyDate=new Date(py,pny[0]-1,pny[1]);
+    diff=Math.floor((gDate.getTime()-pnyDate.getTime())/86400000);
+    const pMD=LUNAR_MD[py]||[];
+    let lm=0,acc=0;
+    for(let i=0;i<12;i++){const dc=29+(pMD[i]||0);if(acc+dc>diff){lm=i;break;}acc+=dc;}
+    const ld=diff-acc+1;
+    const r=py%10;
+    if(r==0)return{lm,ld,cY:'',cM:LUNAR_MONTH[lm],cD:LUNAR_DAY[ld],cG:'庚'};
+    else return{lm,ld,cY,cM:LUNAR_MONTH[lm],cD:LUNAR_DAY[ld],cG:''};
+  }
+  // current lunar year
+  const MD=LUNAR_MD[y]||[];
+  let lm=0,acc=0;
+  for(let i=0;i<12;i++){const dc=29+(MD[i]||0);if(acc+dc>diff){lm=i;break;}acc+=dc;}
+  const ld=diff-acc+1;
+  return{lm,ld,cY:y.toString(),cM:LUNAR_MONTH[lm],cD:LUNAR_DAY[ld],cG:''};
+}
+
+function updT(){
+  const n=new Date();
+  const h=n.getHours();
+  const ampm=h<12?'上午':'下午';
+  const td=document.getElementById('timeDisplay');
+  if(td)td.textContent=`${pad(h)}:${pad(n.getMinutes())}:${pad(n.getSeconds())}`;
+  const dd=document.getElementById('dateDisplay');
+  if(dd){const l=getLunar(n.getFullYear(),n.getMonth()+1,n.getDate());const ln=l.ld>0?' · 农历'+l.cM+'月'+l.cD:'';dd.textContent=`${n.getFullYear()}.${pad(n.getMonth()+1)}.${pad(n.getDate())} 周${['日','一','二','三','四','五','六'][n.getDay()]} ${ampm}${ln}`;}
+}
 
 let cQ='';
 const BI=['摸鱼是一种态度','上班不摸鱼回家睡不香','工作总会做完的不急这一时','摸鱼五分钟精神两小时','不是在摸鱼在给大脑充电','生活不止眼前的KPI还有摸鱼和远方','高效的摸鱼是一门艺术','你今天摸鱼了吗','工作是为了更好的摸鱼','不急不躁慢慢来反正也做不完','真正的自由是心在摸鱼','摸鱼是成年人的课间休息','不想工作就摸摸鱼','人生苦短及时摸鱼','摸鱼不是懒是战略性休整','摸鱼使我快乐','适度摸鱼益脑过度摸鱼伤身'];
@@ -112,7 +156,6 @@ let aCtx:AudioContext|null=null;
 function playF(){if(!aCtx)aCtx=new AudioContext();const bs=aCtx.sampleRate*0.03,noise=aCtx.createBufferSource(),nb=aCtx.createBuffer(1,bs,aCtx.sampleRate),d=nb.getChannelData(0);for(let i=0;i<bs;i++)d[i]=(Math.random()*2-1)*(1-i/bs);noise.buffer=nb;const o=aCtx.createOscillator(),g=aCtx.createGain();o.type='sine';o.frequency.value=380;g.gain.setValueAtTime(0.3,aCtx.currentTime);g.gain.exponentialRampToValueAtTime(0.001,aCtx.currentTime+0.15);o.connect(g);const ng=aCtx.createGain();ng.gain.setValueAtTime(0.08,aCtx.currentTime);ng.gain.exponentialRampToValueAtTime(0.001,aCtx.currentTime+0.05);noise.connect(ng);g.connect(aCtx.destination);ng.connect(aCtx.destination);o.start(aCtx.currentTime);o.stop(aCtx.currentTime+0.15);noise.start(aCtx.currentTime);noise.stop(aCtx.currentTime+0.03);}
 function initFish(){loadM();}
 
-// ── Salary ──
 async function loadSal(){salStt=await getSal();}
 function isWorkDay(){const d=new Date().getDay();return schedule.workDays.includes(d);}
 function tickSalary(){
@@ -136,7 +179,6 @@ function tickSalary(){
       tag.textContent='工作中';tag.style.background='var(--glass-accent)';tag.style.color='var(--accent)';
     }
   }
-  // payday countdown
   if(pdp){
     const y=n.getFullYear(),m=n.getMonth(),d=n.getDate();
     let next=new Date(y,m,salStt.payDay);if(d>=salStt.payDay)next=new Date(y,m+1,salStt.payDay);

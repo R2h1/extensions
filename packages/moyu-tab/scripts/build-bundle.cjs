@@ -8,7 +8,6 @@ const DIST = path.resolve(ROOT, 'dist');
 const ENTRY_POINTS = [
   'background/sw.ts',
   'newtab/newtab.ts',
-  'options/options.ts',
 ];
 
 async function build() {
