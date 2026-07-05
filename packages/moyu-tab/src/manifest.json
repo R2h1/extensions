@@ -8,8 +8,6 @@
     "newtab": "newtab/newtab.html"
   },
 
-  },
-
   "background": {
     "service_worker": "background/sw.js",
     "type": "module"

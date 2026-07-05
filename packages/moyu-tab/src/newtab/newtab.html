@@ -7,31 +7,36 @@
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 :root{--glass:rgba(255,255,255,0.6);--glass-hover:rgba(255,255,255,0.75);--glass-border:rgba(0,0,0,0.04);--glass-border-h:rgba(0,0,0,0.08);--glass-accent:rgba(217,119,6,0.08);--shadow-sm:0 0.5px 1.5px rgba(0,0,0,0.04);--shadow-md:0 4px 12px rgba(0,0,0,0.05);--text:#1d1d1f;--text-secondary:#86868b;--text-tertiary:#aeaeb2;--accent:#d97706;--radius:14px;--radius-sm:9px;--radius-xs:7px}
-html,body{height:100%;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Noto Sans SC',sans-serif;background:#f2f2f4;color:var(--text)}
-body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse 70% 55% at 15% 25%,rgba(200,200,210,0.15),transparent),radial-gradient(ellipse 60% 45% at 85% 75%,rgba(180,180,200,0.1),transparent);pointer-events:none;z-index:0}
+html,body{height:100%;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Noto Sans SC',sans-serif;background:#f2f2f4;color:var(--text);background-size:cover;background-position:center;background-attachment:fixed;transition:background-image 0.5s ease}
+html.locked .sidebar{display:none!important}
+html.locked .widget-card{display:none!important}
+html.locked .entry-btn{display:none!important}
+html.locked .entry-grid{display:none!important}
+html.locked #timeDisplay{font-size:80px!important}
 .app{display:flex;height:100vh;position:relative;z-index:1}
-.sidebar{width:120px;flex-shrink:0;display:flex;flex-direction:column;padding:28px 8px 12px;background:rgba(255,255,255,0.35);backdrop-filter:blur(30px);border-right:0.5px solid rgba(0,0,0,0.03)}
+.sidebar{width:120px;flex-shrink:0;display:flex;flex-direction:column;padding:28px 8px 12px;background:rgba(0,0,0,0.6);backdrop-filter:blur(30px);-webkit-backdrop-filter:blur(30px);border-right:0.5px solid rgba(0,0,0,0.03)}
 .sidebar-nav{flex:1;display:flex;flex-direction:column;gap:2px}
 .ic{width:20px;text-align:center;font-size:14px;flex-shrink:0}
 .sb-btn{display:flex;align-items:center;gap:4px;padding:8px 12px;border-radius:var(--radius-xs);background:transparent;border:none;color:var(--text-tertiary);font-size:13px;font-weight:500;font-family:inherit;cursor:pointer;transition:all 0.15s;text-align:left;width:100%;position:relative}
-.sb-btn:hover{color:var(--text);background:rgba(0,0,0,0.04)}
+.sb-btn:hover{color:var(--text-tertiary);background:var(--glass-accent)}
 .sb-btn.active{color:var(--accent);background:var(--glass-accent);font-weight:600}
 .sb-btn.active::before{content:'';position:absolute;left:0;top:50%;transform:translateY(-50%);width:3px;height:16px;border-radius:3px;background:var(--accent)}
 .sb-div{height:0.5px;background:rgba(0,0,0,0.06);margin:6px 12px}
 .sb-countdown{padding:8px 12px 4px;font-size:11px;color:var(--text-tertiary);line-height:1.4}
 .content{flex:1;display:flex;justify-content:center;overflow-y:auto;min-width:0}
-.ci{width:100%;max-width:1000px;display:flex;flex-direction:column;padding:32px 28px 20px}
+.ci{width:100%;max-width:660px;display:flex;flex-direction:column;padding:32px 28px 20px}
 .cat-panel{display:none;flex-direction:column;flex:1;min-height:0;gap:10px;padding:4px 0}
 .cat-panel.active{display:flex}
 .cat-panel .empty{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;color:var(--text-tertiary);font-size:13px}
 .cat-panel .add-hint{font-size:11px;color:var(--text-tertiary)}
-.widget-card{background:var(--glass);backdrop-filter:blur(16px);border:0.5px solid var(--glass-border);border-radius:var(--radius);padding:16px;box-shadow:var(--shadow-sm);transition:all 0.15s}
+.widget-card{background:var(--glass);backdrop-filter:blur(16px);border:0.5px solid var(--glass-border);border-radius:var(--radius);padding:16px;box-shadow:var(--shadow-sm);transition:all 0.2s}
 .widget-card:hover{border-color:var(--glass-border-h);background:var(--glass-hover);box-shadow:var(--shadow-md)}
 .widget-card.clickable{cursor:pointer}
 .widget-card.clickable:hover{border-color:var(--glass-accent);box-shadow:0 0 0 1px var(--glass-accent),var(--shadow-md)}
 .widget-title{font-size:10px;font-weight:600;color:var(--text-tertiary);letter-spacing:2px;margin-bottom:8px}
 .widget-entry{display:flex;align-items:center;gap:6px;font-size:13px;color:var(--text-secondary);font-weight:500}
 .widget-entry .arrow{font-size:18px;color:var(--text-tertiary);margin-left:auto}
+/* modal */
 .mo{display:none;position:fixed;inset:0;z-index:100;background:rgba(0,0,0,0.25);backdrop-filter:blur(12px);align-items:center;justify-content:center;padding:24px}
 .mo.open{display:flex}
 .ms{background:rgba(250,248,245,0.88);backdrop-filter:blur(40px);border-radius:20px;width:100%;max-width:500px;max-height:80vh;box-shadow:0 24px 80px rgba(0,0,0,0.12);display:flex;flex-direction:column;animation:mi 0.3s ease-out;overflow:hidden}
@@ -42,23 +47,23 @@ body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellips
 .mh .mc:hover{background:rgba(0,0,0,0.05);color:var(--text)}
 .modal-split{flex:1;display:flex;min-height:0}
 .modal-sidebar{width:90px;flex-shrink:0;padding:12px 6px;border-right:0.5px solid rgba(0,0,0,0.05);display:flex;flex-direction:column;gap:2px}
-.msb{display:flex;align-items:center;padding:8px 10px;border-radius:var(--radius-xs);background:transparent;border:none;color:var(--text-tertiary);font-size:12px;font-family:inherit;cursor:pointer;transition:all 0.15s;text-align:left;width:100%}
-.msb:hover{color:var(--text);background:rgba(0,0,0,0.04)}
+.msb{display:flex;align-items:center;padding:8px 10px;border-radius:var(--radius-xs);background:transparent;border:none;color:var(--text-tertiary);font-size:12px;font-family:inherit;cursor:pointer;transition:all 0.2s;text-align:left;width:100%}
+.msb:hover{color:var(--text-secondary);background:rgba(0,0,0,0.03)}
 .msb.active{color:var(--accent);background:var(--glass-accent)}
 .modal-content{flex:1;padding:20px 24px;overflow-y:auto;min-width:0}
 .wg-item{display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:0.5px solid rgba(0,0,0,0.04)}
 .wg-item:last-child{border-bottom:none}
 .wg-name{font-size:13px;color:var(--text)}
 .wg-desc{font-size:11px;color:var(--text-tertiary)}
-.wg-toggle{width:36px;height:20px;border-radius:10px;border:none;cursor:pointer;transition:all 0.15s;position:relative;flex-shrink:0}
+.wg-toggle{width:36px;height:20px;border-radius:10px;border:none;cursor:pointer;transition:all 0.2s;position:relative;flex-shrink:0}
 .wg-toggle.on{background:var(--accent)}
 .wg-toggle.off{background:rgba(0,0,0,0.1)}
 .wg-toggle::after{content:'';position:absolute;top:2px;left:2px;width:16px;height:16px;border-radius:50%;background:#fff;transition:transform 0.2s}
 .wg-toggle.on::after{transform:translateX(16px)}
-.mb input[type=time], .modal-content input[type=time]{width:100%;padding:8px 12px;font-size:13px;border:0.5px solid var(--glass-border);border-radius:var(--radius-xs);background:rgba(255,255,255,0.5);color:var(--text);outline:none;font-family:inherit}
-.mb .f, .modal-content .f{margin-bottom:12px}
-.mb .f label, .modal-content .f label{font-size:12px;color:var(--text-secondary);display:block;margin-bottom:4px}
-.mb .btn, .modal-content .btn{width:100%;padding:9px;font-size:13px;font-weight:600;border:none;border-radius:var(--radius-xs);background:var(--glass-accent);color:var(--accent);cursor:pointer;font-family:inherit}
+.mb input[type=time],.modal-content input[type=time]{width:100%;padding:9px 12px;font-size:13px;border:0.5px solid var(--glass-border);border-radius:var(--radius-xs);background:rgba(255,255,255,0.5);color:var(--text);outline:none;font-family:inherit}
+.mb .f,.modal-content .f{margin-bottom:12px}
+.mb .f label,.modal-content .f label{font-size:12px;color:var(--text-secondary);display:block;margin-bottom:4px}
+.mb .btn,.modal-content .btn{width:100%;padding:9px;font-size:13px;font-weight:600;border:none;border-radius:var(--radius-xs);background:var(--glass-accent);color:var(--accent);cursor:pointer;font-family:inherit}
 .dc{display:flex;flex-direction:column;align-items:center;gap:2px;cursor:pointer;padding:7px 4px;border:0.5px solid var(--glass-border);border-radius:7px;background:rgba(255,255,255,0.4);transition:all 0.15s;min-width:36px;user-select:none}
 .dc:hover{border-color:rgba(0,0,0,0.1)}
 .dc span{font-size:11px;color:var(--text-tertiary)}
@@ -74,13 +79,19 @@ body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellips
 .aqr button{padding:7px 12px;font-size:12px;border:0.5px solid var(--glass-border);border-radius:var(--radius-xs);background:transparent;color:var(--text-secondary);cursor:pointer;font-family:inherit}
 .aqr button:hover{border-color:var(--accent);color:var(--accent)}
 .lrow:hover .ldel{opacity:1!important}
-.app.locked .sidebar,.app.locked .content>*:not(#wg-clock,.modal-overlay),.app.locked .tab-panel{display:none}
-.app.locked .ci{display:contents}
-.app.locked #wg-clock{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);cursor:pointer}
-.app.locked #timeDisplay{font-size:80px!important}
+.ctx-menu{display:none;position:fixed;z-index:200;background:rgba(250,248,245,0.92);backdrop-filter:blur(20px);border-radius:10px;box-shadow:0 8px 32px rgba(0,0,0,0.12);padding:4px;min-width:140px}
+.ctx-menu.open{display:block}
+.ctx-menu button{display:block;width:100%;padding:8px 14px;font-size:12px;font-family:inherit;border:none;background:transparent;color:var(--text);cursor:pointer;text-align:left;border-radius:6px;transition:all 0.1s}
+.ctx-menu button:hover{background:var(--glass-accent);color:var(--accent)}
+.wp-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.wp-item{aspect-ratio:16/10;border-radius:var(--radius-sm);cursor:pointer;background-size:cover;background-position:center;border:2px solid transparent;transition:all 0.2s}
+.wp-item:hover{border-color:var(--accent);transform:scale(1.02)}
+.wp-item.active{border-color:var(--accent)}
+.wp-item.active::after{content:'✓';position:absolute;top:6px;right:8px;color:#fff;font-size:14px;font-weight:700;text-shadow:0 1px 3px rgba(0,0,0,0.5)}
 </style>
 </head>
 <body>
+<script>if(localStorage.getItem("moyu_locked")==="1")document.documentElement.classList.add("locked")</script>
 <div class="app">
   <nav class="sidebar">
     <div class="sidebar-nav">
@@ -102,34 +113,11 @@ body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellips
     <div class="cat-panel" id="panel3"></div>
   </div></main>
 </div>
-<div class="mo" id="featureModal">
-  <div class="ms"><div class="mh"><span class="mt" id="fmTitle"></span><button class="mc" id="fmClose">x</button></div><div class="modal-content" id="fmBody" style="padding:16px 20px 20px;display:flex;flex-direction:column"></div></div>
-</div>
-<div class="mo" id="widgetModal">
-  <div class="ms"><div class="mh"><span class="mt">组件库</span><button class="mc" id="wmClose">x</button></div>
-    <div class="modal-split">
-      <div class="modal-sidebar" id="wmSidebar">
-        <button class="msb active" data-c="home"><span class="ic">⌂</span>首页</button>
-        <button class="msb" data-c="fish"><span class="ic">〰</span>摸鱼</button>
-        <button class="msb" data-c="efficiency"><span class="ic">◈</span>效率</button>
-        <button class="msb" data-c="tools"><span class="ic">⊞</span>工具</button>
-      </div>
-      <div class="modal-content" id="widgetList"></div>
-    </div>
-  </div>
-</div>
-<div class="mo" id="settingsModal">
-  <div class="ms"><div class="mh"><span class="mt">设置</span><button class="mc" id="smClose">x</button></div>
-    <div class="modal-split">
-      <div class="modal-sidebar" id="smSidebar">
-        <button class="msb active" data-s="time">时间</button>
-        <button class="msb" data-s="quote">语录</button>
-        <button class="msb" data-s="salary">发薪日</button>
-      </div>
-      <div class="modal-content" id="settingsBody"></div>
-    </div>
-  </div>
-</div>
+<div class="ctx-menu" id="ctxMenu"><button id="ctxWallpaper">更换壁纸</button></div>
+<div class="mo" id="featureModal"><div class="ms"><div class="mh"><span class="mt" id="fmTitle"></span><button class="mc" id="fmClose">x</button></div><div class="modal-content" id="fmBody" style="padding:16px 20px 20px;display:flex;flex-direction:column"></div></div></div>
+<div class="mo" id="widgetModal"><div class="ms"><div class="mh"><span class="mt">组件库</span><button class="mc" id="wmClose">x</button></div><div class="modal-split"><div class="modal-sidebar" id="wmSidebar"><button class="msb active" data-c="home"><span class="ic">⌂</span>首页</button><button class="msb" data-c="fish"><span class="ic">〰</span>摸鱼</button><button class="msb" data-c="efficiency"><span class="ic">◈</span>效率</button><button class="msb" data-c="tools"><span class="ic">⊞</span>工具</button></div><div class="modal-content" id="widgetList"></div></div></div></div>
+<div class="mo" id="settingsModal"><div class="ms"><div class="mh"><span class="mt">设置</span><button class="mc" id="smClose">x</button></div><div class="modal-split"><div class="modal-sidebar" id="smSidebar"><button class="msb active" data-s="time">时间</button><button class="msb" data-s="quote">语录</button><button class="msb" data-s="salary">发薪日</button></div><div class="modal-content" id="settingsBody"></div></div></div></div>
+<div class="mo" id="wallpaperModal"><div class="ms" style="max-width:600px"><div class="mh"><span class="mt">更换壁纸</span><button class="mc" id="wpClose">x</button></div><div class="modal-content" id="wpBody" style="padding:16px 20px 20px"></div></div></div>
 <script src="newtab.js"></script>
 </body>
 </html>
