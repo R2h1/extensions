@@ -105,7 +105,7 @@ async function renderAll() {
 }
 function getCard(w: WID): string {
   if (w.id === 'clock')
-    return `<div style="text-align:center;padding:24px 20px 16px"><div id="wg-clock"><span style="font-size:72px;font-weight:600;letter-spacing:6px;color:white;line-height:1;cursor:pointer" id="timeDisplay">--:--</span><div style="font-size:14px;color:white;margin-top:10px;letter-spacing:2px" id="dateDisplay"></div></div></div>`;
+    return `<div style="text-align:center;padding:24px 20px 16px"><div id="wg-clock" class="wg-clock"><span style="font-size:80px;font-weight:600;letter-spacing:6px;color:white;line-height:1;cursor:pointer" id="timeDisplay">--:--</span><div style="font-size:16px;color:white;margin-top:10px;letter-spacing:2px" id="dateDisplay"></div></div></div>`;
   if (w.id === 'quote')
     return `<div class="widget-card"><div style="font-size:13px;line-height:1.7;color:var(--text-secondary);text-align:center;cursor:pointer" id="quoteText">加载中...</div></div>`;
   if (w.id === 'salary')
@@ -405,9 +405,14 @@ function pad(n: number) {
 function initClock() {
   const app = document.documentElement;
   const ts = localStorage.getItem('moyu_locked') === '1';
-  if (ts) app.classList.add('locked');
+  const wgClock = document.getElementById('wg-clock');
+  if (ts) {
+    app.classList.add('locked');
+    wgClock?.classList.add('wg-clock-fixed');
+  }
   document.getElementById('timeDisplay')!.addEventListener('click', () => {
     const l = app.classList.toggle('locked');
+    wgClock?.classList.toggle('wg-clock-fixed');
     localStorage.setItem('moyu_locked', l ? '1' : '0');
   });
   updT();
