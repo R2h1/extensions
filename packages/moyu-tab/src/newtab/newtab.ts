@@ -5,16 +5,24 @@ const SM = 'moyu_merit',
   SL = 'moyu_links',
   SR = 'moyu_salary';
 interface Sch {
+  startHour: number;
+  startMinute: number;
   lunchHour: number;
   lunchMinute: number;
+  restEndHour: number;
+  restEndMinute: number;
   endHour: number;
   endMinute: number;
   workDays: number[];
 }
 const DS: Sch = {
-  lunchHour: 11,
-  lunchMinute: 30,
-  endHour: 18,
+  startHour: 9,
+  startMinute: 0,
+  lunchHour: 12,
+  lunchMinute: 0,
+  restEndHour: 14,
+  restEndMinute: 0,
+  endHour: 17,
   endMinute: 0,
   workDays: [1, 2, 3, 4, 5],
 };
@@ -109,7 +117,37 @@ function getCard(w: WID): string {
   if (w.id === 'quote')
     return `<div class="widget-card"><div style="font-size:13px;line-height:1.7;color:var(--text-secondary);text-align:center;cursor:pointer" id="quoteText">加载中...</div></div>`;
   if (w.id === 'salary')
-    return `<div class="widget-card"><div id="wg-salary"><div style="display:flex;align-items:baseline;gap:4px"><span style="font-size:28px;font-weight:250;color:var(--accent);font-family:'Courier New',monospace" id="salAmount">0.00</span><span style="font-size:13px;color:var(--text-secondary)">元</span></div><div style="font-size:11px;color:var(--text-tertiary);margin-top:4px" id="salDetail"></div><div style="font-size:10px;font-weight:500;margin-top:2px;display:inline-block;padding:2px 8px;border-radius:4px" id="salTag"></div><div style="font-size:10px;color:var(--text-tertiary);margin-top:4px;border-top:0.5px solid rgba(0,0,0,0.04);padding-top:4px" id="salPayDay"></div></div>`;
+    return `<div class="widget-card sal-card"><div class="sal-grid">
+      <div class="sal-left">
+        <div class="sal-title">✦ 薪资跳动</div>
+        <div class="sal-label">今日实时收入</div>
+        <div class="sal-amount" id="salAmount">¥0.000</div>
+        <div class="sal-breakdown">
+          <div class="bd-item"><span>工作</span><span id="salWork">¥0.000</span></div>
+          <span class="bd-sym">+</span>
+          <div class="bd-item"><span>摸鱼</span><span id="salFish" class="t-green">¥0.000</span></div>
+          <span class="bd-sym">+</span>
+          <div class="bd-item"><span>额外</span><span id="salRest" class="t-green">¥0.000</span></div>
+        </div>
+      </div>
+      <div class="sal-right">
+        <div class="sal-toggle" id="salToggle">
+          <div class="sal-tb active" data-mode="work">😤 工作</div>
+          <div class="sal-tb" data-mode="fish">🐟 摸鱼</div>
+        </div>
+        <div class="sal-timer" id="salTimer">00:00:00</div>
+        <div class="sal-text" id="salText">专注工作中</div>
+      </div>
+      <div class="sal-bottom">
+        <div class="sal-ticks" id="salTicks"></div>
+        <div class="sal-trackwrap">
+          <div class="sal-track" id="salTrack"></div>
+          <div class="sal-indicator" id="salIndicator" style="display:none"></div>
+        </div>
+        <div class="sal-countdown" id="salCountdown">⏲️ 距离上班还有 <span>--:--:--</span></div>
+        <div class="sal-payday" id="salPayDay"></div>
+      </div>
+    </div></div>`;
   return `<div class="widget-card clickable" data-widget="${w.id}"><div class="widget-entry"><span>${w.desc}</span><span class="arrow">→</span></div></div>`;
 }
 async function initW(id: string) {
@@ -287,37 +325,56 @@ async function openSettings() {
 }
 async function renderSetTime() {
   const r = await chrome.storage.sync.get(SS);
-  const s = r[SS] || DS;
+  const s = { ...DS, ...(r[SS] || {}) };
   const wd: number[] = s.workDays ?? [1, 2, 3, 4, 5];
   const dhtml = ['一', '二', '三', '四', '五', '六', '日']
     .map((d, i) => {
       return `<label class="dc${wd.includes(i < 5 ? i + 1 : 0) ? ' active' : ''}" data-v="${i < 5 ? i + 1 : 0}"><span>${d}</span></label>`;
     })
     .join('');
+  const t = (h: number, m: number) => `${pad(h)}:${pad(m)}`;
   document.getElementById('settingsBody')!.innerHTML =
-    `<div class="f"><label>午餐</label><input type="time" id="sLunch" value="${String(s.lunchHour).padStart(2, '0')}:${String(s.lunchMinute).padStart(2, '0')}"/></div><div class="f"><label>下班</label><input type="time" id="sEnd" value="${String(s.endHour).padStart(2, '0')}:${String(s.endMinute).padStart(2, '0')}"/></div><div class="f"><label>工作日</label><div style="display:flex;gap:5px" id="sDays">${dhtml}</div></div><button class="btn" id="sSave">保存</button><div id="sStatus" style="text-align:center;font-size:12px;padding:6px;display:none;color:var(--accent)"></div>`;
+    `<div class="f"><label>上班</label><input type="time" id="sStart" value="${t(s.startHour, s.startMinute)}"/></div><div class="f"><label>午餐</label><input type="time" id="sLunch" value="${t(s.lunchHour, s.lunchMinute)}"/></div><div class="f"><label>午休结束</label><input type="time" id="sRestEnd" value="${t(s.restEndHour, s.restEndMinute)}"/></div><div class="f"><label>下班</label><input type="time" id="sEnd" value="${t(s.endHour, s.endMinute)}"/></div><div class="f"><label>工作日</label><div style="display:flex;gap:5px" id="sDays">${dhtml}</div></div><button class="btn" id="sSave">保存</button><div id="sStatus" style="text-align:center;font-size:12px;padding:6px;display:none;color:var(--accent)"></div>`;
   document.querySelectorAll('#sDays .dc').forEach((el) =>
     el.addEventListener('click', function (this: HTMLElement) {
       this.classList.toggle('active');
     }),
   );
   document.getElementById('sSave')!.addEventListener('click', async () => {
+    const [sh, sm] = (document.getElementById('sStart') as HTMLInputElement).value
+      .split(':')
+      .map(Number);
     const [lh, lm] = (document.getElementById('sLunch') as HTMLInputElement).value
+      .split(':')
+      .map(Number);
+    const [rh, rm] = (document.getElementById('sRestEnd') as HTMLInputElement).value
       .split(':')
       .map(Number);
     const [eh, em] = (document.getElementById('sEnd') as HTMLInputElement).value
       .split(':')
       .map(Number);
-    if (isNaN(lh) || isNaN(lm) || isNaN(eh) || isNaN(em)) return;
+    if (isNaN(sh) || isNaN(lh) || isNaN(rh) || isNaN(eh)) return;
+    const oldRate = salRate();
     const wd: number[] = [];
     document
       .querySelectorAll('#sDays .dc.active')
       .forEach((el) => wd.push(Number((el as HTMLElement).dataset.v)));
-    await chrome.storage.sync.set({
-      [SS]: { lunchHour: lh, lunchMinute: lm, endHour: eh, endMinute: em, workDays: wd },
-    });
-    schedule = { lunchHour: lh, lunchMinute: lm, endHour: eh, endMinute: em, workDays: wd };
+    schedule = {
+      startHour: sh,
+      startMinute: sm,
+      lunchHour: lh,
+      lunchMinute: lm,
+      restEndHour: rh,
+      restEndMinute: rm,
+      endHour: eh,
+      endMinute: em,
+      workDays: wd,
+    };
+    await chrome.storage.sync.set({ [SS]: schedule });
+    rescaleSal(oldRate);
     updC();
+    buildSalTimeline();
+    tickSalary();
     document.getElementById('sStatus')!.textContent = '已保存';
     document.getElementById('sStatus')!.style.display = 'block';
     setTimeout(() => (document.getElementById('sStatus')!.style.display = 'none'), 2500);
@@ -376,15 +433,18 @@ async function renderSetSalary() {
   document.getElementById('settingsBody')!.innerHTML = `
     <div class="f"><label>月薪（元）</label><input type="number" id="sSalInc" value="${s.monthlyIncome}" min="1" style="width:100%;padding:9px 12px;font-size:13px;border:0.5px solid var(--glass-border);border-radius:var(--radius-xs);background:rgba(255,255,255,0.5);color:var(--text);outline:none;font-family:inherit"/></div>
     <div class="f"><label>发薪日</label><div style="display:flex;align-items:center;gap:8px"><span style="font-size:13px;color:var(--text-secondary)">每月</span><input type="number" id="sSalDay" value="${s.payDay}" min="1" max="31" style="width:80px;padding:9px 12px;font-size:13px;border:0.5px solid var(--glass-border);border-radius:var(--radius-xs);background:rgba(255,255,255,0.5);color:var(--text);outline:none;font-family:inherit;text-align:center"/><span style="font-size:13px;color:var(--text-secondary)">号</span></div></div>
-    <div class="f" style="font-size:11px;color:var(--text-tertiary)">工作日 21.75 天/月，薪资按 09:00~下班计算</div>
+    <div class="f" style="font-size:11px;color:var(--text-tertiary)">工作日 21.75 天/月，薪资按 上班~下班 时段计算（含午休带薪）</div>
     <button class="btn" id="sSalSave">保存</button>
     <div id="sSalStat" style="text-align:center;font-size:12px;padding:6px;display:none;color:var(--accent)"></div>`;
   document.getElementById('sSalSave')!.addEventListener('click', async () => {
     const inc = Number((document.getElementById('sSalInc') as HTMLInputElement).value);
     const d = Number((document.getElementById('sSalDay') as HTMLInputElement).value);
     if (inc < 1 || d < 1 || d > 31) return;
+    const oldRate = salRate();
     salStt = { monthlyIncome: inc, payDay: d };
     await setSal(salStt);
+    rescaleSal(oldRate);
+    tickSalary();
     document.getElementById('sSalStat')!.textContent = '已保存';
     document.getElementById('sSalStat')!.style.display = 'block';
     setTimeout(() => (document.getElementById('sSalStat')!.style.display = 'none'), 2500);
@@ -634,53 +694,262 @@ function initFish() {
 async function loadSal() {
   salStt = await getSal();
 }
+// ── 薪资明细状态（工作/摸鱼/休息 三项累计，每日重置，刷新补足）──
+const SAL_KEY = 'moyu_salary_state';
+const FISH_MULT = 0.269;
+interface SalState {
+  date: string;
+  mode: 'work' | 'fish';
+  workIncome: number;
+  fishIncome: number;
+  restIncome: number;
+  workSeconds: number;
+  fishSeconds: number;
+  lastUpdate: number;
+}
+let salState: SalState = {
+  date: '',
+  mode: 'work',
+  workIncome: 0,
+  fishIncome: 0,
+  restIncome: 0,
+  workSeconds: 0,
+  fishSeconds: 0,
+  lastUpdate: Date.now(),
+};
+function salToday() {
+  const n = new Date();
+  return `${n.getFullYear()}-${n.getMonth() + 1}-${n.getDate()}`;
+}
+function salRate() {
+  const start = schedule.startHour * 3600 + schedule.startMinute * 60;
+  const off = schedule.endHour * 3600 + schedule.endMinute * 60;
+  const daySec = off - start;
+  if (daySec <= 0) return 0;
+  return salStt.monthlyIncome / WDPM / daySec;
+}
+function backfillFromStart() {
+  const n = new Date();
+  salState.workIncome = 0;
+  salState.fishIncome = 0;
+  salState.restIncome = 0;
+  salState.workSeconds = 0;
+  salState.fishSeconds = 0;
+  salState.mode = 'work';
+  salState.lastUpdate = Date.now();
+  if (!schedule.workDays.includes(n.getDay())) return;
+  const { start, lunch, restEnd, off } = salBandTimes();
+  const rate = salRate();
+  if (rate <= 0) return;
+  const cur = n.getHours() * 3600 + n.getMinutes() * 60 + n.getSeconds();
+  let workBand = 0;
+  if (cur > start) workBand += Math.max(0, Math.min(cur, lunch) - start);
+  if (cur > restEnd) workBand += Math.max(0, Math.min(cur, off) - restEnd);
+  const restBand = cur > lunch ? Math.max(0, Math.min(cur, restEnd) - lunch) : 0;
+  salState.workIncome = workBand * rate;
+  salState.workSeconds = workBand;
+  salState.restIncome = restBand * rate;
+}
+function loadSalState() {
+  const today = salToday();
+  try {
+    const raw = localStorage.getItem(SAL_KEY);
+    if (raw) {
+      const d = JSON.parse(raw) as Partial<SalState>;
+      if (d.date === today) {
+        salState = { ...salState, ...d, date: today } as SalState;
+        const diff = Math.floor((Date.now() - (d.lastUpdate || Date.now())) / 1000);
+        if (diff > 0 && diff < 86400) recoverGap(diff);
+      } else {
+        backfillFromStart();
+        salState.date = today;
+      }
+    } else {
+      backfillFromStart();
+      salState.date = today;
+    }
+  } catch {
+    backfillFromStart();
+    salState.date = today;
+  }
+}
+function recoverGap(diff: number) {
+  const n = new Date();
+  if (!schedule.workDays.includes(n.getDay())) return;
+  const cur = n.getHours() * 3600 + n.getMinutes() * 60 + n.getSeconds();
+  const start = schedule.startHour * 3600 + schedule.startMinute * 60;
+  const lunch = schedule.lunchHour * 3600 + schedule.lunchMinute * 60;
+  const restEnd = schedule.restEndHour * 3600 + schedule.restEndMinute * 60;
+  const off = schedule.endHour * 3600 + schedule.endMinute * 60;
+  const rate = salRate();
+  const inWork = (cur >= start && cur < lunch) || (cur >= restEnd && cur < off);
+  const inRest = cur >= lunch && cur < restEnd;
+  if (inWork) {
+    if (salState.mode === 'work') {
+      salState.workIncome += diff * rate;
+      salState.workSeconds += diff;
+    } else {
+      salState.fishIncome += diff * rate * FISH_MULT;
+      salState.fishSeconds += diff;
+    }
+  } else if (inRest) {
+    salState.restIncome += diff * rate;
+  }
+}
+function rescaleSal(oldRate: number) {
+  const newRate = salRate();
+  if (oldRate > 0 && newRate > 0) {
+    const ratio = newRate / oldRate;
+    salState.workIncome *= ratio;
+    salState.fishIncome *= ratio;
+    salState.restIncome *= ratio;
+  }
+  saveSalState();
+}
+function saveSalState() {
+  salState.lastUpdate = Date.now();
+  try {
+    localStorage.setItem(SAL_KEY, JSON.stringify(salState));
+  } catch {}
+}
+function toMoney3(v: number) {
+  return '¥' + v.toFixed(3);
+}
+function toTime(sec: number) {
+  const h = Math.floor(sec / 3600),
+    m = Math.floor((sec % 3600) / 60),
+    s = Math.floor(sec % 60);
+  return `${pad(h)}:${pad(m)}:${pad(s)}`;
+}
+function salBandTimes() {
+  const start = schedule.startHour * 3600 + schedule.startMinute * 60;
+  const lunch = schedule.lunchHour * 3600 + schedule.lunchMinute * 60;
+  const restEnd = schedule.restEndHour * 3600 + schedule.restEndMinute * 60;
+  const off = schedule.endHour * 3600 + schedule.endMinute * 60;
+  return { start, lunch, restEnd, off };
+}
+function buildSalTimeline() {
+  const track = document.getElementById('salTrack');
+  if (!track) return;
+  const { start, lunch, restEnd, off } = salBandTimes();
+  const total = off - start;
+  if (total <= 0) {
+    track.innerHTML = '';
+    return;
+  }
+  const mPct = ((lunch - start) / total) * 100;
+  const rPct = ((restEnd - lunch) / total) * 100;
+  const aPct = ((off - restEnd) / total) * 100;
+  const fmt = (s: number) => `${pad(Math.floor(s / 3600))}:${pad(Math.floor((s % 3600) / 60))}`;
+  const fmtDur = (s: number) => (s / 3600).toFixed(2).replace(/\.?0+$/, '') + 'h';
+  track.innerHTML =
+    `<div class="sal-seg seg-work" style="left:0;width:${mPct}%">上午 ${fmtDur(lunch - start)}</div>` +
+    `<div class="sal-seg seg-rest" style="left:${mPct}%;width:${rPct}%">午休 ${fmtDur(restEnd - lunch)}</div>` +
+    `<div class="sal-seg seg-work" style="left:${mPct + rPct}%;width:${aPct}%">下午 ${fmtDur(off - restEnd)}</div>`;
+  const ticks = document.getElementById('salTicks');
+  if (ticks)
+    ticks.innerHTML = `<div>${fmt(start)}</div><div>${fmt(lunch)}</div><div>${fmt(restEnd)}</div><div>${fmt(off)}</div>`;
+}
 function tickSalary() {
   const amt = document.getElementById('salAmount'),
-    det = document.getElementById('salDetail'),
-    tag = document.getElementById('salTag'),
+    workEl = document.getElementById('salWork'),
+    fishEl = document.getElementById('salFish'),
+    restEl = document.getElementById('salRest'),
+    timerEl = document.getElementById('salTimer'),
+    textEl = document.getElementById('salText'),
+    ind = document.getElementById('salIndicator'),
+    cd = document.getElementById('salCountdown'),
     pdp = document.getElementById('salPayDay');
-  if (!amt || !det || !tag) return;
-  const n = new Date();
-  const wEnd = `${pad(schedule.endHour)}:${pad(schedule.endMinute)}`;
-  const [eh, em] = wEnd.split(':').map(Number);
-  const startDt = new Date(n.getFullYear(), n.getMonth(), n.getDate(), 9, 0, 0);
-  const endDt = new Date(n.getFullYear(), n.getMonth(), n.getDate(), eh, em, 0);
-  const workSec = Math.floor((endDt.getTime() - startDt.getTime()) / 1000);
-  const wd = new Date().getDay();
-  if (workSec <= 0 || !schedule.workDays.includes(wd)) {
-    amt.textContent = '0.00';
-    det.textContent = '非工作时间';
-    tag.textContent = '休息';
-    tag.style.background = 'rgba(0,0,0,0.04)';
-    tag.style.color = 'var(--text-tertiary)';
-  } else {
-    const now = n.getTime();
-    if (now < startDt.getTime()) {
-      amt.textContent = '0.00';
-      det.textContent = '待开工';
-      tag.textContent = '待开工';
-      tag.style.background = 'rgba(0,0,0,0.04)';
-      tag.style.color = 'var(--text-tertiary)';
-    } else if (now > endDt.getTime()) {
-      const full = salStt.monthlyIncome / WDPM;
-      amt.textContent = full.toFixed(2);
-      det.textContent = '今天已赚满';
-      tag.textContent = '下班';
-      tag.style.background = 'rgba(0,0,0,0.04)';
-      tag.style.color = 'var(--text-tertiary)';
-    } else {
-      const rate = salStt.monthlyIncome / WDPM / workSec,
-        elapsed = Math.floor((now - startDt.getTime()) / 1000),
-        acc = rate * elapsed;
-      const h = Math.floor(elapsed / 3600),
-        m = Math.floor((elapsed % 3600) / 60);
-      amt.textContent = acc.toFixed(2);
-      det.textContent = `每秒 ${rate.toFixed(6)} 元 · 已工作 ${h}h${m}m`;
-      tag.textContent = '工作中';
-      tag.style.background = 'var(--glass-accent)';
-      tag.style.color = 'var(--accent)';
+  const n = new Date(),
+    wd = n.getDay();
+  const cur = n.getHours() * 3600 + n.getMinutes() * 60 + n.getSeconds();
+  const { start, lunch, restEnd, off } = salBandTimes();
+  const isWorkday = schedule.workDays.includes(wd);
+  const rate = salRate();
+
+  // 按时段累计明细收入
+  if (isWorkday) {
+    const inWork = (cur >= start && cur < lunch) || (cur >= restEnd && cur < off);
+    const inRest = cur >= lunch && cur < restEnd;
+    if (inWork) {
+      if (salState.mode === 'work') {
+        salState.workIncome += rate;
+        salState.workSeconds++;
+      } else {
+        salState.fishIncome += rate * FISH_MULT;
+        salState.fishSeconds++;
+      }
+    } else if (inRest) {
+      salState.restIncome += rate;
     }
   }
+
+  // 金额与明细
+  const total = salState.workIncome + salState.fishIncome + salState.restIncome;
+  if (amt) amt.textContent = toMoney3(total);
+  if (workEl) workEl.textContent = toMoney3(salState.workIncome);
+  if (fishEl) fishEl.textContent = toMoney3(salState.fishIncome);
+  if (restEl) restEl.textContent = toMoney3(salState.restIncome);
+
+  // 状态计时器
+  if (timerEl)
+    timerEl.textContent = toTime(
+      salState.mode === 'work' ? salState.workSeconds : salState.fishSeconds,
+    );
+
+  // 指示针
+  if (ind) {
+    if (isWorkday && off > start) {
+      ind.style.display = 'block';
+      let pct = 0;
+      if (cur < start) pct = 0;
+      else if (cur > off) pct = 100;
+      else pct = ((cur - start) / (off - start)) * 100;
+      ind.style.left = pct + '%';
+    } else {
+      ind.style.display = 'none';
+    }
+  }
+
+  // 倒计时
+  if (cd) {
+    if (!isWorkday) {
+      cd.innerHTML = '🛏️ 周末双休，享受生活';
+    } else {
+      let target = 0,
+        label = '';
+      if (cur < start) {
+        target = start;
+        label = '距离上班还有';
+      } else if (cur < lunch) {
+        target = lunch;
+        label = '距离午休还有';
+      } else if (cur < restEnd) {
+        target = restEnd;
+        label = '午休中 · 距离上班还有';
+      } else if (cur < off) {
+        target = off;
+        label = '距离下班还有';
+      } else {
+        target = start + 86400;
+        label = '距离明早上班还有';
+      }
+      let diff = target - cur;
+      if (diff < 0) diff = 0;
+      cd.innerHTML = `⏲️ ${label} <span>${toTime(diff)}</span>`;
+    }
+  }
+
+  // 状态文字
+  if (textEl) {
+    if (!isWorkday) textEl.textContent = '周末休息中';
+    else if (cur < start) textEl.textContent = '还没开工';
+    else if (cur >= off) textEl.textContent = '今天已下班';
+    else if (salState.mode === 'work') textEl.textContent = '专注工作中';
+    else textEl.textContent = '摸鱼中';
+  }
+
+  // 发薪日
   if (pdp) {
     const y = n.getFullYear(),
       m = n.getMonth(),
@@ -690,7 +959,7 @@ function tickSalary() {
     const diff = Math.ceil((next.getTime() - new Date(y, m, d).getTime()) / 86400000);
     pdp.textContent =
       diff === 0
-        ? '今天发薪日  '
+        ? '今天发薪日'
         : '距离发薪 · ' +
           diff +
           ' 天 · ' +
@@ -699,9 +968,23 @@ function tickSalary() {
           pad(salStt.payDay) +
           '日';
   }
+
+  saveSalState();
 }
 function initSalary() {
-  loadSal();
+  loadSalState();
+  buildSalTimeline();
+  document.querySelectorAll('#salToggle .sal-tb').forEach((b) => {
+    b.classList.toggle('active', (b as HTMLElement).dataset.mode === salState.mode);
+    b.addEventListener('click', function (this: HTMLElement) {
+      const m = this.dataset.mode as 'work' | 'fish';
+      if (!m || salState.mode === m) return;
+      salState.mode = m;
+      document.querySelectorAll('#salToggle .sal-tb').forEach((x) => x.classList.remove('active'));
+      this.classList.add('active');
+      saveSalState();
+    });
+  });
   tickSalary();
 }
 

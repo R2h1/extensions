@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>薪资卡片预览</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Noto Sans SC',sans-serif}
+:root{--glass:rgba(255,255,255,0.6);--glass-border:rgba(0,0,0,0.04);--text:#1d1d1f;--text-secondary:#86868b;--text-tertiary:#aeaeb2;--accent:#d97706;--radius:14px}
+body{background:#f2f2f4;background-size:cover;background-position:center;background-attachment:fixed;padding:24px;display:flex;justify-content:center}
+.ci{width:100%;max-width:660px}
+.widget-card{background:var(--glass);backdrop-filter:blur(16px);border:0.5px solid var(--glass-border);border-radius:var(--radius);box-shadow:0 0.5px 1.5px rgba(0,0,0,0.04)}
+/* 薪资跳动 · 明细卡片 */
+.sal-card{padding:18px 18px 16px}
+.sal-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px 28px;align-items:start}
+.sal-left{min-width:0}
+.sal-title{font-size:13px;font-weight:600;color:var(--text-secondary);letter-spacing:.5px;margin-bottom:6px;display:flex;align-items:center;gap:6px}
+.sal-label{font-size:11px;color:var(--text-tertiary)}
+.sal-amount{font-size:44px;font-weight:700;color:#f97316;letter-spacing:-1px;line-height:1.1;margin:4px 0 8px;font-variant-numeric:tabular-nums;font-family:'Courier New',ui-monospace,monospace}
+.sal-breakdown{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text-secondary);flex-wrap:wrap}
+.sal-breakdown .bd-item{display:flex;flex-direction:column;align-items:center;line-height:1.3}
+.sal-breakdown .bd-item span:first-child{font-size:10px;color:var(--text-tertiary)}
+.sal-breakdown .bd-item span:last-child{font-variant-numeric:tabular-nums;font-size:13px;font-family:'Courier New',ui-monospace,monospace}
+.sal-breakdown .bd-sym{color:var(--text-tertiary);font-size:14px}
+.sal-breakdown .t-green{color:#10b981}
+.sal-right{display:flex;flex-direction:column;align-items:center;padding-top:2px}
+.sal-toggle{display:flex;background:rgba(255,255,255,.6);border-radius:30px;padding:3px;width:100%;max-width:200px;box-shadow:0 1px 4px rgba(0,0,0,.04)}
+.sal-tb{flex:1;border-radius:26px;padding:8px 0;text-align:center;font-weight:600;font-size:13px;cursor:pointer;transition:all .2s;user-select:none;color:var(--text-tertiary)}
+.sal-tb.active{background:#3b82f6;color:#fff;box-shadow:0 3px 10px rgba(59,130,246,.25)}
+.sal-timer{font-size:30px;font-weight:500;color:var(--text);margin-top:12px;letter-spacing:1px;font-variant-numeric:tabular-nums;font-family:ui-monospace,'Courier New',monospace}
+.sal-text{color:var(--text-secondary);font-size:13px;margin-top:4px}
+.sal-bottom{grid-column:1/-1;margin-top:14px;background:rgba(255,255,255,.5);border-radius:14px;padding:14px 16px}
+.sal-ticks{display:flex;justify-content:space-between;font-size:11px;font-weight:500;color:var(--text-tertiary);margin-bottom:4px}
+.sal-trackwrap{position:relative;margin-top:2px}
+.sal-track{position:relative;height:22px;width:100%;background:#e2e8f0;border-radius:11px;overflow:hidden}
+.sal-seg{position:absolute;height:100%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:500;color:#fff;overflow:hidden;white-space:nowrap}
+.seg-work{background:#3b82f6}
+.seg-rest{background:#10b981}
+.sal-indicator{position:absolute;top:0;left:0;width:2px;height:22px;background:#ef4444;z-index:10;border-radius:2px;transition:left .8s cubic-bezier(.4,0,.2,1);transform:translateX(-50%)}
+.sal-indicator::before{content:'';position:absolute;top:-4px;left:50%;transform:translateX(-50%);width:8px;height:8px;background:#ef4444;border-radius:50%}
+.sal-countdown{text-align:center;margin-top:10px;font-size:13px;color:var(--text-secondary)}
+.sal-countdown span{color:#3b82f6;font-weight:600;font-variant-numeric:tabular-nums;font-family:ui-monospace,monospace}
+.sal-payday{text-align:center;font-size:10px;color:var(--text-tertiary);margin-top:6px;border-top:.5px solid rgba(0,0,0,.04);padding-top:6px}
+@media (max-width:520px){.sal-grid{grid-template-columns:1fr;gap:12px}.sal-amount{font-size:36px}.sal-timer{font-size:26px}.sal-right{padding-top:0}}
+</style>
+</head>
+<body>
+<div class="ci">
+<div class="widget-card sal-card"><div class="sal-grid">
+  <div class="sal-left">
+    <div class="sal-title">✦ 薪资跳动</div>
+    <div class="sal-label">今日实时收入</div>
+    <div class="sal-amount" id="salAmount">¥0.000</div>
+    <div class="sal-breakdown">
+      <div class="bd-item"><span>工作</span><span id="salWork">¥0.000</span></div>
+      <span class="bd-sym">+</span>
+      <div class="bd-item"><span>摸鱼</span><span id="salFish" class="t-green">¥0.000</span></div>
+      <span class="bd-sym">+</span>
+      <div class="bd-item"><span>额外</span><span id="salRest" class="t-green">¥0.000</span></div>
+    </div>
+  </div>
+  <div class="sal-right">
+    <div class="sal-toggle" id="salToggle">
+      <div class="sal-tb active" data-mode="work">😤 工作</div>
+      <div class="sal-tb" data-mode="fish">🐟 摸鱼</div>
+    </div>
+    <div class="sal-timer" id="salTimer">00:00:00</div>
+    <div class="sal-text" id="salText">专注工作中</div>
+  </div>
+  <div class="sal-bottom">
+    <div class="sal-ticks" id="salTicks"></div>
+    <div class="sal-trackwrap">
+      <div class="sal-track" id="salTrack"></div>
+      <div class="sal-indicator" id="salIndicator"></div>
+    </div>
+    <div class="sal-countdown" id="salCountdown">⏲️ 距离上班还有 <span>--:--:--</span></div>
+    <div class="sal-payday" id="salPayDay"></div>
+  </div>
+</div></div>
+</div>
+<script>
+const schedule={startHour:9,startMinute:0,lunchHour:12,lunchMinute:0,restEndHour:14,restEndMinute:0,endHour:17,endMinute:0,workDays:[1,2,3,4,5]};
+const salStt={monthlyIncome:10000,payDay:10};
+const WDPM=21.75,FISH_MULT=0.269;
+let salState={mode:'work',workIncome:0,fishIncome:0,restIncome:0,workSeconds:0,fishSeconds:0};
+// mock time: 2026-07-09 10:30:00 (Thursday, morning work)
+const RealDate=Date;
+Date=class extends RealDate{constructor(...a){if(a.length===0)super(2026,6,9,10,30,0);else super(...a)}static now(){return new RealDate(2026,6,9,10,30,0).getTime()}};
+function pad(n){return String(n).padStart(2,'0')}
+function toMoney3(v){return '¥'+v.toFixed(3)}
+function toTime(sec){const h=Math.floor(sec/3600),m=Math.floor((sec%3600)/60),s=Math.floor(sec%60);return `${pad(h)}:${pad(m)}:${pad(s)}`}
+function salBandTimes(){const start=schedule.startHour*3600+schedule.startMinute*60,lunch=schedule.lunchHour*3600+schedule.lunchMinute*60,restEnd=schedule.restEndHour*3600+schedule.restEndMinute*60,off=schedule.endHour*3600+schedule.endMinute*60;return{start,lunch,restEnd,off}}
+function salRate(){const{start,off}=salBandTimes();const d=off-start;return d<=0?0:salStt.monthlyIncome/WDPM/d}
+function buildSalTimeline(){const track=document.getElementById('salTrack');const{start,lunch,restEnd,off}=salBandTimes();const total=off-start;const mPct=((lunch-start)/total)*100,rPct=((restEnd-lunch)/total)*100,aPct=((off-restEnd)/total)*100;const fmt=s=>`${pad(Math.floor(s/3600))}:${pad(Math.floor((s%3600)/60))}`;track.innerHTML=`<div class="sal-seg seg-work" style="left:0;width:${mPct}%">上午 ${fmt(lunch-start)}</div><div class="sal-seg seg-rest" style="left:${mPct}%;width:${rPct}%">午休 ${fmt(restEnd-lunch)}</div><div class="sal-seg seg-work" style="left:${mPct+rPct}%;width:${aPct}%">下午 ${fmt(off-restEnd)}</div>`;document.getElementById('salTicks').innerHTML=`<div>${fmt(start)}</div><div>${fmt(lunch)}</div><div>${fmt(restEnd)}</div><div>${fmt(off)}</div>`}
+function tickSalary(){const n=new Date(),wd=n.getDay(),cur=n.getHours()*3600+n.getMinutes()*60+n.getSeconds();const{start,lunch,restEnd,off}=salBandTimes();const rate=salRate();const inWork=(cur>=start&&cur<lunch)||(cur>=restEnd&&cur<off);const inRest=cur>=lunch&&cur<restEnd;if(inWork){if(salState.mode==='work'){salState.workIncome+=rate;salState.workSeconds++}else{salState.fishIncome+=rate*FISH_MULT;salState.fishSeconds++}}else if(inRest){salState.restIncome+=rate}
+document.getElementById('salAmount').textContent=toMoney3(salState.workIncome+salState.fishIncome+salState.restIncome);
+document.getElementById('salWork').textContent=toMoney3(salState.workIncome);
+document.getElementById('salFish').textContent=toMoney3(salState.fishIncome);
+document.getElementById('salRest').textContent=toMoney3(salState.restIncome);
+document.getElementById('salTimer').textContent=toTime(salState.mode==='work'?salState.workSeconds:salState.fishSeconds);
+const ind=document.getElementById('salIndicator');let pct=cur<start?0:cur>off?100:((cur-start)/(off-start))*100;ind.style.left=pct+'%';
+let target=0,label='';if(cur<start){target=start;label='距离上班还有'}else if(cur<lunch){target=lunch;label='距离午休还有'}else if(cur<restEnd){target=restEnd;label='午休中 · 距离上班还有'}else if(cur<off){target=off;label='距离下班还有'}else{target=start+86400;label='距离明早上班还有'}let diff=target-cur;if(diff<0)diff=0;document.getElementById('salCountdown').innerHTML=`⏲️ ${label} <span>${toTime(diff)}</span>`;
+document.getElementById('salText').textContent=salState.mode==='work'?'专注工作中':'摸鱼中';
+const y=n.getFullYear(),m=n.getMonth(),d=n.getDate();let next=new RealDate(y,m,salStt.payDay);if(d>=salStt.payDay)next=new RealDate(y,m+1,salStt.payDay);const dd=Math.ceil((next.getTime()-new RealDate(y,m,d).getTime())/86400000);document.getElementById('salPayDay').textContent=dd===0?'今天发薪日':`距离发薪 · ${dd} 天 · ${pad(next.getMonth()+1)}月${pad(salStt.payDay)}日`}
+document.querySelectorAll('#salToggle .sal-tb').forEach(b=>b.addEventListener('click',function(){const m=this.dataset.mode;if(salState.mode===m)return;salState.mode=m;document.querySelectorAll('#salToggle .sal-tb').forEach(x=>x.classList.remove('active'));this.classList.add('active')}));
+buildSalTimeline();tickSalary();setInterval(tickSalary,1000);
+</script>
+</body>
+</html>
