@@ -80,11 +80,69 @@ const WDPM = 21.75;
 
 const sbCd = document.getElementById('sbCountdown')!;
 const TABS = document.querySelectorAll('.sb-btn[data-tab]');
+const nmContent = document.querySelector('.content') as HTMLElement;
+const NM_ENTER_DUR = 500;
+let nmActive = 0;
+let nmEnterStart = 0;
+let nmLag = 0;
+let nmLastTop = nmContent.scrollTop;
+let nmRaf = 0;
+function nmSchedule() {
+  if (nmRaf) return;
+  nmRaf = requestAnimationFrame(nmUpdate);
+}
+function nmUpdate() {
+  nmRaf = 0;
+  nmLag *= 0.85;
+  if (Math.abs(nmLag) < 0.3) nmLag = 0;
+  const now = performance.now();
+  const panel = document.getElementById('panel' + nmActive);
+  let entering = false;
+  if (panel) {
+    const cards = Array.from(panel.children) as HTMLElement[];
+    cards.forEach((el, idx) => {
+      const elapsed = now - nmEnterStart - idx * 70;
+      let enter = 0;
+      if (elapsed < 0) enter = 1;
+      else if (elapsed < NM_ENTER_DUR) {
+        enter = 1 - elapsed / NM_ENTER_DUR;
+        entering = true;
+      }
+      if (enter > 0.001) {
+        el.style.opacity = String(1 - enter);
+        el.style.transform = `translateY(${nmLag + enter * 22}px) scale(${1 - enter * 0.04})`;
+      } else if (nmLag !== 0) {
+        el.style.opacity = '';
+        el.style.transform = `translateY(${nmLag}px)`;
+      } else {
+        el.style.opacity = '';
+        el.style.transform = '';
+      }
+    });
+  }
+  if (entering || nmLag !== 0) nmSchedule();
+}
+function nmTrigger(i: number) {
+  nmActive = i;
+  nmEnterStart = performance.now();
+  nmSchedule();
+}
+nmContent.addEventListener(
+  'scroll',
+  () => {
+    const dt = nmContent.scrollTop - nmLastTop;
+    nmLastTop = nmContent.scrollTop;
+    nmLag = Math.max(-28, Math.min(28, nmLag + dt * 0.2));
+    nmSchedule();
+  },
+  { passive: true },
+);
 function sw(i: number) {
   ['panel0', 'panel1', 'panel2', 'panel3'].forEach((id, idx) =>
     document.getElementById(id)!.classList.toggle('active', idx === i),
   );
   TABS.forEach((b, idx) => b.classList.toggle('active', idx === i));
+  nmTrigger(i);
 }
 TABS.forEach((b) => b.addEventListener('click', () => sw(Number((b as HTMLElement).dataset.tab))));
 
@@ -110,6 +168,10 @@ async function renderAll() {
     panel.innerHTML = h;
     for (const id of ids) initW(id);
   }
+  const ai = ['panel0', 'panel1', 'panel2', 'panel3'].findIndex(
+    (id) => document.getElementById(id)!.classList.contains('active'),
+  );
+  if (ai >= 0) nmTrigger(ai);
 }
 function getCard(w: WID): string {
   if (w.id === 'clock')
