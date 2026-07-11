@@ -17,5 +17,10 @@
     "storage",
     "alarms",
     "notifications"
+  ],
+
+  "host_permissions": [
+    "https://goldprice.today/*",
+    "https://fundgz.1234567.com.cn/*"
   ]
 }

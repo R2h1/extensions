@@ -112,7 +112,8 @@ async function showNotification(title: string, message: string) {
   try {
     await chrome.notifications.create({
       type: 'basic',
-      iconUrl: 'data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🍅</text></svg>',
+      iconUrl:
+        'data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🍅</text></svg>',
       title,
       message,
       priority: 2,
@@ -122,14 +123,105 @@ async function showNotification(title: string, message: string) {
   }
 }
 
+// ─── Gold Price ────────────────────────────────────────
+
+interface GoldPrice {
+  ounce: string;
+  gram: string;
+  tola: string;
+}
+interface GoldResponse {
+  success: boolean;
+  data?: { cny: GoldPrice; usd: GoldPrice };
+  error?: string;
+}
+const GOLD_API = 'https://goldprice.today/api.php?data=live';
+
+/** 抓取实时金价。接口无 CORS 头，凭 host_permissions 在 SW 内绕过跨域。 */
+async function handleGoldFetch(): Promise<GoldResponse> {
+  const ctrl = new AbortController();
+  const to = setTimeout(() => ctrl.abort(), 12000);
+  try {
+    const res = await fetch(GOLD_API, { cache: 'no-store', signal: ctrl.signal });
+    if (!res.ok) return { success: false, error: 'HTTP ' + res.status };
+    const data = await res.json();
+    const cny = data?.CNY as GoldPrice | undefined;
+    const usd = data?.USD as GoldPrice | undefined;
+    if (!cny?.gram || !usd?.ounce) return { success: false, error: 'bad data' };
+    return { success: true, data: { cny, usd } };
+  } catch (e) {
+    return { success: false, error: e instanceof Error ? e.message : String(e) };
+  } finally {
+    clearTimeout(to);
+  }
+}
+
+// ─── Fund Estimate ─────────────────────────────────────
+
+interface FundQuote {
+  name: string;
+  dwjz: string;
+  gsz: string;
+  gszzl: string;
+  gztime: string;
+}
+interface FundResponse {
+  success: boolean;
+  data?: Record<string, FundQuote | null>;
+  error?: string;
+}
+
+/** 抓取单只基金实时估值。返回 jsonpgz({...}); 格式，正则提取后解析。 */
+async function fetchOneFund(code: string): Promise<FundQuote | null> {
+  const ctrl = new AbortController();
+  const to = setTimeout(() => ctrl.abort(), 12000);
+  try {
+    const res = await fetch(`https://fundgz.1234567.com.cn/js/${code}.js`, {
+      cache: 'no-store',
+      signal: ctrl.signal,
+    });
+    if (!res.ok) return null;
+    const text = await res.text();
+    const m = text.match(/jsonpgz\((.*)\)/);
+    if (!m) return null;
+    const obj = JSON.parse(m[1]);
+    if (!obj?.fundcode) return null;
+    return {
+      name: String(obj.name ?? ''),
+      dwjz: String(obj.dwjz ?? ''),
+      gsz: String(obj.gsz ?? ''),
+      gszzl: String(obj.gszzl ?? ''),
+      gztime: String(obj.gztime ?? ''),
+    };
+  } catch {
+    return null;
+  } finally {
+    clearTimeout(to);
+  }
+}
+
+async function handleFundFetch(codes: string[]): Promise<FundResponse> {
+  const data: Record<string, FundQuote | null> = {};
+  await Promise.all(
+    codes.map(async (c) => {
+      data[c] = await fetchOneFund(c);
+    }),
+  );
+  return { success: true, data };
+}
+
 // ─── Message Router ─────────────────────────────────────
 
-chrome.runtime.onMessage.addListener(
-  (message: PomodoroMessage, _sender, sendResponse) => {
-    handlePomodoroMessage(message).then(sendResponse);
-    return true;
-  },
-);
+chrome.runtime.onMessage.addListener((message: { type: string }, _sender, sendResponse) => {
+  if (message?.type === 'GOLD_FETCH') {
+    handleGoldFetch().then(sendResponse);
+  } else if (message?.type === 'FUND_FETCH') {
+    handleFundFetch((message as unknown as { codes?: string[] }).codes ?? []).then(sendResponse);
+  } else {
+    handlePomodoroMessage(message as PomodoroMessage).then(sendResponse);
+  }
+  return true;
+});
 
 async function handlePomodoroMessage(msg: PomodoroMessage): Promise<PomodoroResponse> {
   await loadState();

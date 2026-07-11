@@ -47,17 +47,39 @@ interface WID {
   category: (typeof CATS)[number];
 }
 const ALL_WIDGETS: WID[] = [
-  { id: 'clock', name: '时钟', desc: '时间和日期', category: 'home' },
   { id: 'quote', name: '语录', desc: '随机摸鱼语录', category: 'home' },
   { id: 'salary', name: '薪资跳动', desc: '实时薪资计数器', category: 'home' },
+  { id: 'gold', name: '行情', desc: '金价与基金估值', category: 'home' },
   { id: 'fish', name: '功德', desc: '敲木鱼计数器', category: 'fish' },
   { id: 'links', name: '链接', desc: '常用快捷网址', category: 'tools' },
 ];
 type WData = { [K in (typeof CATS)[number]]: string[] };
 async function getWD(): Promise<WData> {
   const r = await chrome.storage.sync.get(SW);
-  const d = r[SW] as { cats: WData } | undefined;
-  return d?.cats ?? { home: [], fish: [], efficiency: [], tools: [] };
+  const cats = (r[SW] as { cats: WData } | undefined)?.cats ?? {
+    home: [],
+    fish: [],
+    efficiency: [],
+    tools: [],
+  };
+  // 迁移：时钟改为常驻顶栏(移除)；基金已并入行情(gold)卡片
+  let changed = false;
+  for (const cat of CATS) {
+    let arr = cats[cat];
+    if (arr.includes('clock')) {
+      arr = arr.filter((id) => id !== 'clock');
+      changed = true;
+    }
+    if (arr.includes('fund')) {
+      arr = arr.includes('gold')
+        ? arr.filter((id) => id !== 'fund')
+        : arr.map((id) => (id === 'fund' ? 'gold' : id));
+      changed = true;
+    }
+    cats[cat] = arr;
+  }
+  if (changed) await chrome.storage.sync.set({ [SW]: { cats } });
+  return cats;
 }
 async function setWD(d: WData) {
   await chrome.storage.sync.set({ [SW]: { cats: d } });
@@ -168,16 +190,20 @@ async function renderAll() {
     panel.innerHTML = h;
     for (const id of ids) initW(id);
   }
-  const ai = ['panel0', 'panel1', 'panel2', 'panel3'].findIndex(
-    (id) => document.getElementById(id)!.classList.contains('active'),
+  const ai = ['panel0', 'panel1', 'panel2', 'panel3'].findIndex((id) =>
+    document.getElementById(id)!.classList.contains('active'),
   );
   if (ai >= 0) nmTrigger(ai);
 }
 function getCard(w: WID): string {
-  if (w.id === 'clock')
-    return `<div style="text-align:center;padding:24px 20px 16px"><div id="wg-clock" class="wg-clock"><span style="font-size:80px;font-weight:600;letter-spacing:6px;color:white;line-height:1;cursor:pointer" id="timeDisplay">--:--</span><div style="font-size:16px;color:white;margin-top:10px;letter-spacing:2px" id="dateDisplay"></div></div></div>`;
   if (w.id === 'quote')
-    return `<div class="widget-card"><div style="font-size:13px;line-height:1.7;color:var(--text-secondary);text-align:center;cursor:pointer" id="quoteText">加载中...</div></div>`;
+    return `<div class="widget-card quote-card">
+      <div class="quote-head">
+        <div class="quote-title">❝ 摸鱼语录</div>
+        <div class="quote-hint">点击换</div>
+      </div>
+      <div class="quote-text" id="quoteText">加载中...</div>
+    </div>`;
   if (w.id === 'salary')
     return `<div class="widget-card sal-card"><div class="sal-grid">
       <div class="sal-left">
@@ -210,6 +236,36 @@ function getCard(w: WID): string {
         <div class="sal-payday" id="salPayDay"></div>
       </div>
     </div></div>`;
+  if (w.id === 'gold')
+    return `<div class="widget-card market-card">
+      <div class="gold-head">
+        <div class="gold-title">◆ 实时金价</div>
+        <div class="gold-meta">
+          <span class="gold-upd" id="goldUpd">加载中…</span>
+          <button class="gold-refresh" id="mkRefresh" title="刷新行情">↻</button>
+        </div>
+      </div>
+      <div class="gold-main">
+        <span class="gold-amount" id="goldGram">¥--</span>
+        <span class="gold-unit">元 / 克</span>
+      </div>
+      <div class="gold-sub">
+        <div class="gold-sub-i"><span>美元/盎司</span><span id="goldUsd">$--</span></div>
+        <div class="gold-delta flat" id="goldDelta">实时</div>
+      </div>
+      <div class="mk-div"></div>
+      <div class="fund-head">
+        <div class="fund-title">❖ 基金估值</div>
+        <div class="fund-meta">
+          <span class="fund-upd" id="fundUpd"></span>
+        </div>
+      </div>
+      <div class="fund-list" id="fundList"><div class="fund-empty">加载中…</div></div>
+      <div class="fund-add">
+        <input id="fundInput" placeholder="输入基金代码，如 001186" />
+        <button id="fundAdd">+</button>
+      </div>
+    </div>`;
   return `<div class="widget-card clickable" data-widget="${w.id}"><div class="widget-entry"><span>${w.desc}</span><span class="arrow">→</span></div></div>`;
 }
 async function initW(id: string) {
@@ -222,11 +278,13 @@ async function initW(id: string) {
     case 'quote':
       initQuote();
       break;
-    case 'clock':
-      initClock();
-      break;
     case 'salary':
       initSalary();
+      break;
+    case 'gold':
+      initGold();
+      initFund();
+      document.getElementById('mkRefresh')?.addEventListener('click', refreshMarket);
       break;
   }
   if (id === 'fish' || id === 'links') {
@@ -526,15 +584,8 @@ function pad(n: number) {
 }
 function initClock() {
   const app = document.documentElement;
-  const ts = localStorage.getItem('moyu_locked') === '1';
-  const wgClock = document.getElementById('wg-clock');
-  if (ts) {
-    app.classList.add('locked');
-    wgClock?.classList.add('wg-clock-fixed');
-  }
   document.getElementById('timeDisplay')!.addEventListener('click', () => {
     const l = app.classList.toggle('locked');
-    wgClock?.classList.toggle('wg-clock-fixed');
     localStorage.setItem('moyu_locked', l ? '1' : '0');
   });
   updT();
@@ -687,7 +738,8 @@ function aQ(d: QD) {
 function initQuote() {
   const qt = document.getElementById('quoteText');
   if (!qt) return;
-  qt.addEventListener('click', async () => {
+  const card = qt.closest('.quote-card') as HTMLElement | null;
+  (card || qt).addEventListener('click', async () => {
     const d = await loadQD();
     sRQ(d);
   });
@@ -1197,8 +1249,326 @@ function loadWallpaper() {
   if (url) document.body.style.backgroundImage = `url(${url})`;
 }
 
+// ── 实时金价 ──
+const GOLD_KEY = 'moyu_gold_cache';
+interface GoldPrice {
+  ounce: string;
+  gram: string;
+  tola: string;
+}
+interface GoldCache {
+  gram: number;
+  usdOunce: number;
+  ts: number;
+  prevGram: number;
+}
+let goldInited = false;
+let goldLoading = false;
+function loadGoldCache(): GoldCache | null {
+  try {
+    const raw = localStorage.getItem(GOLD_KEY);
+    return raw ? (JSON.parse(raw) as GoldCache) : null;
+  } catch {
+    return null;
+  }
+}
+function saveGoldCache(c: GoldCache) {
+  try {
+    localStorage.setItem(GOLD_KEY, JSON.stringify(c));
+  } catch {}
+}
+function fmtGoldMoney(v: number, prefix: string) {
+  return prefix + v.toLocaleString('zh-CN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+}
+function fmtGoldTime(ts: number) {
+  const d = new Date(ts);
+  return pad(d.getHours()) + ':' + pad(d.getMinutes());
+}
+function renderGold(c: GoldCache | null, error: boolean) {
+  const gramEl = document.getElementById('goldGram');
+  const usdEl = document.getElementById('goldUsd');
+  const updEl = document.getElementById('goldUpd');
+  const deltaEl = document.getElementById('goldDelta');
+  if (!c) {
+    if (gramEl) gramEl.textContent = error ? '获取失败' : '¥--';
+    if (updEl) updEl.textContent = error ? '⚠ 失败 · 点刷新重试' : '加载中…';
+    return;
+  }
+  if (gramEl) gramEl.textContent = fmtGoldMoney(c.gram, '¥');
+  if (usdEl) usdEl.textContent = fmtGoldMoney(c.usdOunce, '$');
+  if (updEl) updEl.textContent = (error ? '⚠ 更新失败 · ' : '') + fmtGoldTime(c.ts) + ' 更新';
+  if (deltaEl) {
+    if (c.prevGram > 0) {
+      const diff = c.gram - c.prevGram;
+      const pct = (diff / c.prevGram) * 100;
+      if (Math.abs(diff) < 0.005) {
+        deltaEl.className = 'gold-delta flat';
+        deltaEl.textContent = '— 持平';
+      } else {
+        const up = diff > 0;
+        deltaEl.className = 'gold-delta ' + (up ? 'up' : 'down');
+        deltaEl.textContent =
+          (up ? '▲ +' : '▼ ') + diff.toFixed(2) + ' (' + (up ? '+' : '') + pct.toFixed(2) + '%)';
+      }
+    } else {
+      deltaEl.className = 'gold-delta flat';
+      deltaEl.textContent = '实时';
+    }
+  }
+}
+async function fetchGold(): Promise<{ cny: GoldPrice; usd: GoldPrice }> {
+  // 接口无 CORS 头，由 background SW 凭 host_permissions 绕过跨域
+  const res = (await chrome.runtime.sendMessage({ type: 'GOLD_FETCH' })) as
+    | {
+        success: boolean;
+        data?: { cny: GoldPrice; usd: GoldPrice };
+        error?: string;
+      }
+    | undefined;
+  if (!res?.success || !res.data) throw new Error(res?.error || 'fetch failed');
+  return res.data;
+}
+async function refreshGold() {
+  if (goldLoading) return;
+  if (!document.getElementById('goldGram')) return;
+  const btn = document.getElementById('goldRefresh');
+  goldLoading = true;
+  btn?.classList.add('spin');
+  try {
+    const prev = loadGoldCache();
+    const r = await fetchGold();
+    const c: GoldCache = {
+      gram: parseFloat(r.cny.gram),
+      usdOunce: parseFloat(r.usd.ounce),
+      ts: Date.now(),
+      prevGram: prev?.gram ?? 0,
+    };
+    renderGold(c, false);
+    saveGoldCache(c);
+  } catch {
+    renderGold(loadGoldCache(), true);
+  } finally {
+    goldLoading = false;
+    btn?.classList.remove('spin');
+  }
+}
+function onGoldVis() {
+  if (document.visibilityState !== 'visible') return;
+  const c = loadGoldCache();
+  if (!c || Date.now() - c.ts > 60000) refreshGold();
+}
+function initGold() {
+  renderGold(loadGoldCache(), false);
+  document.getElementById('goldRefresh')?.addEventListener('click', refreshGold);
+  if (goldInited) return;
+  goldInited = true;
+  refreshGold();
+  setInterval(refreshGold, 60000);
+  document.addEventListener('visibilitychange', onGoldVis);
+}
+
+// ── 基金估值 ──
+const SF = 'moyu_funds';
+const FC_KEY = 'moyu_fund_cache';
+interface FundData {
+  name: string;
+  dwjz: string;
+  gsz: string;
+  gszzl: string;
+  gztime: string;
+  ts: number;
+}
+let fundCodes: string[] = [];
+let fundInited = false;
+let fundLoading = false;
+let fundLastFetch = 0;
+async function getFunds(): Promise<string[]> {
+  const r = await chrome.storage.sync.get(SF);
+  return (r[SF] as string[]) ?? [];
+}
+async function setFunds(codes: string[]) {
+  await chrome.storage.sync.set({ [SF]: codes });
+}
+async function loadFundCodes() {
+  fundCodes = await getFunds();
+}
+function loadFundCache(): Record<string, FundData> {
+  try {
+    const raw = localStorage.getItem(FC_KEY);
+    return raw ? (JSON.parse(raw) as Record<string, FundData>) : {};
+  } catch {
+    return {};
+  }
+}
+function saveFundCache(c: Record<string, FundData>) {
+  try {
+    localStorage.setItem(FC_KEY, JSON.stringify(c));
+  } catch {}
+}
+function fmtFundTime(ts: number) {
+  const d = new Date(ts);
+  return pad(d.getHours()) + ':' + pad(d.getMinutes());
+}
+function fmtFundChange(s: string) {
+  const v = parseFloat(s);
+  if (isNaN(v)) return { text: '--', cls: 'fund-chg flat' };
+  if (v > 0) return { text: '+' + v.toFixed(2) + '%', cls: 'fund-chg up' };
+  if (v < 0) return { text: v.toFixed(2) + '%', cls: 'fund-chg down' };
+  return { text: '0.00%', cls: 'fund-chg flat' };
+}
+function renderFundList(error: boolean) {
+  const list = document.getElementById('fundList');
+  const upd = document.getElementById('fundUpd');
+  if (!list) return;
+  const cache = loadFundCache();
+  if (!fundCodes.length) {
+    list.innerHTML = `<div class="fund-empty">暂无基金 · 下方输入代码添加</div>`;
+    if (upd) upd.textContent = '';
+    return;
+  }
+  let latestTs = 0;
+  let html = '';
+  for (const code of fundCodes) {
+    const d = cache[code];
+    if (d) {
+      latestTs = Math.max(latestTs, d.ts);
+      const chg = fmtFundChange(d.gszzl);
+      const t = d.gztime ? d.gztime.slice(-5) : '';
+      html += `<div class="fund-row" data-code="${code}">
+        <div class="fund-main">
+          <div class="fund-name">${esc(d.name || code)}</div>
+          <div class="fund-sub">${code} · 净值 ${d.dwjz || '--'}${t ? ' · ' + t : ''}</div>
+        </div>
+        <div class="fund-right">
+          <div class="fund-gsz">${d.gsz || '--'}</div>
+          <div class="${chg.cls}">${chg.text}</div>
+        </div>
+        <button class="fund-del" data-code="${code}" title="删除">x</button>
+      </div>`;
+    } else {
+      html += `<div class="fund-row" data-code="${code}">
+        <div class="fund-main">
+          <div class="fund-name">${code}</div>
+          <div class="fund-sub">${error ? '获取失败 · 检查代码' : '加载中…'}</div>
+        </div>
+        <div class="fund-right"><div class="fund-gsz">--</div><div class="fund-chg flat">--</div></div>
+        <button class="fund-del" data-code="${code}" title="删除">x</button>
+      </div>`;
+    }
+  }
+  list.innerHTML = html;
+  if (upd) {
+    if (latestTs) upd.textContent = (error ? '⚠ ' : '') + fmtFundTime(latestTs) + ' 更新';
+    else if (error) upd.textContent = '⚠ 失败';
+    else upd.textContent = '';
+  }
+  list.querySelectorAll('.fund-del').forEach((b) =>
+    b.addEventListener('click', async () => {
+      const code = (b as HTMLElement).dataset.code!;
+      fundCodes = fundCodes.filter((c) => c !== code);
+      await setFunds(fundCodes);
+      const cache = loadFundCache();
+      delete cache[code];
+      saveFundCache(cache);
+      renderFundList(false);
+    }),
+  );
+}
+async function fetchFunds(codes: string[]): Promise<Record<string, Omit<FundData, 'ts'> | null>> {
+  const res = (await chrome.runtime.sendMessage({ type: 'FUND_FETCH', codes })) as
+    | {
+        success: boolean;
+        data?: Record<string, Omit<FundData, 'ts'> | null>;
+      }
+    | undefined;
+  if (!res?.success || !res.data) throw new Error('fetch failed');
+  return res.data;
+}
+async function refreshFund() {
+  if (fundLoading) return;
+  if (!document.getElementById('fundList')) return;
+  if (!fundCodes.length) return;
+  const btn = document.getElementById('fundRefresh');
+  fundLoading = true;
+  btn?.classList.add('spin');
+  try {
+    const data = await fetchFunds(fundCodes);
+    const cache = loadFundCache();
+    const now = Date.now();
+    let ok = false;
+    for (const code of fundCodes) {
+      const d = data[code];
+      if (d) {
+        cache[code] = { ...d, ts: now };
+        ok = true;
+      }
+    }
+    saveFundCache(cache);
+    fundLastFetch = Date.now();
+    renderFundList(!ok);
+  } catch {
+    renderFundList(true);
+  } finally {
+    fundLoading = false;
+    btn?.classList.remove('spin');
+  }
+}
+async function addFund() {
+  const input = document.getElementById('fundInput') as HTMLInputElement | null;
+  if (!input) return;
+  const code = input.value.trim();
+  if (!/^\d{5,6}$/.test(code)) {
+    input.classList.add('err');
+    setTimeout(() => input.classList.remove('err'), 600);
+    return;
+  }
+  if (fundCodes.includes(code)) {
+    input.value = '';
+    return;
+  }
+  fundCodes = [...fundCodes, code];
+  await setFunds(fundCodes);
+  input.value = '';
+  renderFundList(false);
+  refreshFund();
+}
+function bindFundControls() {
+  document.getElementById('fundRefresh')?.addEventListener('click', refreshFund);
+  document.getElementById('fundAdd')?.addEventListener('click', addFund);
+  document.getElementById('fundInput')?.addEventListener('keydown', (e) => {
+    if ((e as KeyboardEvent).key === 'Enter') addFund();
+  });
+}
+function onFundVis() {
+  if (document.visibilityState !== 'visible') return;
+  if (fundCodes.length && Date.now() - fundLastFetch > 60000) refreshFund();
+}
+async function refreshMarket() {
+  const btn = document.getElementById('mkRefresh');
+  btn?.classList.add('spin');
+  try {
+    await Promise.all([refreshGold(), refreshFund()]);
+  } finally {
+    btn?.classList.remove('spin');
+  }
+}
+async function initFund() {
+  await loadFundCodes();
+  renderFundList(false);
+  bindFundControls();
+  if (fundInited) return;
+  fundInited = true;
+  refreshFund();
+  setInterval(refreshFund, 60000);
+  document.addEventListener('visibilitychange', onFundVis);
+}
+
 async function init() {
+  requestAnimationFrame(() =>
+    requestAnimationFrame(() => document.documentElement.classList.add('animated')),
+  );
   loadWallpaper();
+  initClock();
   await loadSch();
   await loadM();
   await loadSal();
