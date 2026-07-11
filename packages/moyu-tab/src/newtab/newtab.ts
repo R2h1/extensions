@@ -49,7 +49,8 @@ interface WID {
 const ALL_WIDGETS: WID[] = [
   { id: 'quote', name: '语录', desc: '随机摸鱼语录', category: 'home' },
   { id: 'salary', name: '薪资跳动', desc: '实时薪资计数器', category: 'home' },
-  { id: 'gold', name: '行情', desc: '金价与基金估值', category: 'home' },
+  { id: 'gold', name: '金价', desc: '实时黄金价格', category: 'home' },
+  { id: 'fund', name: '基金', desc: '实时基金估值', category: 'home' },
   { id: 'fish', name: '功德', desc: '敲木鱼计数器', category: 'fish' },
   { id: 'links', name: '链接', desc: '常用快捷网址', category: 'tools' },
 ];
@@ -62,18 +63,12 @@ async function getWD(): Promise<WData> {
     efficiency: [],
     tools: [],
   };
-  // 迁移：时钟改为常驻顶栏(移除)；基金已并入行情(gold)卡片
+  // 迁移：时钟改为常驻顶栏(移除)
   let changed = false;
   for (const cat of CATS) {
     let arr = cats[cat];
     if (arr.includes('clock')) {
       arr = arr.filter((id) => id !== 'clock');
-      changed = true;
-    }
-    if (arr.includes('fund')) {
-      arr = arr.includes('gold')
-        ? arr.filter((id) => id !== 'fund')
-        : arr.map((id) => (id === 'fund' ? 'gold' : id));
       changed = true;
     }
     cats[cat] = arr;
@@ -100,7 +95,6 @@ async function setSal(s: SalStt) {
 }
 const WDPM = 21.75;
 
-const sbCd = document.getElementById('sbCountdown')!;
 const TABS = document.querySelectorAll('.sb-btn[data-tab]');
 const nmContent = document.querySelector('.content') as HTMLElement;
 const NM_ENTER_DUR = 500;
@@ -237,32 +231,35 @@ function getCard(w: WID): string {
       </div>
     </div></div>`;
   if (w.id === 'gold')
-    return `<div class="widget-card market-card">
+    return `<div class="widget-card gold-card">
       <div class="gold-head">
         <div class="gold-title">◆ 实时金价</div>
         <div class="gold-meta">
           <span class="gold-upd" id="goldUpd">加载中…</span>
-          <button class="gold-refresh" id="mkRefresh" title="刷新行情">↻</button>
+          <button class="gold-refresh" id="goldRefresh" title="刷新">↻</button>
         </div>
       </div>
       <div class="gold-main">
         <span class="gold-amount" id="goldGram">¥--</span>
-        <span class="gold-unit">元 / 克</span>
+        <span class="gold-unit">元/克</span>
       </div>
       <div class="gold-sub">
         <div class="gold-sub-i"><span>美元/盎司</span><span id="goldUsd">$--</span></div>
         <div class="gold-delta flat" id="goldDelta">实时</div>
       </div>
-      <div class="mk-div"></div>
+    </div>`;
+  if (w.id === 'fund')
+    return `<div class="widget-card fund-card">
       <div class="fund-head">
         <div class="fund-title">❖ 基金估值</div>
         <div class="fund-meta">
           <span class="fund-upd" id="fundUpd"></span>
+          <button class="fund-refresh" id="fundRefresh" title="刷新">↻</button>
         </div>
       </div>
       <div class="fund-list" id="fundList"><div class="fund-empty">加载中…</div></div>
       <div class="fund-add">
-        <input id="fundInput" placeholder="输入基金代码，如 001186" />
+        <input id="fundInput" placeholder="基金代码，如 001186" />
         <button id="fundAdd">+</button>
       </div>
     </div>`;
@@ -283,8 +280,9 @@ async function initW(id: string) {
       break;
     case 'gold':
       initGold();
+      break;
+    case 'fund':
       initFund();
-      document.getElementById('mkRefresh')?.addEventListener('click', refreshMarket);
       break;
   }
   if (id === 'fish' || id === 'links') {
@@ -492,7 +490,6 @@ async function renderSetTime() {
     };
     await chrome.storage.sync.set({ [SS]: schedule });
     rescaleSal(oldRate);
-    updC();
     buildSalTimeline();
     tickSalary();
     document.getElementById('sStatus')!.textContent = '已保存';
@@ -1106,37 +1103,6 @@ let schedule: Sch = { ...DS };
 async function loadSch() {
   const r = await chrome.storage.sync.get(SS);
   if (r[SS]) schedule = { ...DS, ...r[SS] };
-  updC();
-}
-function th(h: number, m: number) {
-  const d = new Date();
-  d.setHours(h, m, 0, 0);
-  return d;
-}
-function fd(ms: number) {
-  const tm = Math.round(ms / 60000),
-    h = Math.floor(tm / 60),
-    min = tm % 60;
-  return h > 0 ? `${h}h ${min}min` : `${min}min`;
-}
-function updC() {
-  const n = new Date(),
-    t = n.getDay();
-  if (!schedule.workDays.includes(t)) {
-    sbCd.textContent = '今天休息';
-    return;
-  }
-  const lt = th(schedule.lunchHour, schedule.lunchMinute),
-    et = th(schedule.endHour, schedule.endMinute);
-  if (n >= et) {
-    sbCd.textContent = '已下班 · 明天再来';
-    return;
-  }
-  if (n < lt) {
-    sbCd.textContent = `午餐 ${pad(schedule.lunchHour)}:${pad(schedule.lunchMinute)} · ${fd(lt.getTime() - n.getTime())} 后`;
-    return;
-  }
-  sbCd.textContent = `下班 ${pad(schedule.endHour)}:${pad(schedule.endMinute)} · ${fd(et.getTime() - n.getTime())} 后`;
 }
 
 // ── Wallpaper ──
@@ -1543,15 +1509,6 @@ function onFundVis() {
   if (document.visibilityState !== 'visible') return;
   if (fundCodes.length && Date.now() - fundLastFetch > 60000) refreshFund();
 }
-async function refreshMarket() {
-  const btn = document.getElementById('mkRefresh');
-  btn?.classList.add('spin');
-  try {
-    await Promise.all([refreshGold(), refreshFund()]);
-  } finally {
-    btn?.classList.remove('spin');
-  }
-}
 async function initFund() {
   await loadFundCodes();
   renderFundList(false);
@@ -1575,7 +1532,6 @@ async function init() {
   renderAll();
   setInterval(() => {
     updT();
-    updC();
     tickSalary();
   }, 1000);
 }

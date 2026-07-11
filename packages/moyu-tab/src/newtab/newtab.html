@@ -26,14 +26,14 @@ html.locked #dateDisplay{font-size:16px!important;transition:font-size 0.5s ease
 .sb-btn.active{color:var(--accent);background:var(--glass-accent);font-weight:600}
 .sb-btn.active::before{content:'';position:absolute;left:0;top:50%;transform:translateY(-50%);width:3px;height:16px;border-radius:3px;background:var(--accent)}
 .sb-div{height:0.5px;background:rgba(0,0,0,0.06);margin:6px 12px}
-.sb-countdown{padding:8px 12px 4px;font-size:11px;color:var(--text-tertiary);line-height:1.4}
 .content{flex:1;display:flex;justify-content:center;overflow-y:auto;min-width:0}
-.ci{width:100%;max-width:660px;display:flex;flex-direction:column;padding:32px 28px 20px}
-.cat-panel{display:none;grid-template-columns:repeat(2,1fr);grid-auto-flow:row dense;align-items:start;align-content:start;flex:1;min-height:0;gap:10px;padding:4px 0}
-.cat-panel.active{display:grid}
-.market-card,.sal-card{grid-column:1/-1}
+.ci{width:100%;max-width:768px;display:flex;flex-direction:column;padding:32px 28px 20px}
+.cat-panel{display:none;column-count:2;column-gap:10px;padding:4px 0}
+.cat-panel.active{display:block}
+.cat-panel > *{break-inside:avoid;margin-bottom:10px}
+.sal-card{container-type:inline-size}
 .clock-bar{text-align:center;padding:0 20px 12px}
-.cat-panel .empty{grid-column:1/-1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;padding:36px 0;color:var(--text-tertiary);font-size:13px}
+.cat-panel .empty{column-span:all;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;padding:36px 0;color:var(--text-tertiary);font-size:13px}
 .cat-panel .add-hint{font-size:11px;color:var(--text-tertiary)}
 .widget-card{background:var(--nm-surface);backdrop-filter:none;-webkit-backdrop-filter:none;border:none;border-radius:var(--radius);padding:16px;box-shadow:var(--nm-out);transition:all 0.2s}
 .widget-card:hover{border:none;background:var(--nm-surface);box-shadow:var(--nm-out-h)}
@@ -129,17 +129,17 @@ html.locked .clock-bar{padding:0}
 .sal-countdown{text-align:center;margin-top:10px;font-size:13px;color:var(--text-secondary)}
 .sal-countdown span{color:#3b82f6;font-weight:600;font-variant-numeric:tabular-nums;font-family:ui-monospace,monospace}
 .sal-payday{text-align:center;font-size:10px;color:var(--text-tertiary);margin-top:6px;border-top:.5px solid rgba(0,0,0,.04);padding-top:6px}
-@media (max-width:520px){.sal-grid{grid-template-columns:1fr;gap:12px}.sal-amount{font-size:36px}.sal-timer{font-size:26px}.sal-right{padding-top:0}}
-/* 行情卡片（金价 + 基金） */
-.market-card{padding:16px 18px 14px}
-.mk-div{height:0.5px;background:rgba(0,0,0,0.06);margin:12px 0}
+@container (max-width:450px){.sal-grid{grid-template-columns:1fr;gap:12px}.sal-amount{font-size:34px}.sal-timer{font-size:24px}.sal-right{padding-top:0}}
+/* 金价 / 基金 卡片（各占半宽） */
+.gold-card{padding:12px 14px}
+.fund-card{padding:12px 14px}
 .quote-card{padding:18px 18px 16px;display:flex;flex-direction:column}
 .quote-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
 .quote-title{font-size:14px;font-weight:600;color:var(--text-secondary);letter-spacing:.5px;display:flex;align-items:center;gap:6px}
 .quote-hint{font-size:10px;color:var(--text-tertiary)}
 .quote-text{flex:1;display:flex;align-items:center;justify-content:center;text-align:center;font-size:15px;line-height:1.7;color:var(--text);cursor:pointer;padding:4px 0;word-break:break-word}
 /* 基金列表（行情卡片内） */
-.fund-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+.fund-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px}
 .fund-title{font-size:14px;font-weight:600;color:var(--text-secondary);letter-spacing:.5px;display:flex;align-items:center;gap:6px}
 .fund-meta{display:flex;align-items:center;gap:8px}
 .fund-upd{font-size:10px;color:var(--text-tertiary);font-variant-numeric:tabular-nums;min-height:12px}
@@ -149,7 +149,7 @@ html.locked .clock-bar{padding:0}
 .fund-refresh.spin{color:var(--accent);animation:goldspin 1s linear infinite}
 .fund-list{display:flex;flex-direction:column}
 .fund-empty{font-size:12px;color:var(--text-tertiary);text-align:center;padding:14px 0}
-.fund-row{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:0.5px solid rgba(0,0,0,0.04)}
+.fund-row{display:flex;align-items:center;gap:10px;padding:6px 0;border-bottom:0.5px solid rgba(0,0,0,0.04)}
 .fund-row:last-child{border-bottom:none}
 .fund-main{flex:1;min-width:0}
 .fund-name{font-size:13px;color:var(--text);font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -166,7 +166,7 @@ html.locked .clock-bar{padding:0}
 .fund-add input{flex:1;padding:8px 10px;font-size:12px;border:none;border-radius:var(--radius-xs);background:var(--nm-surface);color:var(--text);outline:none;font-family:inherit;box-shadow:var(--nm-in);min-width:0}
 .fund-add input.err{box-shadow:var(--nm-in),0 0 0 1.5px #ef4444}
 .fund-add button{padding:8px 14px;font-size:12px;border:none;border-radius:var(--radius-xs);background:var(--glass-accent);color:var(--accent);cursor:pointer;font-family:inherit;font-weight:600}
-.gold-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.gold-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px}
 .gold-title{font-size:14px;font-weight:600;color:var(--text-secondary);letter-spacing:.5px;display:flex;align-items:center;gap:6px}
 .gold-meta{display:flex;align-items:center;gap:8px}
 .gold-upd{font-size:10px;color:var(--text-tertiary);font-variant-numeric:tabular-nums}
@@ -175,8 +175,8 @@ html.locked .clock-bar{padding:0}
 .gold-refresh:active{box-shadow:var(--nm-in-sm)}
 .gold-refresh.spin{color:var(--accent);animation:goldspin 1s linear infinite}
 @keyframes goldspin{to{transform:rotate(360deg)}}
-.gold-main{display:flex;align-items:baseline;gap:8px;margin-bottom:12px}
-.gold-amount{font-size:42px;font-weight:700;letter-spacing:-1px;line-height:1;background:linear-gradient(135deg,#f6c544,#b8860b);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;color:transparent;font-variant-numeric:tabular-nums;font-family:'Courier New',ui-monospace,monospace}
+.gold-main{display:flex;align-items:baseline;gap:8px;margin-bottom:8px}
+.gold-amount{font-size:30px;font-weight:700;letter-spacing:-1px;line-height:1;background:linear-gradient(135deg,#f6c544,#b8860b);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;color:transparent;font-variant-numeric:tabular-nums;font-family:'Courier New',ui-monospace,monospace}
 .gold-unit{font-size:13px;color:var(--text-tertiary)}
 .gold-sub{display:flex;align-items:center;gap:18px;flex-wrap:wrap}
 .gold-sub-i{display:flex;flex-direction:column;gap:2px}
@@ -186,7 +186,7 @@ html.locked .clock-bar{padding:0}
 .gold-delta.up{color:#10b981}
 .gold-delta.down{color:#ef4444}
 .gold-delta.flat{color:var(--text-tertiary)}
-@media (max-width:520px){.gold-amount{font-size:34px}}
+@media (max-width:520px){.gold-amount{font-size:26px}}
 </style>
 <script src="boot.js"></script>
 </head>
@@ -202,8 +202,6 @@ html.locked .clock-bar{padding:0}
     <div class="sb-div"></div>
     <button class="sb-btn" id="addWidgetBtn"><span class="ic">+</span>添加组件</button>
     <button class="sb-btn" id="settingsBtn"><span class="ic">⚙</span>设置</button>
-    <div class="sb-div"></div>
-    <div class="sb-countdown" id="sbCountdown"></div>
   </nav>
   <main class="content"><div class="ci">
     <div class="clock-bar" id="clockBar"><div id="wg-clock" class="wg-clock"><span style="font-size:80px;font-weight:600;letter-spacing:6px;color:white;line-height:1;cursor:pointer" id="timeDisplay">--:--</span><div style="font-size:16px;color:white;margin-top:10px;letter-spacing:2px" id="dateDisplay"></div></div></div>
