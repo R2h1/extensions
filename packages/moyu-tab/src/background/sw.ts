@@ -1,5 +1,5 @@
 /**
- * 工位搭子 — Background Service Worker
+ * 闲页 — Background Service Worker
  *
  * 管理番茄钟持久化状态、alarms 定时检查、通知发送。
  */

@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
-  "name": "工位搭子",
+  "name": "闲页",
   "version": "0.2.0",
-  "description": "你的新标签页摸鱼搭子",
+  "description": "清闲的新标签页摸鱼面板",
 
   "chrome_url_overrides": {
     "newtab": "newtab/newtab.html"

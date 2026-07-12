@@ -12,7 +12,7 @@ const ENTRY_POINTS = [
 ];
 
 async function build() {
-  console.log('Building 工位搭子 with esbuild...\n');
+  console.log('Building 闲页 with esbuild...\n');
 
   for (const entry of ENTRY_POINTS) {
     const srcPath = path.join(SRC, entry);

@@ -1,7 +1,7 @@
 {
   "name": "@extensions/moyu-tab",
   "version": "0.1.0",
-  "description": "工位搭子 — 新标签页摸鱼仪表盘",
+  "description": "闲页 — 新标签页摸鱼仪表盘",
   "private": true,
   "type": "module",
   "scripts": {
