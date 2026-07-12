@@ -18,13 +18,12 @@ html.locked .entry-grid{opacity:0;visibility:hidden;transition:opacity 0.3s ease
 html.locked #timeDisplay{font-size:100px!important}
 html.locked #dateDisplay{font-size:16px!important;transition:font-size 0.5s ease}
 .app{display:flex;height:100vh;position:relative;z-index:1}
-.sidebar{width:120px;flex-shrink:0;display:flex;flex-direction:column;padding:28px 8px 12px;background:rgba(0,0,0,0.6);backdrop-filter:blur(30px);-webkit-backdrop-filter:blur(30px);border-right:0.5px solid rgba(0,0,0,0.03)}
+.sidebar{width:120px;flex-shrink:0;display:flex;flex-direction:column;padding:28px 8px 12px;background:var(--nm-surface);border-right:0.5px solid rgba(0,0,0,0.05)}
 .sidebar-nav{flex:1;display:flex;flex-direction:column;gap:2px}
 .ic{width:20px;text-align:center;font-size:14px;flex-shrink:0}
-.sb-btn{display:flex;align-items:center;gap:4px;padding:8px 12px;border-radius:var(--radius-xs);background:transparent;border:none;color:var(--text-tertiary);font-size:13px;font-weight:500;font-family:inherit;cursor:pointer;transition:all 0.15s;text-align:left;width:100%;position:relative}
-.sb-btn:hover{color:var(--text-tertiary);background:var(--glass-accent)}
-.sb-btn.active{color:var(--accent);background:var(--glass-accent);font-weight:600}
-.sb-btn.active::before{content:'';position:absolute;left:0;top:50%;transform:translateY(-50%);width:3px;height:16px;border-radius:3px;background:var(--accent)}
+.sb-btn{display:flex;align-items:center;gap:4px;padding:8px 12px;border-radius:var(--radius-xs);background:transparent;border:none;color:var(--text-secondary);font-size:13px;font-weight:500;font-family:inherit;cursor:pointer;transition:all 0.15s;text-align:left;width:100%;position:relative}
+.sb-btn:hover{color:var(--text);background:var(--glass-accent)}
+.sb-btn.active{color:var(--accent);background:var(--nm-surface);font-weight:600;box-shadow:3px 3px 8px rgba(174,174,178,.3),-3px -3px 8px rgba(255,255,255,.8)}
 .sb-div{height:0.5px;background:rgba(0,0,0,0.06);margin:6px 12px}
 .content{flex:1;display:flex;justify-content:center;overflow-y:auto;min-width:0}
 .ci{width:100%;max-width:768px;display:flex;flex-direction:column;padding:32px 28px 20px}
@@ -86,10 +85,28 @@ html.locked .clock-bar{padding:0}
 .aqr input{flex:1;padding:7px 10px;font-size:12px;border:none;border-radius:var(--radius-xs);background:var(--nm-surface);color:var(--text);outline:none;font-family:inherit;box-shadow:var(--nm-in)}
 .aqr button{padding:7px 12px;font-size:12px;border:0.5px solid var(--glass-border);border-radius:var(--radius-xs);background:transparent;color:var(--text-secondary);cursor:pointer;font-family:inherit}
 .aqr button:hover{border-color:var(--accent);color:var(--accent)}
-.lrow:hover .ldel{opacity:1!important}
+.links-card{padding:12px 14px}
+.links-head{margin-bottom:6px}
+.links-title{font-size:13px;font-weight:600;color:var(--text-secondary);letter-spacing:.5px}
+.links-list{display:flex;flex-direction:column}
+.links-empty{font-size:12px;color:var(--text-tertiary);text-align:center;padding:10px 0}
+.links-row{display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:0.5px solid rgba(0,0,0,0.04)}
+.links-row:last-child{border-bottom:none}
+.links-name{flex:1;min-width:0;font-size:13px;color:var(--text);text-decoration:none;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.links-name:hover{color:var(--accent)}
+.links-del{background:none;border:none;color:var(--text-tertiary);cursor:pointer;font-size:12px;padding:2px 4px;opacity:0;transition:opacity .15s;flex-shrink:0}
+.links-row:hover .links-del{opacity:1}
+.links-add{display:flex;gap:6px;margin-top:8px}
+.links-add input{flex:1;min-width:0;padding:7px 10px;font-size:12px;border:none;border-radius:var(--radius-xs);background:var(--nm-surface);color:var(--text);outline:none;font-family:inherit;box-shadow:var(--nm-in)}
+.links-add button{padding:7px 12px;font-size:12px;border:none;border-radius:var(--radius-xs);background:var(--glass-accent);color:var(--accent);cursor:pointer;font-family:inherit;font-weight:600}
 .ctx-menu{display:none;position:fixed;z-index:200;background:var(--nm-surface);backdrop-filter:none;-webkit-backdrop-filter:none;border-radius:10px;box-shadow:var(--nm-out);padding:4px;min-width:140px}
-#fmFishBtn{background:var(--nm-surface)!important;border:none!important;box-shadow:var(--nm-out)!important}
-#fmFishBtn:active{box-shadow:var(--nm-in)!important}
+.fish-card{padding:12px 14px;text-align:center}
+.fish-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:4px}
+.fish-title{font-size:13px;font-weight:600;color:var(--text-secondary);letter-spacing:.5px}
+.fish-merit{font-size:22px;font-weight:700;color:var(--accent);font-variant-numeric:tabular-nums;font-family:'Courier New',ui-monospace,monospace}
+.fish-btn{width:84px;height:84px;border-radius:50%;border:none;background:var(--nm-surface);box-shadow:var(--nm-out);color:var(--accent);font-size:32px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:transform .08s,box-shadow .15s;margin:4px auto 2px;font-family:inherit}
+.fish-btn:active{transform:scale(.92);box-shadow:var(--nm-in)}
+.fish-hint{font-size:11px;color:var(--text-tertiary)}
 .ctx-menu.open{display:block}
 .ctx-menu button{display:block;width:100%;padding:8px 14px;font-size:12px;font-family:inherit;border:none;background:transparent;color:var(--text);cursor:pointer;text-align:left;border-radius:6px;transition:all 0.1s}
 .ctx-menu button:hover{background:var(--glass-accent);color:var(--accent)}
@@ -112,9 +129,9 @@ html.locked .clock-bar{padding:0}
 .sal-breakdown .bd-sym{color:var(--text-tertiary);font-size:14px}
 .sal-breakdown .t-green{color:#10b981}
 .sal-right{display:flex;flex-direction:column;align-items:center;padding-top:2px}
-.sal-toggle{display:flex;background:var(--nm-surface);border-radius:30px;padding:3px;width:100%;max-width:200px;box-shadow:var(--nm-in)}
+.sal-toggle{display:flex;background:var(--nm-surface);border-radius:30px;padding:3px;width:100%;max-width:200px;box-shadow:inset 5px 5px 10px rgba(174,174,178,.5),inset -5px -5px 10px rgba(255,255,255,.9)}
 .sal-tb{flex:1;border-radius:26px;padding:8px 0;text-align:center;font-weight:600;font-size:13px;cursor:pointer;transition:all .2s;user-select:none;color:var(--text-tertiary)}
-.sal-tb.active{background:var(--nm-surface);color:var(--accent);box-shadow:var(--nm-out-sm)}
+.sal-tb.active{background:var(--nm-surface);color:var(--accent);box-shadow:3px 3px 8px rgba(174,174,178,.3),-3px -3px 8px rgba(255,255,255,.8)}
 .sal-timer{font-size:30px;font-weight:500;color:var(--text);margin-top:12px;letter-spacing:1px;font-variant-numeric:tabular-nums;font-family:ui-monospace,'Courier New',monospace}
 .sal-text{color:var(--text-secondary);font-size:13px;margin-top:4px}
 .sal-bottom{grid-column:1/-1;margin-top:14px;background:var(--nm-surface);border-radius:14px;padding:14px 16px;box-shadow:var(--nm-in)}
@@ -195,12 +212,9 @@ html.locked .clock-bar{padding:0}
   <nav class="sidebar">
     <div class="sidebar-nav">
       <button class="sb-btn active" data-tab="0"><span class="ic">⌂</span>首页</button>
-      <button class="sb-btn" data-tab="1"><span class="ic">〰</span>摸鱼</button>
-      <button class="sb-btn" data-tab="2"><span class="ic">◈</span>效率</button>
-      <button class="sb-btn" data-tab="3"><span class="ic">⊞</span>工具</button>
     </div>
     <div class="sb-div"></div>
-    <button class="sb-btn" id="addWidgetBtn"><span class="ic">+</span>添加组件</button>
+    <button class="sb-btn" id="addWidgetBtn"><span class="ic">+</span>组件库</button>
     <button class="sb-btn" id="settingsBtn"><span class="ic">⚙</span>设置</button>
   </nav>
   <main class="content"><div class="ci">
@@ -212,8 +226,7 @@ html.locked .clock-bar{padding:0}
   </div></main>
 </div>
 <div class="ctx-menu" id="ctxMenu"><button id="ctxWallpaper">更换壁纸</button></div>
-<div class="mo" id="featureModal"><div class="ms"><div class="mh"><span class="mt" id="fmTitle"></span><button class="mc" id="fmClose">x</button></div><div class="modal-content" id="fmBody" style="padding:16px 20px 20px;display:flex;flex-direction:column"></div></div></div>
-<div class="mo" id="widgetModal"><div class="ms"><div class="mh"><span class="mt">组件库</span><button class="mc" id="wmClose">x</button></div><div class="modal-split"><div class="modal-sidebar" id="wmSidebar"><button class="msb active" data-c="home"><span class="ic">⌂</span>首页</button><button class="msb" data-c="fish"><span class="ic">〰</span>摸鱼</button><button class="msb" data-c="efficiency"><span class="ic">◈</span>效率</button><button class="msb" data-c="tools"><span class="ic">⊞</span>工具</button></div><div class="modal-content" id="widgetList"></div></div></div></div>
+<div class="mo" id="widgetModal"><div class="ms"><div class="mh"><span class="mt">组件库</span><button class="mc" id="wmClose">x</button></div><div class="modal-split"><div class="modal-content" id="widgetList"></div></div></div></div>
 <div class="mo" id="settingsModal"><div class="ms"><div class="mh"><span class="mt">设置</span><button class="mc" id="smClose">x</button></div><div class="modal-split"><div class="modal-sidebar" id="smSidebar"><button class="msb active" data-s="time">时间</button><button class="msb" data-s="quote">语录</button><button class="msb" data-s="salary">发薪日</button></div><div class="modal-content" id="settingsBody"></div></div></div></div>
 <div class="mo" id="wallpaperModal"><div class="ms" style="max-width:600px"><div class="mh"><span class="mt">更换壁纸</span><button class="mc" id="wpClose">x</button></div><div class="modal-content" id="wpBody" style="padding:16px 20px 20px"></div></div></div>
 <script src="newtab.js"></script>

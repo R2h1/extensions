@@ -51,8 +51,8 @@ const ALL_WIDGETS: WID[] = [
   { id: 'salary', name: '薪资跳动', desc: '实时薪资计数器', category: 'home' },
   { id: 'gold', name: '金价', desc: '实时黄金价格', category: 'home' },
   { id: 'fund', name: '基金', desc: '实时基金估值', category: 'home' },
-  { id: 'fish', name: '功德', desc: '敲木鱼计数器', category: 'fish' },
-  { id: 'links', name: '链接', desc: '常用快捷网址', category: 'tools' },
+  { id: 'fish', name: '功德', desc: '敲木鱼计数器', category: 'home' },
+  { id: 'links', name: '网址', desc: '常用快捷网址', category: 'home' },
 ];
 type WData = { [K in (typeof CATS)[number]]: string[] };
 async function getWD(): Promise<WData> {
@@ -63,7 +63,7 @@ async function getWD(): Promise<WData> {
     efficiency: [],
     tools: [],
   };
-  // 迁移：时钟改为常驻顶栏(移除)
+  // 迁移：时钟改为常驻顶栏(移除)；功德(fish)从摸鱼分类移到首页；网址(links)从工具移到首页
   let changed = false;
   for (const cat of CATS) {
     let arr = cats[cat];
@@ -72,6 +72,16 @@ async function getWD(): Promise<WData> {
       changed = true;
     }
     cats[cat] = arr;
+  }
+  if (cats.fish.includes('fish')) {
+    cats.fish = cats.fish.filter((id) => id !== 'fish');
+    if (!cats.home.includes('fish')) cats.home = [...cats.home, 'fish'];
+    changed = true;
+  }
+  if (cats.tools.includes('links')) {
+    cats.tools = cats.tools.filter((id) => id !== 'links');
+    if (!cats.home.includes('links')) cats.home = [...cats.home, 'links'];
+    changed = true;
   }
   if (changed) await chrome.storage.sync.set({ [SW]: { cats } });
   return cats;
@@ -172,7 +182,7 @@ async function renderAll() {
       panel = document.getElementById('panel' + i)!,
       ids = d[cat];
     if (!ids.length) {
-      panel.innerHTML = `<div class="empty"><div>暂无组件</div><div class="add-hint">左侧点击 添加组件</div></div>`;
+      panel.innerHTML = `<div class="empty"><div>暂无组件</div><div class="add-hint">左侧点击 组件库</div></div>`;
       continue;
     }
     let h = '';
@@ -263,6 +273,25 @@ function getCard(w: WID): string {
         <button id="fundAdd">+</button>
       </div>
     </div>`;
+  if (w.id === 'fish')
+    return `<div class="widget-card fish-card">
+      <div class="fish-head">
+        <div class="fish-title">✿ 功德</div>
+        <div class="fish-merit" id="fishMerit">0</div>
+      </div>
+      <button class="fish-btn" id="fishBtn" title="敲一下">◒</button>
+      <div class="fish-hint">点一下 · 积功德</div>
+    </div>`;
+  if (w.id === 'links')
+    return `<div class="widget-card links-card">
+      <div class="links-head"><div class="links-title">⊕ 快捷网址</div></div>
+      <div class="links-list" id="linksList"><div class="links-empty">加载中…</div></div>
+      <div class="links-add">
+        <input id="lnkName" placeholder="名称" />
+        <input id="lnkUrl" placeholder="https://..." />
+        <button id="lnkAdd">+</button>
+      </div>
+    </div>`;
   return `<div class="widget-card clickable" data-widget="${w.id}"><div class="widget-entry"><span>${w.desc}</span><span class="arrow">→</span></div></div>`;
 }
 async function initW(id: string) {
@@ -284,81 +313,60 @@ async function initW(id: string) {
     case 'fund':
       initFund();
       break;
-  }
-  if (id === 'fish' || id === 'links') {
-    document
-      .querySelectorAll(`.clickable[data-widget="${id}"]`)
-      .forEach((card) => card.addEventListener('click', () => openFeatureModal(id)));
+    case 'links':
+      initLinks();
+      break;
   }
 }
 
 document.getElementById('addWidgetBtn')!.addEventListener('click', openWidgetModal);
 document.getElementById('settingsBtn')!.addEventListener('click', openSettings);
 
-// ── Feature Modal ──
-const fm = document.getElementById('featureModal')!,
-  fmT = document.getElementById('fmTitle')!,
-  fmB = document.getElementById('fmBody')!;
-document.getElementById('fmClose')!.addEventListener('click', () => fm.classList.remove('open'));
-fm.addEventListener('click', (e) => {
-  if (e.target === fm) fm.classList.remove('open');
-});
-function openFeatureModal(wid: string) {
-  const w = ALL_WIDGETS.find((x) => x.id === wid);
-  if (!w) return;
-  fmT.textContent = w.name;
-  if (wid === 'fish') {
-    fmB.innerHTML = `<div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px"><span style="font-size:11px;color:var(--text-tertiary);letter-spacing:3px">功 德</span><span style="font-size:64px;font-weight:250;color:var(--accent);font-family:'Courier New',monospace;letter-spacing:6px" id="fmMerit">${merit}</span><button id="fmFishBtn" style="width:130px;height:130px;border-radius:50%;background:rgba(255,255,255,0.5);border:0.5px solid rgba(0,0,0,0.08);color:var(--accent);font-size:38px;cursor:pointer;transition:all 0.2s;display:flex;align-items:center;justify-content:center">◒</button><span style="font-size:11px;color:var(--text-tertiary)">点一下 · 积功德</span></div>`;
-    fm.classList.add('open');
-    setTimeout(() => {
-      const b = document.getElementById('fmFishBtn');
-      if (b)
-        b.addEventListener('click', async () => {
-          merit++;
-          const el = document.getElementById('fmMerit');
-          if (el) el.textContent = String(merit);
-          await saveM();
-          playF();
-          b.classList.remove('knock');
-          void b.offsetWidth;
-          b.classList.add('knock');
-        });
-    }, 100);
-  } else renderLinksModal();
-}
-async function renderLinksModal() {
+// ── 快捷网址卡片 ──
+async function renderLinksCard() {
   const ls = await getLinks();
-  let h = ls.length
-    ? ls
-        .map(
-          (l, i) =>
-            `<div class="lrow" style="display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:0.5px solid rgba(0,0,0,0.04)"><a href="${l.url}" target="_blank" style="flex:1;text-decoration:none;color:var(--text);font-size:13px;transition:color 0.2s">${esc(l.name)}</a><button class="ldel" data-i="${i}" style="background:none;border:none;color:var(--text-tertiary);cursor:pointer;font-size:12px;padding:2px 6px;opacity:0.5;transition:all 0.15s">x</button></div>`,
-        )
-        .join('')
-    : `<div style="font-size:12px;color:var(--text-tertiary);text-align:center;padding:16px 0">暂无链接 · 在下方添加</div>`;
-  h += `<div style="display:flex;gap:6px;margin-top:12px"><input id="lnkName" placeholder="名称" style="flex:1;padding:8px 10px;font-size:12px;border:0.5px solid var(--glass-border);border-radius:var(--radius-xs);background:rgba(255,255,255,0.5);color:var(--text);outline:none;font-family:inherit"/><input id="lnkUrl" placeholder="https://..." style="flex:2;padding:8px 10px;font-size:12px;border:0.5px solid var(--glass-border);border-radius:var(--radius-xs);background:rgba(255,255,255,0.5);color:var(--text);outline:none;font-family:inherit"/><button id="lnkAdd" style="padding:8px 14px;font-size:12px;border:0.5px solid var(--glass-border);border-radius:var(--radius-xs);background:var(--glass);color:var(--text-secondary);cursor:pointer;font-family:inherit">+</button></div>`;
-  fmB.innerHTML = h;
-  fm.classList.add('open');
-  document.querySelectorAll('.ldel').forEach((b) =>
+  const list = document.getElementById('linksList');
+  if (!list) return;
+  if (!ls.length) {
+    list.innerHTML = `<div class="links-empty">暂无链接 · 下方添加</div>`;
+    return;
+  }
+  list.innerHTML = ls
+    .map(
+      (l, i) =>
+        `<div class="links-row"><a href="${l.url}" target="_blank" rel="noopener" class="links-name">${esc(l.name)}</a><button class="links-del" data-i="${i}" title="删除">x</button></div>`,
+    )
+    .join('');
+  list.querySelectorAll('.links-del').forEach((b) =>
     b.addEventListener('click', async () => {
       const i = Number((b as HTMLElement).dataset.i);
       const ls = await getLinks();
       ls.splice(i, 1);
       await setLinks(ls);
-      renderLinksModal();
+      renderLinksCard();
     }),
   );
-  document.getElementById('lnkAdd')!.addEventListener('click', async () => {
-    const n = (document.getElementById('lnkName') as HTMLInputElement).value.trim();
-    const u = (document.getElementById('lnkUrl') as HTMLInputElement).value.trim();
-    if (!n || !u) return;
-    const ls = await getLinks();
-    ls.push({ name: n, url: u });
-    await setLinks(ls);
-    renderLinksModal();
-  });
-  document.getElementById('lnkUrl')!.addEventListener('keydown', (e: KeyboardEvent) => {
-    if (e.key === 'Enter') document.getElementById('lnkAdd')!.click();
+}
+async function addLink() {
+  const nameEl = document.getElementById('lnkName') as HTMLInputElement | null;
+  const urlEl = document.getElementById('lnkUrl') as HTMLInputElement | null;
+  if (!nameEl || !urlEl) return;
+  const n = nameEl.value.trim();
+  let u = urlEl.value.trim();
+  if (!n || !u) return;
+  if (!/^https?:\/\//i.test(u)) u = 'https://' + u;
+  const ls = await getLinks();
+  ls.push({ name: n, url: u });
+  await setLinks(ls);
+  nameEl.value = '';
+  urlEl.value = '';
+  renderLinksCard();
+}
+async function initLinks() {
+  await renderLinksCard();
+  document.getElementById('lnkAdd')?.addEventListener('click', addLink);
+  document.getElementById('lnkUrl')?.addEventListener('keydown', (e) => {
+    if ((e as KeyboardEvent).key === 'Enter') addLink();
   });
 }
 
@@ -368,7 +376,6 @@ document.getElementById('wmClose')!.addEventListener('click', () => wm.classList
 wm.addEventListener('click', (e) => {
   if (e.target === wm) wm.classList.remove('open');
 });
-let wmCat: (typeof CATS)[number] = CATS[0];
 async function renderWmList(cat: (typeof CATS)[number]) {
   const d = await getWD();
   const wid = ALL_WIDGETS.filter((w) => w.category === cat);
@@ -405,20 +412,9 @@ async function renderWmList(cat: (typeof CATS)[number]) {
     );
 }
 async function openWidgetModal() {
-  wmCat = CATS[0];
-  document.querySelectorAll('#wmSidebar .msb').forEach((b) => b.classList.remove('active'));
-  document.querySelector('#wmSidebar [data-c="home"]')!.classList.add('active');
-  await renderWmList(wmCat);
+  await renderWmList('home');
   wm.classList.add('open');
 }
-document.querySelectorAll('#wmSidebar .msb').forEach((b) =>
-  b.addEventListener('click', async function (this: HTMLElement) {
-    wmCat = this.dataset.c as (typeof CATS)[number];
-    document.querySelectorAll('#wmSidebar .msb').forEach((x) => x.classList.remove('active'));
-    this.classList.add('active');
-    renderWmList(wmCat);
-  }),
-);
 
 // ── Settings ──
 const sm = document.getElementById('settingsModal')!;
@@ -572,7 +568,6 @@ document.addEventListener('keydown', (e) => {
   if (e.key === 'Escape') {
     wm.classList.remove('open');
     sm.classList.remove('open');
-    fm.classList.remove('open');
   }
 });
 
@@ -798,8 +793,17 @@ function playF() {
   noise.start(aCtx.currentTime);
   noise.stop(aCtx.currentTime + 0.03);
 }
-function initFish() {
-  loadM();
+async function initFish() {
+  await loadM();
+  const meritEl = document.getElementById('fishMerit');
+  if (meritEl) meritEl.textContent = String(merit);
+  document.getElementById('fishBtn')?.addEventListener('click', async () => {
+    merit++;
+    const el = document.getElementById('fishMerit');
+    if (el) el.textContent = String(merit);
+    await saveM();
+    playF();
+  });
 }
 
 async function loadSal() {
