@@ -16,11 +16,26 @@
   "permissions": [
     "storage",
     "alarms",
-    "notifications"
+    "notifications",
+    "declarativeNetRequestWithHostAccess"
   ],
 
   "host_permissions": [
     "https://goldprice.today/*",
-    "https://fundgz.1234567.com.cn/*"
-  ]
+    "https://fundgz.1234567.com.cn/*",
+    "https://api.open-meteo.com/*",
+    "https://geocoding-api.open-meteo.com/*",
+    "https://weibo.com/*",
+    "https://api.bilibili.com/*",
+    "https://top.baidu.com/*"
+  ],
+  "declarative_net_request": {
+    "rule_resources": [
+      {
+        "id": "weibo_referer",
+        "enabled": true,
+        "path": "rules.json"
+      }
+    ]
+  }
 }

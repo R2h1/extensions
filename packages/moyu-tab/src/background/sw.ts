@@ -210,6 +210,78 @@ async function handleFundFetch(codes: string[]): Promise<FundResponse> {
   return { success: true, data };
 }
 
+// ─── Hot Search (微博 / B站 / 百度) ─────────────────────
+
+interface HotItem {
+  title: string;
+  hot: string;
+  url: string;
+  tag?: string;
+}
+interface HotResponse {
+  success: boolean;
+  data?: HotItem[];
+  error?: string;
+}
+
+/** 微博热搜：weibo.com 接口需 Referer，由 DNR 静态规则注入（fetch 无法设 Referer 头）。 */
+async function fetchWeiboHot(): Promise<HotItem[]> {
+  const res = await fetch('https://weibo.com/ajax/side/hotSearch', {
+    cache: 'no-store',
+  });
+  if (!res.ok) throw new Error('HTTP ' + res.status);
+  const j = await res.json();
+  const arr = (j?.data?.realtime ?? []) as any[];
+  return arr.slice(0, 15).map((r) => ({
+    title: String(r.word || r.note || ''),
+    hot: r.num ? String(r.num) : '',
+    url: `https://s.weibo.com/weibo?q=${encodeURIComponent(r.word_scheme || r.word || '')}`,
+    tag: r.label_name ? String(r.label_name) : '',
+  }));
+}
+
+/** B站热搜：search/square 接口无需鉴权。 */
+async function fetchBilibiliHot(): Promise<HotItem[]> {
+  const res = await fetch('https://api.bilibili.com/x/web-interface/wbi/search/square?limit=15', {
+    cache: 'no-store',
+  });
+  if (!res.ok) throw new Error('HTTP ' + res.status);
+  const j = await res.json();
+  const arr = (j?.data?.trending?.list ?? []) as any[];
+  return arr.slice(0, 15).map((r) => ({
+    title: String(r.keyword || r.show_name || ''),
+    hot: '',
+    url: `https://search.bilibili.com/all?keyword=${encodeURIComponent(r.keyword || '')}`,
+  }));
+}
+
+/** 百度热搜：board 接口无需鉴权。 */
+async function fetchBaiduHot(): Promise<HotItem[]> {
+  const res = await fetch('https://top.baidu.com/api/board?platform=wise', { cache: 'no-store' });
+  if (!res.ok) throw new Error('HTTP ' + res.status);
+  const j = await res.json();
+  const arr = (j?.data?.cards?.[0]?.content?.[0]?.content ?? []) as any[];
+  return arr.slice(0, 15).map((r) => ({
+    title: String(r.word || ''),
+    hot: '',
+    url: String(r.url || `https://www.baidu.com/s?wd=${encodeURIComponent(r.word || '')}`),
+    tag: r.isTop ? '置顶' : '',
+  }));
+}
+
+async function handleHotFetch(platform: string): Promise<HotResponse> {
+  try {
+    let items: HotItem[];
+    if (platform === 'bilibili') items = await fetchBilibiliHot();
+    else if (platform === 'baidu') items = await fetchBaiduHot();
+    else items = await fetchWeiboHot();
+    if (!items.length) return { success: false, error: 'empty' };
+    return { success: true, data: items };
+  } catch (e) {
+    return { success: false, error: e instanceof Error ? e.message : String(e) };
+  }
+}
+
 // ─── Message Router ─────────────────────────────────────
 
 chrome.runtime.onMessage.addListener((message: { type: string }, _sender, sendResponse) => {
@@ -217,6 +289,8 @@ chrome.runtime.onMessage.addListener((message: { type: string }, _sender, sendRe
     handleGoldFetch().then(sendResponse);
   } else if (message?.type === 'FUND_FETCH') {
     handleFundFetch((message as unknown as { codes?: string[] }).codes ?? []).then(sendResponse);
+  } else if (message?.type === 'HOT_FETCH') {
+    handleHotFetch((message as unknown as { platform?: string }).platform ?? 'weibo').then(sendResponse);
   } else {
     handlePomodoroMessage(message as PomodoroMessage).then(sendResponse);
   }

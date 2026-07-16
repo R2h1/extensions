@@ -15,8 +15,8 @@ html.locked .widget-card{opacity:0;visibility:hidden;transition:opacity 0.35s ea
 html.locked .entry-btn{opacity:0;visibility:hidden;transition:opacity 0.3s ease,visibility 0.3s}
 html.locked .entry-grid{opacity:0;visibility:hidden;transition:opacity 0.3s ease,visibility 0.3s}
 #timeDisplay{transition:font-size 0.5s cubic-bezier(0.25,0.1,0.25,1)}
-html.locked #timeDisplay{font-size:100px!important}
-html.locked #dateDisplay{font-size:16px!important;transition:font-size 0.5s ease}
+html.locked #timeDisplay{font-size:120px!important}
+html.locked #dateDisplay{font-size:24px!important;transition:font-size 0.5s ease}
 .app{display:flex;height:100vh;position:relative;z-index:1}
 .sidebar{width:120px;flex-shrink:0;display:flex;flex-direction:column;padding:28px 8px 12px;background:var(--nm-surface);border-right:0.5px solid rgba(0,0,0,0.05)}
 .sidebar-nav{flex:1;display:flex;flex-direction:column;gap:2px}
@@ -204,6 +204,51 @@ html.locked .clock-bar{padding:0}
 .gold-delta.down{color:#ef4444}
 .gold-delta.flat{color:var(--text-tertiary)}
 @media (max-width:520px){.gold-amount{font-size:26px}}
+/* 天气卡片 */
+.weather-card{padding:12px 14px}
+.weather-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px}
+.weather-title{font-size:14px;font-weight:600;color:var(--text-secondary);letter-spacing:.5px;display:flex;align-items:center;gap:6px}
+.weather-meta{display:flex;align-items:center;gap:8px}
+.weather-upd{font-size:10px;color:var(--text-tertiary);font-variant-numeric:tabular-nums;min-height:12px}
+.weather-refresh{width:26px;height:26px;border-radius:50%;border:none;background:var(--nm-surface);box-shadow:var(--nm-out-sm);color:var(--text-tertiary);cursor:pointer;font-size:13px;display:flex;align-items:center;justify-content:center;transition:color .15s,box-shadow .15s;font-family:inherit}
+.weather-refresh:hover{color:var(--accent)}
+.weather-refresh:active{box-shadow:var(--nm-in-sm)}
+.weather-refresh.spin{color:var(--accent);animation:goldspin 1s linear infinite}
+.weather-city{font-size:12px;color:var(--text-tertiary);margin-bottom:2px;cursor:pointer;position:relative;min-height:16px}
+.weather-city:hover{color:var(--accent)}
+.weather-city input{position:absolute;left:0;top:-2px;width:100%;font-size:12px;padding:4px 6px;border:none;border-radius:var(--radius-xs);background:var(--nm-surface);color:var(--text);outline:none;font-family:inherit;box-shadow:var(--nm-in)}
+.weather-city input.err{box-shadow:var(--nm-in),0 0 0 1.5px #ef4444}
+.weather-main{display:flex;align-items:center;gap:10px;margin:4px 0 2px}
+.weather-icon{font-size:34px;line-height:1}
+.weather-temp{font-size:38px;font-weight:700;color:var(--text);letter-spacing:-1px;font-variant-numeric:tabular-nums;font-family:'Courier New',ui-monospace,monospace}
+.weather-desc{font-size:13px;color:var(--text-secondary);margin-bottom:8px}
+.weather-sub{display:flex;gap:18px;flex-wrap:wrap}
+.weather-sub-i{display:flex;flex-direction:column;gap:2px}
+.weather-sub-i span:first-child{font-size:10px;color:var(--text-tertiary)}
+.weather-sub-i span:last-child{font-size:13px;color:var(--text-secondary);font-variant-numeric:tabular-nums;font-family:'Courier New',ui-monospace,monospace}
+/* 热搜卡片 */
+.hot-card{padding:12px 14px}
+.hot-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;gap:8px}
+.hot-tabs{display:flex;gap:2px;background:var(--nm-surface);border-radius:var(--radius-xs);padding:2px;box-shadow:var(--nm-in-sm)}
+.hot-tab{padding:3px 10px;border-radius:5px;font-size:11px;font-weight:500;color:var(--text-tertiary);cursor:pointer;transition:all .15s;user-select:none}
+.hot-tab.active{background:var(--nm-surface);color:var(--accent);box-shadow:var(--nm-out-sm);font-weight:600}
+.hot-meta{display:flex;align-items:center;gap:8px;flex-shrink:0}
+.hot-upd{font-size:10px;color:var(--text-tertiary);font-variant-numeric:tabular-nums;min-height:12px}
+.hot-refresh{width:26px;height:26px;border-radius:50%;border:none;background:var(--nm-surface);box-shadow:var(--nm-out-sm);color:var(--text-tertiary);cursor:pointer;font-size:13px;display:flex;align-items:center;justify-content:center;transition:color .15s,box-shadow .15s;font-family:inherit}
+.hot-refresh:hover{color:var(--accent)}
+.hot-refresh:active{box-shadow:var(--nm-in-sm)}
+.hot-refresh.spin{color:var(--accent);animation:goldspin 1s linear infinite}
+.hot-list{display:flex;flex-direction:column}
+.hot-empty{font-size:12px;color:var(--text-tertiary);text-align:center;padding:14px 0}
+.hot-row{display:flex;align-items:center;gap:8px;padding:5px 2px;border-bottom:0.5px solid rgba(0,0,0,0.04);text-decoration:none;border-radius:4px}
+.hot-row:last-child{border-bottom:none}
+.hot-row:hover{background:rgba(0,0,0,0.03)}
+.hot-rank{font-size:11px;font-weight:600;color:var(--text-tertiary);width:18px;text-align:center;flex-shrink:0;font-variant-numeric:tabular-nums}
+.hot-rank.top{color:var(--accent)}
+.hot-title{flex:1;min-width:0;font-size:12px;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:flex;align-items:center;gap:4px}
+.hot-row:hover .hot-title{color:var(--accent)}
+.hot-tag{font-style:normal;font-size:9px;color:var(--accent);border:0.5px solid var(--accent);padding:0 3px;border-radius:3px;flex-shrink:0;line-height:1.4}
+.hot-num{font-size:10px;color:var(--text-tertiary);flex-shrink:0;font-variant-numeric:tabular-nums;font-family:'Courier New',ui-monospace,monospace}
 </style>
 <script src="boot.js"></script>
 </head>
@@ -218,7 +263,7 @@ html.locked .clock-bar{padding:0}
     <button class="sb-btn" id="settingsBtn"><span class="ic">⚙</span>设置</button>
   </nav>
   <main class="content"><div class="ci">
-    <div class="clock-bar" id="clockBar"><div id="wg-clock" class="wg-clock"><span style="font-size:80px;font-weight:600;letter-spacing:6px;color:white;line-height:1;cursor:pointer" id="timeDisplay">--:--</span><div style="font-size:16px;color:white;margin-top:10px;letter-spacing:2px" id="dateDisplay"></div></div></div>
+    <div class="clock-bar" id="clockBar"><div id="wg-clock" class="wg-clock"><span style="font-size:100px;font-weight:600;letter-spacing:6px;color:white;line-height:1;cursor:pointer" id="timeDisplay">--:--</span><div style="font-size:20px;color:white;margin-top:10px;letter-spacing:2px" id="dateDisplay"></div></div></div>
     <div class="cat-panel active" id="panel0"></div>
     <div class="cat-panel" id="panel1"></div>
     <div class="cat-panel" id="panel2"></div>
