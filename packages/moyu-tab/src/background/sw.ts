@@ -282,6 +282,86 @@ async function handleHotFetch(platform: string): Promise<HotResponse> {
   }
 }
 
+// ─── Holiday (节假日) ─────────────────────────────────
+
+interface HolidayBlock {
+  name: string;
+  date: string; // YYYY-MM-DD
+}
+interface HolidayResponse {
+  success: boolean;
+  data?: { list: HolidayBlock[] };
+  error?: string;
+}
+
+const HOL_DAY = 86400000;
+
+/** 解析 timor.tech 年度数据：把连续的 holiday:true 日期合并成假期块，取首日名称与日期。 */
+function parseYearHolidays(map: Record<string, unknown>): HolidayBlock[] {
+  const blocks: HolidayBlock[] = [];
+  let prevTs: number | null = null;
+  let curName = '';
+  let curDate = '';
+  const flush = () => {
+    if (curDate) blocks.push({ name: curName, date: curDate });
+    curName = '';
+    curDate = '';
+  };
+  for (const k of Object.keys(map).sort()) {
+    const e = map[k] as { holiday?: boolean; name?: string; date?: string } | undefined;
+    if (!e || e.holiday !== true || !e.date) {
+      flush();
+      prevTs = null;
+      continue;
+    }
+    const [y, m, d] = e.date.split('-').map(Number);
+    const ts = new Date(y, m - 1, d).getTime();
+    if (curDate && prevTs !== null && ts - prevTs === HOL_DAY) {
+      // 同一假期块的延续日，保留首日
+      prevTs = ts;
+    } else {
+      flush();
+      curName = String(e.name || '');
+      curDate = e.date;
+      prevTs = ts;
+    }
+  }
+  flush();
+  return blocks;
+}
+
+/** 抓取指定年份的法定假日块。timor.tech 由 Cloudflare 按 UA 放行，SW fetch 自带浏览器 UA。 */
+async function fetchYearHolidays(year: number): Promise<HolidayBlock[]> {
+  const ctrl = new AbortController();
+  const to = setTimeout(() => ctrl.abort(), 12000);
+  try {
+    const res = await fetch(`https://timor.tech/api/holiday/year/${year}`, {
+      cache: 'no-store',
+      signal: ctrl.signal,
+    });
+    if (!res.ok) return [];
+    const j = (await res.json()) as { code?: number; holiday?: Record<string, unknown> };
+    if (j?.code !== 0 || !j.holiday) return [];
+    return parseYearHolidays(j.holiday);
+  } catch {
+    return [];
+  } finally {
+    clearTimeout(to);
+  }
+}
+
+/** 抓取本年+次年全部假期块，前端按今日过滤并计算倒计时。 */
+async function handleHolidayFetch(): Promise<HolidayResponse> {
+  try {
+    const y = new Date().getFullYear();
+    const [cur, nxt] = await Promise.all([fetchYearHolidays(y), fetchYearHolidays(y + 1)]);
+    const list = [...cur, ...nxt].sort((a, b) => (a.date < b.date ? -1 : 1));
+    return { success: true, data: { list } };
+  } catch (e) {
+    return { success: false, error: e instanceof Error ? e.message : String(e) };
+  }
+}
+
 // ─── Message Router ─────────────────────────────────────
 
 chrome.runtime.onMessage.addListener((message: { type: string }, _sender, sendResponse) => {
@@ -291,6 +371,8 @@ chrome.runtime.onMessage.addListener((message: { type: string }, _sender, sendRe
     handleFundFetch((message as unknown as { codes?: string[] }).codes ?? []).then(sendResponse);
   } else if (message?.type === 'HOT_FETCH') {
     handleHotFetch((message as unknown as { platform?: string }).platform ?? 'weibo').then(sendResponse);
+  } else if (message?.type === 'HOLIDAY_FETCH') {
+    handleHolidayFetch().then(sendResponse);
   } else {
     handlePomodoroMessage(message as PomodoroMessage).then(sendResponse);
   }

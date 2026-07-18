@@ -29,6 +29,7 @@
     "https://api.bilibili.com/*",
     "https://top.baidu.com/*",
     "https://api.i-meto.com/*",
+    "https://timor.tech/*",
     "https://*.music.126.net/*"
   ],
   "declarative_net_request": {

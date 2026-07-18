@@ -236,6 +236,29 @@ html.locked .clock-bar{padding:0}
 .weather-sub-i{display:flex;flex-direction:column;gap:2px}
 .weather-sub-i span:first-child{font-size:10px;color:var(--text-tertiary)}
 .weather-sub-i span:last-child{font-size:13px;color:var(--text-secondary);font-variant-numeric:tabular-nums;font-family:'Courier New',ui-monospace,monospace}
+/* 节假日卡片 */
+.holiday-card{padding:12px 14px}
+.holiday-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+.holiday-title{font-size:14px;font-weight:600;color:var(--text-secondary);letter-spacing:.5px;display:flex;align-items:center;gap:6px}
+.holiday-meta{display:flex;align-items:center;gap:8px}
+.holiday-upd{font-size:10px;color:var(--text-tertiary);font-variant-numeric:tabular-nums;min-height:12px}
+.holiday-refresh{width:26px;height:26px;border-radius:50%;border:none;background:var(--nm-surface);box-shadow:var(--nm-out-sm);color:var(--text-tertiary);cursor:pointer;font-size:13px;display:flex;align-items:center;justify-content:center;transition:color .15s,box-shadow .15s;font-family:inherit}
+.holiday-refresh:hover{color:var(--accent)}
+.holiday-refresh:active{box-shadow:var(--nm-in-sm)}
+.holiday-refresh.spin{color:var(--accent);animation:goldspin 1s linear infinite}
+.hol-week{display:flex;align-items:baseline;justify-content:space-between;gap:8px;padding:8px 12px;margin-bottom:10px;background:var(--glass-accent);border-radius:var(--radius-sm)}
+.hol-week-main{display:flex;align-items:baseline;gap:6px}
+.hol-week-label{font-size:12px;color:var(--text-tertiary)}
+.hol-week-days{font-size:30px;font-weight:700;color:var(--accent);font-variant-numeric:tabular-nums;font-family:'Courier New',ui-monospace,monospace;letter-spacing:-1px;line-height:1}
+.hol-week-unit{font-size:12px;color:var(--text-secondary)}
+.hol-week-date{font-size:12px;color:var(--text-secondary);font-variant-numeric:tabular-nums;white-space:nowrap}
+.hol-list-head{font-size:11px;color:var(--text-tertiary);margin-bottom:4px;letter-spacing:.3px}
+.hol-list{display:flex;flex-direction:column}
+.hol-row{display:flex;align-items:center;gap:8px;padding:5px 2px;border-bottom:0.5px solid var(--glass-border)}
+.hol-row:last-child{border-bottom:none}
+.hol-name{flex:1;font-size:13px;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.hol-date{font-size:11px;color:var(--text-tertiary);font-variant-numeric:tabular-nums;white-space:nowrap}
+.hol-days{font-size:13px;font-weight:600;color:var(--accent);font-variant-numeric:tabular-nums;min-width:52px;text-align:right;font-family:'Courier New',ui-monospace,monospace}
 /* 热搜卡片 */
 .hot-card{padding:12px 14px}
 .hot-title{font-size:14px;font-weight:600;color:var(--text-secondary);letter-spacing:.5px;display:flex;align-items:center;gap:6px}
