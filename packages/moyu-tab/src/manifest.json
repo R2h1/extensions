@@ -27,7 +27,9 @@
     "https://geocoding-api.open-meteo.com/*",
     "https://weibo.com/*",
     "https://api.bilibili.com/*",
-    "https://top.baidu.com/*"
+    "https://top.baidu.com/*",
+    "https://api.i-meto.com/*",
+    "https://*.music.126.net/*"
   ],
   "declarative_net_request": {
     "rule_resources": [
