@@ -1,0 +1,217 @@
+import { pad } from '../utils';
+
+export function renderWeatherCard(): string {
+  return `<div class="widget-card weather-card">
+      <div class="weather-head">
+        <div class="weather-title">☂ 实时天气</div>
+        <div class="weather-meta">
+          <span class="weather-upd" id="weatherUpd">加载中…</span>
+          <button class="weather-refresh" id="weatherRefresh" title="刷新">↻</button>
+        </div>
+      </div>
+      <div class="weather-city" id="weatherCityWrap"><span id="weatherCity">--</span><input id="weatherCityInput" placeholder="输入城市" style="display:none"/></div>
+      <div class="weather-main">
+        <span class="weather-icon" id="weatherIcon">--</span>
+        <span class="weather-temp" id="weatherTemp">--°</span>
+      </div>
+      <div class="weather-desc" id="weatherDesc">--</div>
+      <div class="weather-sub">
+        <div class="weather-sub-i"><span>体感</span><span id="weatherFeel">--</span></div>
+        <div class="weather-sub-i"><span>湿度</span><span id="weatherHum">--</span></div>
+        <div class="weather-sub-i"><span>风速</span><span id="weatherWind">--</span></div>
+      </div>
+    </div>`;
+}
+const WC_KEY = 'moyu_weather_city';
+const WX_CACHE = 'moyu_weather_cache';
+interface WCity {
+  name: string;
+  lat: number;
+  lon: number;
+}
+interface WCache {
+  temp: number;
+  feel: number;
+  hum: number;
+  wind: number;
+  code: number;
+  ts: number;
+  city: string;
+}
+const WMO: Record<number, { t: string; e: string }> = {
+  0: { t: '晴', e: '☀️' },
+  1: { t: '主要晴', e: '🌤️' },
+  2: { t: '局部多云', e: '⛅' },
+  3: { t: '阴', e: '☁️' },
+  45: { t: '雾', e: '🌫️' },
+  48: { t: '雾凇', e: '🌫️' },
+  51: { t: '毛毛雨', e: '🌦️' },
+  53: { t: '毛毛雨', e: '🌦️' },
+  55: { t: '强毛毛雨', e: '🌧️' },
+  56: { t: '冻毛毛雨', e: '🌧️' },
+  57: { t: '强冻毛毛雨', e: '🌧️' },
+  61: { t: '小雨', e: '🌦️' },
+  63: { t: '中雨', e: '🌧️' },
+  65: { t: '大雨', e: '🌧️' },
+  66: { t: '冻雨', e: '🌧️' },
+  67: { t: '强冻雨', e: '🌧️' },
+  71: { t: '小雪', e: '🌨️' },
+  73: { t: '中雪', e: '🌨️' },
+  75: { t: '大雪', e: '❄️' },
+  77: { t: '雪粒', e: '🌨️' },
+  80: { t: '阵雨', e: '🌦️' },
+  81: { t: '强阵雨', e: '🌧️' },
+  82: { t: '暴雨', e: '⛈️' },
+  85: { t: '阵雪', e: '🌨️' },
+  86: { t: '强阵雪', e: '❄️' },
+  95: { t: '雷暴', e: '⛈️' },
+  96: { t: '雷暴伴冰雹', e: '⛈️' },
+  99: { t: '强雷暴伴冰雹', e: '⛈️' },
+};
+let wCity: WCity | null = null;
+let wLoading = false;
+let wInited = false;
+async function getWCity(): Promise<WCity | null> {
+  const r = await chrome.storage.sync.get(WC_KEY);
+  return (r[WC_KEY] as WCity) ?? null;
+}
+async function setWCity(c: WCity) {
+  await chrome.storage.sync.set({ [WC_KEY]: c });
+}
+function loadWCache(): WCache | null {
+  try {
+    const raw = localStorage.getItem(WX_CACHE);
+    return raw ? (JSON.parse(raw) as WCache) : null;
+  } catch {
+    return null;
+  }
+}
+function saveWCache(c: WCache) {
+  try {
+    localStorage.setItem(WX_CACHE, JSON.stringify(c));
+  } catch {}
+}
+function fmtWTime(ts: number) {
+  const d = new Date(ts);
+  return pad(d.getHours()) + ':' + pad(d.getMinutes());
+}
+function renderWeather(c: WCache | null, error: boolean) {
+  const cityEl = document.getElementById('weatherCity');
+  const iconEl = document.getElementById('weatherIcon');
+  const tempEl = document.getElementById('weatherTemp');
+  const descEl = document.getElementById('weatherDesc');
+  const feelEl = document.getElementById('weatherFeel');
+  const humEl = document.getElementById('weatherHum');
+  const windEl = document.getElementById('weatherWind');
+  const updEl = document.getElementById('weatherUpd');
+  if (!c) {
+    if (updEl) updEl.textContent = error ? '⚠ 获取失败 · 点刷新重试' : '加载中…';
+    return;
+  }
+  const wmo = WMO[c.code] || { t: '未知', e: '🌡️' };
+  if (cityEl) cityEl.textContent = c.city;
+  if (iconEl) iconEl.textContent = wmo.e;
+  if (tempEl) tempEl.textContent = Math.round(c.temp) + '°';
+  if (descEl) descEl.textContent = wmo.t;
+  if (feelEl) feelEl.textContent = Math.round(c.feel) + '°';
+  if (humEl) humEl.textContent = c.hum + '%';
+  if (windEl) windEl.textContent = Math.round(c.wind) + ' km/h';
+  if (updEl) updEl.textContent = (error ? '⚠ 更新失败 · ' : '') + fmtWTime(c.ts) + ' 更新';
+}
+async function geocodeCity(name: string): Promise<WCity | null> {
+  const url = `https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(name)}&count=1&language=zh`;
+  const ctrl = new AbortController();
+  const to = setTimeout(() => ctrl.abort(), 10000);
+  try {
+    const res = await fetch(url, { signal: ctrl.signal });
+    if (!res.ok) return null;
+    const j = await res.json();
+    const r = j?.results?.[0];
+    if (!r) return null;
+    return { name: String(r.name), lat: r.latitude, lon: r.longitude };
+  } catch {
+    return null;
+  } finally {
+    clearTimeout(to);
+  }
+}
+async function refreshWeather() {
+  if (wLoading) return;
+  if (!document.getElementById('weatherTemp')) return;
+  if (!wCity) return;
+  const btn = document.getElementById('weatherRefresh');
+  wLoading = true;
+  btn?.classList.add('spin');
+  try {
+    const url = `https://api.open-meteo.com/v1/forecast?latitude=${wCity.lat}&longitude=${wCity.lon}&current=temperature_2m,relative_humidity_2m,apparent_temperature,weather_code,wind_speed_10m&timezone=auto`;
+    const res = await fetch(url);
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const j = await res.json();
+    const cur = j?.current;
+    if (!cur) throw new Error('bad data');
+    const c: WCache = {
+      temp: cur.temperature_2m,
+      feel: cur.apparent_temperature,
+      hum: cur.relative_humidity_2m,
+      wind: cur.wind_speed_10m,
+      code: cur.weather_code,
+      ts: Date.now(),
+      city: wCity.name,
+    };
+    renderWeather(c, false);
+    saveWCache(c);
+  } catch {
+    renderWeather(loadWCache(), true);
+  } finally {
+    wLoading = false;
+    btn?.classList.remove('spin');
+  }
+}
+function onWeatherVis() {
+  if (document.visibilityState !== 'visible') return;
+  const c = loadWCache();
+  if (wCity && (!c || Date.now() - c.ts > 600000)) refreshWeather();
+}
+export async function initWeather() {
+  wCity = await getWCity();
+  if (!wCity) {
+    wCity = await geocodeCity('北京');
+    if (wCity) await setWCity(wCity);
+  }
+  renderWeather(loadWCache(), false);
+  document.getElementById('weatherRefresh')?.addEventListener('click', refreshWeather);
+  const wrapEl = document.getElementById('weatherCityWrap');
+  const inputEl = document.getElementById('weatherCityInput') as HTMLInputElement | null;
+  wrapEl?.addEventListener('click', () => {
+    if (inputEl && inputEl.style.display === 'none') {
+      inputEl.style.display = 'block';
+      inputEl.value = '';
+      inputEl.focus();
+    }
+  });
+  inputEl?.addEventListener('keydown', async (e) => {
+    if ((e as KeyboardEvent).key !== 'Enter') return;
+    const name = inputEl.value.trim();
+    if (!name) return;
+    const c = await geocodeCity(name);
+    if (!c) {
+      inputEl.classList.add('err');
+      setTimeout(() => inputEl.classList.remove('err'), 600);
+      return;
+    }
+    wCity = c;
+    await setWCity(c);
+    inputEl.style.display = 'none';
+    refreshWeather();
+  });
+  inputEl?.addEventListener('blur', () => {
+    inputEl.style.display = 'none';
+    inputEl.classList.remove('err');
+  });
+  if (wInited) return;
+  wInited = true;
+  refreshWeather();
+  setInterval(refreshWeather, 600000);
+  document.addEventListener('visibilitychange', onWeatherVis);
+}
+

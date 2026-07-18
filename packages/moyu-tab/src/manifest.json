@@ -30,6 +30,9 @@
     "https://top.baidu.com/*",
     "https://api.i-meto.com/*",
     "https://timor.tech/*",
+    "https://api.juejin.cn/*",
+    "https://news-at.zhihu.com/*",
+    "https://zhibo.sina.com.cn/*",
     "https://*.music.126.net/*"
   ],
   "declarative_net_request": {

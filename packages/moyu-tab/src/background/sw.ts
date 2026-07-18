@@ -362,6 +362,153 @@ async function handleHolidayFetch(): Promise<HolidayResponse> {
   }
 }
 
+// ─── Juejin Hot (掘金热榜) ───────────────────────────
+
+interface JuejinItem {
+  title: string;
+  url: string;
+  hot: string;
+}
+interface JuejinResponse {
+  success: boolean;
+  data?: JuejinItem[];
+  error?: string;
+}
+
+/** 掘金热榜：recommend_all_feed + sort_type:7（3 天内热门）。POST + JSON body。 */
+async function handleJuejinFetch(): Promise<JuejinResponse> {
+  const ctrl = new AbortController();
+  const to = setTimeout(() => ctrl.abort(), 12000);
+  try {
+    const res = await fetch('https://api.juejin.cn/recommend_api/v1/article/recommend_all_feed', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ cursor: '0', limit: 30, sort_type: 7, id_type: 42, client_type: 2608 }),
+      cache: 'no-store',
+      signal: ctrl.signal,
+    });
+    if (!res.ok) return { success: false, error: 'HTTP ' + res.status };
+    const j = await res.json();
+    const arr = (j?.data ?? []) as unknown[];
+    const items: JuejinItem[] = arr
+      .map((x) => x as { item_type?: number; item_info?: { article_info?: { article_id?: string; title?: string; digg_count?: number }; article_counters?: { digg_count?: number } } })
+      .filter((x) => x?.item_type === 2 && x?.item_info?.article_info)
+      .map((x) => {
+        const a = x.item_info!.article_info!;
+        const aid = String(a.article_id || '');
+        const digg = x.item_info!.article_counters?.digg_count ?? a.digg_count ?? 0;
+        return {
+          title: String(a.title || ''),
+          url: `https://juejin.cn/post/${aid}`,
+          hot: digg ? String(digg) : '',
+        };
+      });
+    if (!items.length) return { success: false, error: 'empty' };
+    return { success: true, data: items };
+  } catch (e) {
+    return { success: false, error: e instanceof Error ? e.message : String(e) };
+  } finally {
+    clearTimeout(to);
+  }
+}
+
+// ─── Zhihu Daily (知乎日报) ───────────────────────────
+
+interface ZhihuItem {
+  title: string;
+  url: string;
+  image?: string;
+  hint?: string;
+}
+interface ZhihuResponse {
+  success: boolean;
+  data?: { date: string; list: ZhihuItem[] };
+  error?: string;
+}
+
+/** 知乎日报：每日精选，带封面图。 */
+async function handleZhihuFetch(): Promise<ZhihuResponse> {
+  const ctrl = new AbortController();
+  const to = setTimeout(() => ctrl.abort(), 12000);
+  try {
+    const res = await fetch('https://news-at.zhihu.com/api/4/news/latest', {
+      cache: 'no-store',
+      signal: ctrl.signal,
+    });
+    if (!res.ok) return { success: false, error: 'HTTP ' + res.status };
+    const j = await res.json();
+    const stories = (j?.stories ?? []) as unknown[];
+    const list: ZhihuItem[] = stories.map((s) => {
+      const x = s as { title?: string; url?: string; id?: number; images?: string[]; hint?: string };
+      return {
+        title: String(x.title || ''),
+        url: String(x.url || (x.id ? `https://daily.zhihu.com/story/${x.id}` : '')),
+        image: Array.isArray(x.images) && x.images[0] ? String(x.images[0]) : '',
+        hint: String(x.hint || ''),
+      };
+    });
+    if (!list.length) return { success: false, error: 'empty' };
+    return { success: true, data: { date: String(j.date || ''), list } };
+  } catch (e) {
+    return { success: false, error: e instanceof Error ? e.message : String(e) };
+  } finally {
+    clearTimeout(to);
+  }
+}
+
+// ─── Sina 7x24 Finance Flash (新浪财经快讯) ──────────
+
+interface SinaFlashItem {
+  text: string;
+  time: string;
+  url?: string;
+}
+interface SinaFlashResponse {
+  success: boolean;
+  data?: SinaFlashItem[];
+  error?: string;
+}
+
+function stripHtml(s: string): string {
+  return s
+    .replace(/<[^>]*>/g, '')
+    .replace(/&[a-z#0-9]+;/gi, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+/** 新浪 7x24 财经快讯：实时滚动流，无需 Referer。 */
+async function handleSinaFlashFetch(): Promise<SinaFlashResponse> {
+  const ctrl = new AbortController();
+  const to = setTimeout(() => ctrl.abort(), 12000);
+  try {
+    const res = await fetch(
+      'https://zhibo.sina.com.cn/api/zhibo/feed?page=1&page_size=40&zhibo_id=152&tag_id=0&type=0',
+      { cache: 'no-store', signal: ctrl.signal },
+    );
+    if (!res.ok) return { success: false, error: 'HTTP ' + res.status };
+    const j = await res.json();
+    const arr = (j?.result?.data?.feed?.list ?? []) as unknown[];
+    const items: SinaFlashItem[] = arr
+      .map((x) => {
+        const it = x as { rich_text?: string; create_time?: string; update_time?: string; docurl?: string };
+        const t = String(it.create_time || it.update_time || '');
+        return {
+          text: stripHtml(String(it.rich_text || '')),
+          time: t.length >= 16 ? t.slice(11, 16) : '',
+          url: it.docurl ? String(it.docurl) : '',
+        };
+      })
+      .filter((x) => x.text);
+    if (!items.length) return { success: false, error: 'empty' };
+    return { success: true, data: items };
+  } catch (e) {
+    return { success: false, error: e instanceof Error ? e.message : String(e) };
+  } finally {
+    clearTimeout(to);
+  }
+}
+
 // ─── Message Router ─────────────────────────────────────
 
 chrome.runtime.onMessage.addListener((message: { type: string }, _sender, sendResponse) => {
@@ -373,6 +520,12 @@ chrome.runtime.onMessage.addListener((message: { type: string }, _sender, sendRe
     handleHotFetch((message as unknown as { platform?: string }).platform ?? 'weibo').then(sendResponse);
   } else if (message?.type === 'HOLIDAY_FETCH') {
     handleHolidayFetch().then(sendResponse);
+  } else if (message?.type === 'JUEJIN_FETCH') {
+    handleJuejinFetch().then(sendResponse);
+  } else if (message?.type === 'ZHIHU_FETCH') {
+    handleZhihuFetch().then(sendResponse);
+  } else if (message?.type === 'SINA_FLASH_FETCH') {
+    handleSinaFlashFetch().then(sendResponse);
   } else {
     handlePomodoroMessage(message as PomodoroMessage).then(sendResponse);
   }

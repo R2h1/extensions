@@ -1,5 +1,13 @@
 import APlayer from 'aplayer';
 import 'aplayer/dist/APlayer.min.css';
+import { initGold, renderGoldCard } from './widgets/gold';
+import { initHoliday, renderHolidayCard } from './widgets/holiday';
+import { initJuejin, renderJuejinCard } from './widgets/juejin';
+import { initZhihu, renderZhihuCard } from './widgets/zhihu';
+import { initSinaFlash, renderSinaFlashCard } from './widgets/sina-flash';
+import { initFund, renderFundCard } from './widgets/fund';
+import { initWeather, renderWeatherCard } from './widgets/weather';
+import { HOT_WIDGETS, renderHotCard, initHotCard } from './widgets/hot';
 
 const SM = 'moyu_merit',
   SS = 'moyu_schedule',
@@ -87,7 +95,6 @@ const CAT_TREE: TopCat[] = [
     subs: [
       { id: 'weather', name: '天气' },
       { id: 'calendar', name: '日历' },
-      { id: 'fortune', name: '运势' },
       { id: 'trip', name: '出行' },
     ],
   },
@@ -177,6 +184,9 @@ const ALL_WIDGETS: WID[] = [
   { id: 'hot_weibo', name: '微博热搜', desc: '微博实时热搜', cat: 'news', sub: 'hot' },
   { id: 'hot_bilibili', name: 'B站热搜', desc: 'B站实时热搜', cat: 'news', sub: 'hot' },
   { id: 'hot_baidu', name: '百度热搜', desc: '百度实时热搜', cat: 'news', sub: 'hot' },
+  { id: 'juejin', name: '掘金热榜', desc: '掘金热门文章', cat: 'news', sub: 'news' },
+  { id: 'zhihu', name: '知乎日报', desc: '每日精选', cat: 'news', sub: 'news' },
+  { id: 'sina_flash', name: '7x24快讯', desc: '财经实时快讯', cat: 'news', sub: 'flash' },
   { id: 'quote', name: '语录', desc: '随机摸鱼语录', cat: 'fun', sub: 'joke' },
   { id: 'fish', name: '功德', desc: '敲木鱼计数器', cat: 'fun', sub: 'merit' },
   { id: 'tv', name: '视频', desc: '视频网站', cat: 'fun', sub: 'media' },
@@ -411,38 +421,9 @@ function getCard(w: WID): string {
       </div>
     </div></div>`;
   if (w.id === 'gold')
-    return `<div class="widget-card gold-card">
-      <div class="gold-head">
-        <div class="gold-title">◆ 实时金价</div>
-        <div class="gold-meta">
-          <span class="gold-upd" id="goldUpd">加载中…</span>
-          <button class="gold-refresh" id="goldRefresh" title="刷新">↻</button>
-        </div>
-      </div>
-      <div class="gold-main">
-        <span class="gold-amount" id="goldGram">¥--</span>
-        <span class="gold-unit">元/克</span>
-      </div>
-      <div class="gold-sub">
-        <div class="gold-sub-i"><span>美元/盎司</span><span id="goldUsd">$--</span></div>
-        <div class="gold-delta flat" id="goldDelta">实时</div>
-      </div>
-    </div>`;
+    return renderGoldCard();
   if (w.id === 'fund')
-    return `<div class="widget-card fund-card">
-      <div class="fund-head">
-        <div class="fund-title">❖ 基金估值</div>
-        <div class="fund-meta">
-          <span class="fund-upd" id="fundUpd"></span>
-          <button class="fund-refresh" id="fundRefresh" title="刷新">↻</button>
-        </div>
-      </div>
-      <div class="fund-list" id="fundList"><div class="fund-empty">加载中…</div></div>
-      <div class="fund-add">
-        <input id="fundInput" placeholder="基金代码，如 001186" />
-        <button id="fundAdd">+</button>
-      </div>
-    </div>`;
+    return renderFundCard();
   if (w.id === 'fish')
     return `<div class="widget-card fish-card">
       <div class="fish-head">
@@ -463,42 +444,9 @@ function getCard(w: WID): string {
       </div>
     </div>`;
   if (w.id === 'weather')
-    return `<div class="widget-card weather-card">
-      <div class="weather-head">
-        <div class="weather-title">☂ 实时天气</div>
-        <div class="weather-meta">
-          <span class="weather-upd" id="weatherUpd">加载中…</span>
-          <button class="weather-refresh" id="weatherRefresh" title="刷新">↻</button>
-        </div>
-      </div>
-      <div class="weather-city" id="weatherCityWrap"><span id="weatherCity">--</span><input id="weatherCityInput" placeholder="输入城市" style="display:none"/></div>
-      <div class="weather-main">
-        <span class="weather-icon" id="weatherIcon">--</span>
-        <span class="weather-temp" id="weatherTemp">--°</span>
-      </div>
-      <div class="weather-desc" id="weatherDesc">--</div>
-      <div class="weather-sub">
-        <div class="weather-sub-i"><span>体感</span><span id="weatherFeel">--</span></div>
-        <div class="weather-sub-i"><span>湿度</span><span id="weatherHum">--</span></div>
-        <div class="weather-sub-i"><span>风速</span><span id="weatherWind">--</span></div>
-      </div>
-    </div>`;
+    return renderWeatherCard();
   if (w.id === 'holiday')
-    return `<div class="widget-card holiday-card">
-      <div class="holiday-head">
-        <div class="holiday-title">🎉 节假日倒计时</div>
-        <div class="holiday-meta">
-          <span class="holiday-upd" id="holidayUpd">加载中…</span>
-          <button class="holiday-refresh" id="holidayRefresh" title="刷新">↻</button>
-        </div>
-      </div>
-      <div class="hol-week">
-        <div class="hol-week-main"><span class="hol-week-label">距周末</span><span class="hol-week-days" id="holidayWeekDays">--</span><span class="hol-week-unit">天</span></div>
-        <div class="hol-week-date" id="holidayWeekDate">--</div>
-      </div>
-      <div class="hol-list-head">接下来的假期</div>
-      <div class="hol-list" id="holidayList"><div class="hot-empty">加载中…</div></div>
-    </div>`;
+    return renderHolidayCard();
   if (w.id === 'calendar')
     return `<div class="widget-card cal-card">
       <div class="cal-head">
@@ -532,19 +480,14 @@ function getCard(w: WID): string {
       </div>
       <div class="music-player" id="musicPlayer"></div>
     </div>`;
-  if (HOT_WIDGETS[w.id]) {
-    const p = HOT_WIDGETS[w.id].platform;
-    return `<div class="widget-card hot-card">
-      <div class="hot-head">
-        <div class="hot-title">${HOT_WIDGETS[w.id].name}</div>
-        <div class="hot-meta">
-          <span class="hot-upd" id="hotUpd-${p}"></span>
-          <button class="hot-swap" id="hotSwap-${p}" title="换一换">换一换 <i id="hotPage-${p}">1/3</i></button>
-        </div>
-      </div>
-      <div class="hot-list" id="hotList-${p}"><div class="hot-empty">加载中…</div></div>
-    </div>`;
-  }
+  if (w.id === 'juejin')
+    return renderJuejinCard();
+  if (w.id === 'zhihu')
+    return renderZhihuCard();
+  if (w.id === 'sina_flash')
+    return renderSinaFlashCard();
+  if (HOT_WIDGETS[w.id])
+    return renderHotCard(w);
   return `<div class="widget-card clickable" data-widget="${w.id}"><div class="widget-entry"><span>${w.desc}</span><span class="arrow">→</span></div></div>`;
 }
 async function initW(id: string) {
@@ -589,6 +532,15 @@ async function initW(id: string) {
       break;
     case 'hot_baidu':
       initHotCard('baidu');
+      break;
+    case 'juejin':
+      initJuejin();
+      break;
+    case 'zhihu':
+      initZhihu();
+      break;
+    case 'sina_flash':
+      initSinaFlash();
       break;
   }
 }
@@ -1710,505 +1662,6 @@ function loadWallpaper() {
   if (url) document.body.style.backgroundImage = `url(${url})`;
 }
 
-// ── 实时金价 ──
-const GOLD_KEY = 'moyu_gold_cache';
-interface GoldPrice {
-  ounce: string;
-  gram: string;
-  tola: string;
-}
-interface GoldCache {
-  gram: number;
-  usdOunce: number;
-  ts: number;
-  prevGram: number;
-}
-let goldInited = false;
-let goldLoading = false;
-function loadGoldCache(): GoldCache | null {
-  try {
-    const raw = localStorage.getItem(GOLD_KEY);
-    return raw ? (JSON.parse(raw) as GoldCache) : null;
-  } catch {
-    return null;
-  }
-}
-function saveGoldCache(c: GoldCache) {
-  try {
-    localStorage.setItem(GOLD_KEY, JSON.stringify(c));
-  } catch {}
-}
-function fmtGoldMoney(v: number, prefix: string) {
-  return prefix + v.toLocaleString('zh-CN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-}
-function fmtGoldTime(ts: number) {
-  const d = new Date(ts);
-  return pad(d.getHours()) + ':' + pad(d.getMinutes());
-}
-function renderGold(c: GoldCache | null, error: boolean) {
-  const gramEl = document.getElementById('goldGram');
-  const usdEl = document.getElementById('goldUsd');
-  const updEl = document.getElementById('goldUpd');
-  const deltaEl = document.getElementById('goldDelta');
-  if (!c) {
-    if (gramEl) gramEl.textContent = error ? '获取失败' : '¥--';
-    if (updEl) updEl.textContent = error ? '⚠ 失败 · 点刷新重试' : '加载中…';
-    return;
-  }
-  if (gramEl) gramEl.textContent = fmtGoldMoney(c.gram, '¥');
-  if (usdEl) usdEl.textContent = fmtGoldMoney(c.usdOunce, '$');
-  if (updEl) updEl.textContent = (error ? '⚠ 更新失败 · ' : '') + fmtGoldTime(c.ts) + ' 更新';
-  if (deltaEl) {
-    if (c.prevGram > 0) {
-      const diff = c.gram - c.prevGram;
-      const pct = (diff / c.prevGram) * 100;
-      if (Math.abs(diff) < 0.005) {
-        deltaEl.className = 'gold-delta flat';
-        deltaEl.textContent = '— 持平';
-      } else {
-        const up = diff > 0;
-        deltaEl.className = 'gold-delta ' + (up ? 'up' : 'down');
-        deltaEl.textContent =
-          (up ? '▲ +' : '▼ ') + diff.toFixed(2) + ' (' + (up ? '+' : '') + pct.toFixed(2) + '%)';
-      }
-    } else {
-      deltaEl.className = 'gold-delta flat';
-      deltaEl.textContent = '实时';
-    }
-  }
-}
-async function fetchGold(): Promise<{ cny: GoldPrice; usd: GoldPrice }> {
-  // 接口无 CORS 头，由 background SW 凭 host_permissions 绕过跨域
-  const res = (await chrome.runtime.sendMessage({ type: 'GOLD_FETCH' })) as
-    | {
-        success: boolean;
-        data?: { cny: GoldPrice; usd: GoldPrice };
-        error?: string;
-      }
-    | undefined;
-  if (!res?.success || !res.data) throw new Error(res?.error || 'fetch failed');
-  return res.data;
-}
-async function refreshGold() {
-  if (goldLoading) return;
-  if (!document.getElementById('goldGram')) return;
-  const btn = document.getElementById('goldRefresh');
-  goldLoading = true;
-  btn?.classList.add('spin');
-  try {
-    const prev = loadGoldCache();
-    const r = await fetchGold();
-    const c: GoldCache = {
-      gram: parseFloat(r.cny.gram),
-      usdOunce: parseFloat(r.usd.ounce),
-      ts: Date.now(),
-      prevGram: prev?.gram ?? 0,
-    };
-    renderGold(c, false);
-    saveGoldCache(c);
-  } catch {
-    renderGold(loadGoldCache(), true);
-  } finally {
-    goldLoading = false;
-    btn?.classList.remove('spin');
-  }
-}
-function onGoldVis() {
-  if (document.visibilityState !== 'visible') return;
-  const c = loadGoldCache();
-  if (!c || Date.now() - c.ts > 60000) refreshGold();
-}
-function initGold() {
-  renderGold(loadGoldCache(), false);
-  document.getElementById('goldRefresh')?.addEventListener('click', refreshGold);
-  if (goldInited) return;
-  goldInited = true;
-  refreshGold();
-  setInterval(refreshGold, 60000);
-  document.addEventListener('visibilitychange', onGoldVis);
-}
-
-// ── 基金估值 ──
-const SF = 'moyu_funds';
-const FC_KEY = 'moyu_fund_cache';
-interface FundData {
-  name: string;
-  dwjz: string;
-  gsz: string;
-  gszzl: string;
-  gztime: string;
-  ts: number;
-}
-let fundCodes: string[] = [];
-let fundInited = false;
-let fundLoading = false;
-let fundLastFetch = 0;
-async function getFunds(): Promise<string[]> {
-  const r = await chrome.storage.sync.get(SF);
-  return (r[SF] as string[]) ?? [];
-}
-async function setFunds(codes: string[]) {
-  await chrome.storage.sync.set({ [SF]: codes });
-}
-async function loadFundCodes() {
-  fundCodes = await getFunds();
-}
-function loadFundCache(): Record<string, FundData> {
-  try {
-    const raw = localStorage.getItem(FC_KEY);
-    return raw ? (JSON.parse(raw) as Record<string, FundData>) : {};
-  } catch {
-    return {};
-  }
-}
-function saveFundCache(c: Record<string, FundData>) {
-  try {
-    localStorage.setItem(FC_KEY, JSON.stringify(c));
-  } catch {}
-}
-function fmtFundTime(ts: number) {
-  const d = new Date(ts);
-  return pad(d.getHours()) + ':' + pad(d.getMinutes());
-}
-function fmtFundChange(s: string) {
-  const v = parseFloat(s);
-  if (isNaN(v)) return { text: '--', cls: 'fund-chg flat' };
-  if (v > 0) return { text: '+' + v.toFixed(2) + '%', cls: 'fund-chg up' };
-  if (v < 0) return { text: v.toFixed(2) + '%', cls: 'fund-chg down' };
-  return { text: '0.00%', cls: 'fund-chg flat' };
-}
-function renderFundList(error: boolean) {
-  const list = document.getElementById('fundList');
-  const upd = document.getElementById('fundUpd');
-  if (!list) return;
-  const cache = loadFundCache();
-  if (!fundCodes.length) {
-    list.innerHTML = `<div class="fund-empty">暂无基金 · 下方输入代码添加</div>`;
-    if (upd) upd.textContent = '';
-    return;
-  }
-  let latestTs = 0;
-  let html = '';
-  for (const code of fundCodes) {
-    const d = cache[code];
-    if (d) {
-      latestTs = Math.max(latestTs, d.ts);
-      const chg = fmtFundChange(d.gszzl);
-      const t = d.gztime ? d.gztime.slice(-5) : '';
-      html += `<div class="fund-row" data-code="${code}">
-        <div class="fund-main">
-          <div class="fund-name">${esc(d.name || code)}</div>
-          <div class="fund-sub">${code} · 净值 ${d.dwjz || '--'}${t ? ' · ' + t : ''}</div>
-        </div>
-        <div class="fund-right">
-          <div class="fund-gsz">${d.gsz || '--'}</div>
-          <div class="${chg.cls}">${chg.text}</div>
-        </div>
-        <button class="fund-del" data-code="${code}" title="删除">x</button>
-      </div>`;
-    } else {
-      html += `<div class="fund-row" data-code="${code}">
-        <div class="fund-main">
-          <div class="fund-name">${code}</div>
-          <div class="fund-sub">${error ? '获取失败 · 检查代码' : '加载中…'}</div>
-        </div>
-        <div class="fund-right"><div class="fund-gsz">--</div><div class="fund-chg flat">--</div></div>
-        <button class="fund-del" data-code="${code}" title="删除">x</button>
-      </div>`;
-    }
-  }
-  list.innerHTML = html;
-  if (upd) {
-    if (latestTs) upd.textContent = (error ? '⚠ ' : '') + fmtFundTime(latestTs) + ' 更新';
-    else if (error) upd.textContent = '⚠ 失败';
-    else upd.textContent = '';
-  }
-  list.querySelectorAll('.fund-del').forEach((b) =>
-    b.addEventListener('click', async () => {
-      const code = (b as HTMLElement).dataset.code!;
-      fundCodes = fundCodes.filter((c) => c !== code);
-      await setFunds(fundCodes);
-      const cache = loadFundCache();
-      delete cache[code];
-      saveFundCache(cache);
-      renderFundList(false);
-    }),
-  );
-}
-async function fetchFunds(codes: string[]): Promise<Record<string, Omit<FundData, 'ts'> | null>> {
-  const res = (await chrome.runtime.sendMessage({ type: 'FUND_FETCH', codes })) as
-    | {
-        success: boolean;
-        data?: Record<string, Omit<FundData, 'ts'> | null>;
-      }
-    | undefined;
-  if (!res?.success || !res.data) throw new Error('fetch failed');
-  return res.data;
-}
-async function refreshFund() {
-  if (fundLoading) return;
-  if (!document.getElementById('fundList')) return;
-  if (!fundCodes.length) return;
-  const btn = document.getElementById('fundRefresh');
-  fundLoading = true;
-  btn?.classList.add('spin');
-  try {
-    const data = await fetchFunds(fundCodes);
-    const cache = loadFundCache();
-    const now = Date.now();
-    let ok = false;
-    for (const code of fundCodes) {
-      const d = data[code];
-      if (d) {
-        cache[code] = { ...d, ts: now };
-        ok = true;
-      }
-    }
-    saveFundCache(cache);
-    fundLastFetch = Date.now();
-    renderFundList(!ok);
-  } catch {
-    renderFundList(true);
-  } finally {
-    fundLoading = false;
-    btn?.classList.remove('spin');
-  }
-}
-async function addFund() {
-  const input = document.getElementById('fundInput') as HTMLInputElement | null;
-  if (!input) return;
-  const code = input.value.trim();
-  if (!/^\d{5,6}$/.test(code)) {
-    input.classList.add('err');
-    setTimeout(() => input.classList.remove('err'), 600);
-    return;
-  }
-  if (fundCodes.includes(code)) {
-    input.value = '';
-    return;
-  }
-  fundCodes = [...fundCodes, code];
-  await setFunds(fundCodes);
-  input.value = '';
-  renderFundList(false);
-  refreshFund();
-}
-function bindFundControls() {
-  document.getElementById('fundRefresh')?.addEventListener('click', refreshFund);
-  document.getElementById('fundAdd')?.addEventListener('click', addFund);
-  document.getElementById('fundInput')?.addEventListener('keydown', (e) => {
-    if ((e as KeyboardEvent).key === 'Enter') addFund();
-  });
-}
-function onFundVis() {
-  if (document.visibilityState !== 'visible') return;
-  if (fundCodes.length && Date.now() - fundLastFetch > 60000) refreshFund();
-}
-async function initFund() {
-  await loadFundCodes();
-  renderFundList(false);
-  bindFundControls();
-  if (fundInited) return;
-  fundInited = true;
-  refreshFund();
-  setInterval(refreshFund, 60000);
-  document.addEventListener('visibilitychange', onFundVis);
-}
-
-// ── 天气（Open-Meteo，前端直连，浏览器自带 UA）──
-const WC_KEY = 'moyu_weather_city';
-const WX_CACHE = 'moyu_weather_cache';
-interface WCity {
-  name: string;
-  lat: number;
-  lon: number;
-}
-interface WCache {
-  temp: number;
-  feel: number;
-  hum: number;
-  wind: number;
-  code: number;
-  ts: number;
-  city: string;
-}
-const WMO: Record<number, { t: string; e: string }> = {
-  0: { t: '晴', e: '☀️' },
-  1: { t: '主要晴', e: '🌤️' },
-  2: { t: '局部多云', e: '⛅' },
-  3: { t: '阴', e: '☁️' },
-  45: { t: '雾', e: '🌫️' },
-  48: { t: '雾凇', e: '🌫️' },
-  51: { t: '毛毛雨', e: '🌦️' },
-  53: { t: '毛毛雨', e: '🌦️' },
-  55: { t: '强毛毛雨', e: '🌧️' },
-  56: { t: '冻毛毛雨', e: '🌧️' },
-  57: { t: '强冻毛毛雨', e: '🌧️' },
-  61: { t: '小雨', e: '🌦️' },
-  63: { t: '中雨', e: '🌧️' },
-  65: { t: '大雨', e: '🌧️' },
-  66: { t: '冻雨', e: '🌧️' },
-  67: { t: '强冻雨', e: '🌧️' },
-  71: { t: '小雪', e: '🌨️' },
-  73: { t: '中雪', e: '🌨️' },
-  75: { t: '大雪', e: '❄️' },
-  77: { t: '雪粒', e: '🌨️' },
-  80: { t: '阵雨', e: '🌦️' },
-  81: { t: '强阵雨', e: '🌧️' },
-  82: { t: '暴雨', e: '⛈️' },
-  85: { t: '阵雪', e: '🌨️' },
-  86: { t: '强阵雪', e: '❄️' },
-  95: { t: '雷暴', e: '⛈️' },
-  96: { t: '雷暴伴冰雹', e: '⛈️' },
-  99: { t: '强雷暴伴冰雹', e: '⛈️' },
-};
-let wCity: WCity | null = null;
-let wLoading = false;
-let wInited = false;
-async function getWCity(): Promise<WCity | null> {
-  const r = await chrome.storage.sync.get(WC_KEY);
-  return (r[WC_KEY] as WCity) ?? null;
-}
-async function setWCity(c: WCity) {
-  await chrome.storage.sync.set({ [WC_KEY]: c });
-}
-function loadWCache(): WCache | null {
-  try {
-    const raw = localStorage.getItem(WX_CACHE);
-    return raw ? (JSON.parse(raw) as WCache) : null;
-  } catch {
-    return null;
-  }
-}
-function saveWCache(c: WCache) {
-  try {
-    localStorage.setItem(WX_CACHE, JSON.stringify(c));
-  } catch {}
-}
-function fmtWTime(ts: number) {
-  const d = new Date(ts);
-  return pad(d.getHours()) + ':' + pad(d.getMinutes());
-}
-function renderWeather(c: WCache | null, error: boolean) {
-  const cityEl = document.getElementById('weatherCity');
-  const iconEl = document.getElementById('weatherIcon');
-  const tempEl = document.getElementById('weatherTemp');
-  const descEl = document.getElementById('weatherDesc');
-  const feelEl = document.getElementById('weatherFeel');
-  const humEl = document.getElementById('weatherHum');
-  const windEl = document.getElementById('weatherWind');
-  const updEl = document.getElementById('weatherUpd');
-  if (!c) {
-    if (updEl) updEl.textContent = error ? '⚠ 获取失败 · 点刷新重试' : '加载中…';
-    return;
-  }
-  const wmo = WMO[c.code] || { t: '未知', e: '🌡️' };
-  if (cityEl) cityEl.textContent = c.city;
-  if (iconEl) iconEl.textContent = wmo.e;
-  if (tempEl) tempEl.textContent = Math.round(c.temp) + '°';
-  if (descEl) descEl.textContent = wmo.t;
-  if (feelEl) feelEl.textContent = Math.round(c.feel) + '°';
-  if (humEl) humEl.textContent = c.hum + '%';
-  if (windEl) windEl.textContent = Math.round(c.wind) + ' km/h';
-  if (updEl) updEl.textContent = (error ? '⚠ 更新失败 · ' : '') + fmtWTime(c.ts) + ' 更新';
-}
-async function geocodeCity(name: string): Promise<WCity | null> {
-  const url = `https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(name)}&count=1&language=zh`;
-  const ctrl = new AbortController();
-  const to = setTimeout(() => ctrl.abort(), 10000);
-  try {
-    const res = await fetch(url, { signal: ctrl.signal });
-    if (!res.ok) return null;
-    const j = await res.json();
-    const r = j?.results?.[0];
-    if (!r) return null;
-    return { name: String(r.name), lat: r.latitude, lon: r.longitude };
-  } catch {
-    return null;
-  } finally {
-    clearTimeout(to);
-  }
-}
-async function refreshWeather() {
-  if (wLoading) return;
-  if (!document.getElementById('weatherTemp')) return;
-  if (!wCity) return;
-  const btn = document.getElementById('weatherRefresh');
-  wLoading = true;
-  btn?.classList.add('spin');
-  try {
-    const url = `https://api.open-meteo.com/v1/forecast?latitude=${wCity.lat}&longitude=${wCity.lon}&current=temperature_2m,relative_humidity_2m,apparent_temperature,weather_code,wind_speed_10m&timezone=auto`;
-    const res = await fetch(url);
-    if (!res.ok) throw new Error('HTTP ' + res.status);
-    const j = await res.json();
-    const cur = j?.current;
-    if (!cur) throw new Error('bad data');
-    const c: WCache = {
-      temp: cur.temperature_2m,
-      feel: cur.apparent_temperature,
-      hum: cur.relative_humidity_2m,
-      wind: cur.wind_speed_10m,
-      code: cur.weather_code,
-      ts: Date.now(),
-      city: wCity.name,
-    };
-    renderWeather(c, false);
-    saveWCache(c);
-  } catch {
-    renderWeather(loadWCache(), true);
-  } finally {
-    wLoading = false;
-    btn?.classList.remove('spin');
-  }
-}
-function onWeatherVis() {
-  if (document.visibilityState !== 'visible') return;
-  const c = loadWCache();
-  if (wCity && (!c || Date.now() - c.ts > 600000)) refreshWeather();
-}
-async function initWeather() {
-  wCity = await getWCity();
-  if (!wCity) {
-    wCity = await geocodeCity('北京');
-    if (wCity) await setWCity(wCity);
-  }
-  renderWeather(loadWCache(), false);
-  document.getElementById('weatherRefresh')?.addEventListener('click', refreshWeather);
-  const wrapEl = document.getElementById('weatherCityWrap');
-  const inputEl = document.getElementById('weatherCityInput') as HTMLInputElement | null;
-  wrapEl?.addEventListener('click', () => {
-    if (inputEl && inputEl.style.display === 'none') {
-      inputEl.style.display = 'block';
-      inputEl.value = '';
-      inputEl.focus();
-    }
-  });
-  inputEl?.addEventListener('keydown', async (e) => {
-    if ((e as KeyboardEvent).key !== 'Enter') return;
-    const name = inputEl.value.trim();
-    if (!name) return;
-    const c = await geocodeCity(name);
-    if (!c) {
-      inputEl.classList.add('err');
-      setTimeout(() => inputEl.classList.remove('err'), 600);
-      return;
-    }
-    wCity = c;
-    await setWCity(c);
-    inputEl.style.display = 'none';
-    refreshWeather();
-  });
-  inputEl?.addEventListener('blur', () => {
-    inputEl.style.display = 'none';
-    inputEl.classList.remove('err');
-  });
-  if (wInited) return;
-  wInited = true;
-  refreshWeather();
-  setInterval(refreshWeather, 600000);
-  document.addEventListener('visibilitychange', onWeatherVis);
-}
-
 // ── 日历 ──
 let calYear = 0,
   calMonth = 0;
@@ -2365,248 +1818,6 @@ async function initMusic() {
     container.innerHTML = '<div class="hot-empty">⚠ 加载失败 · 点击重试</div>';
     container.onclick = () => initMusic();
   }
-}
-
-// ── 节假日倒计时（timor.tech，SW 代理，周末本地计算）──
-const HOL_KEY = 'moyu_holiday_cache';
-const HOL_DAY = 86400000;
-interface HolBlock {
-  name: string;
-  date: string;
-}
-interface HolCache {
-  list: HolBlock[];
-  ts: number; // 上次成功拉取时间戳
-  attemptTs?: number; // 上次尝试时间（含失败），用于失败冷却，避免压满每日配额
-}
-let holLoading = false;
-let holInited = false;
-
-function loadHolCache(): HolCache | null {
-  try {
-    const raw = localStorage.getItem(HOL_KEY);
-    return raw ? (JSON.parse(raw) as HolCache) : null;
-  } catch {
-    return null;
-  }
-}
-function saveHolCache(c: HolCache) {
-  try {
-    localStorage.setItem(HOL_KEY, JSON.stringify(c));
-  } catch {}
-}
-function isSameDay(ts: number): boolean {
-  const d = new Date(ts);
-  const n = new Date();
-  return (
-    d.getFullYear() === n.getFullYear() &&
-    d.getMonth() === n.getMonth() &&
-    d.getDate() === n.getDate()
-  );
-}
-/** 每日最多自动拉取一次：当天成功过即跳过，失败/进行中冷却 5 分钟。手动 ↻ 不走此门控。 */
-function holNeedsFetch(): boolean {
-  const c = loadHolCache();
-  if (c && isSameDay(c.ts)) return false;
-  if (c?.attemptTs && Date.now() - c.attemptTs < 5 * 60 * 1000) return false;
-  return true;
-}
-function ymdMidnight(dateStr: string): number {
-  const [y, m, d] = dateStr.split('-').map(Number);
-  return new Date(y, m - 1, d).getTime();
-}
-function todayMidnight(): number {
-  const n = new Date();
-  return new Date(n.getFullYear(), n.getMonth(), n.getDate()).getTime();
-}
-function holDaysLeft(dateStr: string): number {
-  return Math.round((ymdMidnight(dateStr) - todayMidnight()) / HOL_DAY);
-}
-function fmtHolDate(dateStr: string): string {
-  const [y, m, d] = dateStr.split('-').map(Number);
-  const wd = ['日', '一', '二', '三', '四', '五', '六'][new Date(y, m - 1, d).getDay()];
-  return `${m}月${d}日 周${wd}`;
-}
-function fmtHolTime(ts: number): string {
-  const d = new Date(ts);
-  return pad(d.getHours()) + ':' + pad(d.getMinutes());
-}
-function renderHolWeekend() {
-  const daysEl = document.getElementById('holidayWeekDays');
-  const dateEl = document.getElementById('holidayWeekDate');
-  if (!daysEl || !dateEl) return;
-  const n = new Date();
-  const daysToSat = (6 - n.getDay() + 7) % 7;
-  const sat = new Date(n.getFullYear(), n.getMonth(), n.getDate() + daysToSat);
-  const wd = ['日', '一', '二', '三', '四', '五', '六'][sat.getDay()];
-  daysEl.textContent = String(daysToSat);
-  dateEl.textContent =
-    daysToSat === 0 ? `今天 周${wd}` : `${sat.getMonth() + 1}月${sat.getDate()}日 周${wd}`;
-}
-function renderHolList(error: boolean) {
-  const list = document.getElementById('holidayList');
-  const upd = document.getElementById('holidayUpd');
-  if (!list) return;
-  const cache = loadHolCache();
-  const items = (cache?.list ?? []).filter((b) => holDaysLeft(b.date) >= 0).slice(0, 6);
-  if (!items.length) {
-    list.innerHTML = `<div class="hot-empty">${error ? '⚠ 获取失败 · 点击重试' : '加载中…'}</div>`;
-    list.onclick = error ? () => refreshHoliday() : null;
-    if (upd) upd.textContent = error ? '⚠ 失败' : '';
-    return;
-  }
-  list.onclick = null;
-  list.innerHTML = items.map((b) => {
-    const left = holDaysLeft(b.date);
-    const leftTxt = left === 0 ? '今天' : `${left} 天`;
-    return `<div class="hol-row"><span class="hol-name">${esc(b.name)}</span><span class="hol-date">${fmtHolDate(b.date)}</span><span class="hol-days">${leftTxt}</span></div>`;
-  }).join('');
-  if (upd) upd.textContent = cache ? fmtHolTime(cache.ts) : '';
-}
-async function refreshHoliday() {
-  if (holLoading) return;
-  if (!document.getElementById('holidayList')) return;
-  const btn = document.getElementById('holidayRefresh');
-  holLoading = true;
-  btn?.classList.add('spin');
-  // 记录本次尝试时间，跨标签页并发去重 + 失败冷却
-  const prev = loadHolCache();
-  saveHolCache({ list: prev?.list ?? [], ts: prev?.ts ?? 0, attemptTs: Date.now() });
-  try {
-    const res = (await chrome.runtime.sendMessage({ type: 'HOLIDAY_FETCH' })) as
-      | { success: boolean; data?: { list: HolBlock[] }; error?: string }
-      | undefined;
-    if (res?.success && res.data?.list) {
-      saveHolCache({ list: res.data.list, ts: Date.now(), attemptTs: Date.now() });
-      renderHolList(false);
-    } else {
-      renderHolList(true);
-    }
-  } catch {
-    renderHolList(true);
-  } finally {
-    holLoading = false;
-    btn?.classList.remove('spin');
-  }
-}
-function onHolVis() {
-  if (document.visibilityState !== 'visible') return;
-  if (holNeedsFetch()) refreshHoliday();
-}
-async function initHoliday() {
-  renderHolWeekend();
-  renderHolList(false);
-  document.getElementById('holidayRefresh')?.addEventListener('click', refreshHoliday);
-  if (holInited) return;
-  holInited = true;
-  // 每日最多自动拉取一次（成功后当日不再请求），保护 timor.tech 1万次/日共享配额
-  if (holNeedsFetch()) refreshHoliday();
-  document.addEventListener('visibilitychange', onHolVis);
-}
-
-// ── 热搜（微博 / B站 / 百度，SW 直抓，三张独立卡片）──
-const HC_KEY = 'moyu_hot_cache';
-const HOT_WIDGETS: Record<string, { platform: string; name: string }> = {
-  hot_weibo: { platform: 'weibo', name: '微博热搜' },
-  hot_bilibili: { platform: 'bilibili', name: 'B站热搜' },
-  hot_baidu: { platform: 'baidu', name: '百度热搜' },
-};
-interface HItem {
-  title: string;
-  hot: string;
-  url: string;
-  tag?: string;
-}
-const hotLoading: Record<string, boolean> = {};
-const hotLastFetch: Record<string, number> = {};
-const hotInited: Record<string, boolean> = {};
-const hotPage: Record<string, number> = {};
-function loadHotCache(): Record<string, { items: HItem[]; ts: number }> {
-  try {
-    const raw = localStorage.getItem(HC_KEY);
-    return raw ? JSON.parse(raw) : {};
-  } catch {
-    return {};
-  }
-}
-function saveHotCache(c: Record<string, { items: HItem[]; ts: number }>) {
-  try {
-    localStorage.setItem(HC_KEY, JSON.stringify(c));
-  } catch {}
-}
-function fmtHotTime(ts: number) {
-  const d = new Date(ts);
-  return pad(d.getHours()) + ':' + pad(d.getMinutes());
-}
-function renderHotList(platform: string, error: boolean) {
-  const list = document.getElementById('hotList-' + platform);
-  const upd = document.getElementById('hotUpd-' + platform);
-  const pageEl = document.getElementById('hotPage-' + platform);
-  if (!list) return;
-  const cache = loadHotCache();
-  const c = cache[platform];
-  if (!c || !c.items.length) {
-    list.innerHTML = `<div class="hot-empty">${error ? '⚠ 获取失败' : '加载中…'}</div>`;
-    if (upd) upd.textContent = error ? '⚠ 失败' : '';
-    return;
-  }
-  const total = Math.min(3, Math.ceil(c.items.length / 10) || 1);
-  const page = (hotPage[platform] || 0) % total;
-  const slice = c.items.slice(page * 10, page * 10 + 10);
-  list.innerHTML = slice
-    .map((it, i) => {
-      const rank = page * 10 + i + 1;
-      return `<a class="hot-row" href="${it.url}" target="_blank" rel="noopener"><span class="hot-rank${rank <= 3 ? ' top' : ''}">${rank}</span><span class="hot-title">${esc(it.title)}${it.tag ? `<i class="hot-tag">${esc(it.tag)}</i>` : ''}</span>${it.hot ? `<span class="hot-num">${esc(it.hot)}</span>` : ''}</a>`;
-    })
-    .join('');
-  if (pageEl) pageEl.textContent = page + 1 + '/' + total;
-  if (upd) upd.textContent = (error ? '⚠ ' : '') + fmtHotTime(c.ts) + ' 更新';
-}
-function swapHotPage(platform: string) {
-  const cache = loadHotCache();
-  const c = cache[platform];
-  if (!c || !c.items.length) return;
-  const total = Math.min(3, Math.ceil(c.items.length / 10) || 1);
-  hotPage[platform] = ((hotPage[platform] || 0) + 1) % total;
-  renderHotList(platform, false);
-}
-async function refreshHot(platform: string) {
-  if (hotLoading[platform]) return;
-  if (!document.getElementById('hotList-' + platform)) return;
-  hotLoading[platform] = true;
-  try {
-    const res = (await chrome.runtime.sendMessage({ type: 'HOT_FETCH', platform })) as
-      | { success: boolean; data?: HItem[]; error?: string }
-      | undefined;
-    if (res?.success && res.data) {
-      const cache = loadHotCache();
-      cache[platform] = { items: res.data, ts: Date.now() };
-      saveHotCache(cache);
-      hotLastFetch[platform] = Date.now();
-      renderHotList(platform, false);
-    } else {
-      renderHotList(platform, true);
-    }
-  } catch {
-    renderHotList(platform, true);
-  } finally {
-    hotLoading[platform] = false;
-  }
-}
-function onHotVis(platform: string) {
-  if (document.visibilityState !== 'visible') return;
-  if (Date.now() - (hotLastFetch[platform] || 0) > 300000) refreshHot(platform);
-}
-async function initHotCard(platform: string) {
-  renderHotList(platform, false);
-  document
-    .getElementById('hotSwap-' + platform)
-    ?.addEventListener('click', () => swapHotPage(platform));
-  if (hotInited[platform]) return;
-  hotInited[platform] = true;
-  refreshHot(platform);
-  setInterval(() => refreshHot(platform), 300000);
-  document.addEventListener('visibilitychange', () => onHotVis(platform));
 }
 
 async function init() {
