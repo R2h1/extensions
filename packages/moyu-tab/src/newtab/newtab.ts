@@ -161,6 +161,7 @@ const ALL_WIDGETS: WID[] = [
   { id: 'hot_baidu', name: '百度热搜', desc: '百度实时热搜', cat: 'news', sub: 'hot' },
   { id: 'quote', name: '语录', desc: '随机摸鱼语录', cat: 'fun', sub: 'joke' },
   { id: 'fish', name: '功德', desc: '敲木鱼计数器', cat: 'fun', sub: 'merit' },
+  { id: 'tv', name: '视频', desc: '视频网站', cat: 'fun', sub: 'media' },
   { id: 'salary', name: '薪资跳动', desc: '实时薪资计数器', cat: 'work', sub: 'salary' },
   { id: 'gold', name: '金价', desc: '实时黄金价格', cat: 'finance', sub: 'market' },
   { id: 'fund', name: '基金', desc: '实时基金估值', cat: 'finance', sub: 'market' },
@@ -473,6 +474,14 @@ function getCard(w: WID): string {
       </div>
       <div class="cal-week"><span>一</span><span>二</span><span>三</span><span>四</span><span>五</span><span>六</span><span>日</span></div>
       <div class="cal-grid" id="calGrid"></div>
+    </div>`;
+  if (w.id === 'tv')
+    return `<div class="widget-card tv-card">
+      <div class="tv-head">
+        <div class="tv-title">▶ 视频</div>
+        <a class="tv-open" href="http://app.conan.js.cn/tv" target="_blank" rel="noopener">新标签打开 ↗</a>
+      </div>
+      <iframe class="tv-frame" src="http://app.conan.js.cn/tv" referrerpolicy="no-referrer" loading="lazy" allow="fullscreen; encrypted-media" allowfullscreen></iframe>
     </div>`;
   if (HOT_WIDGETS[w.id]) {
     const p = HOT_WIDGETS[w.id].platform;
