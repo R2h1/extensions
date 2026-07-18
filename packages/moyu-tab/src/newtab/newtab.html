@@ -20,11 +20,20 @@ html.locked #dateDisplay{font-size:24px!important;transition:font-size 0.5s ease
 .app{display:flex;height:100vh;position:relative;z-index:1}
 .sidebar{width:120px;flex-shrink:0;display:flex;flex-direction:column;padding:28px 8px 12px;background:var(--nm-surface);border-right:0.5px solid rgba(0,0,0,0.05)}
 .sidebar-nav{flex:1;display:flex;flex-direction:column;gap:2px}
-.ic{width:20px;text-align:center;font-size:14px;flex-shrink:0}
+.ic{width:20px;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0}
 .sb-btn{display:flex;align-items:center;gap:4px;padding:8px 12px;border-radius:var(--radius-xs);background:transparent;border:none;color:var(--text-secondary);font-size:13px;font-weight:500;font-family:inherit;cursor:pointer;transition:all 0.15s;text-align:left;width:100%;position:relative}
 .sb-btn:hover{color:var(--text);background:var(--glass-accent)}
 .sb-btn.active{color:var(--accent);background:var(--nm-surface);font-weight:600;box-shadow:3px 3px 8px rgba(174,174,178,.3),-3px -3px 8px rgba(255,255,255,.8)}
 .sb-div{height:0.5px;background:rgba(0,0,0,0.06);margin:6px 12px}
+.sb-group{display:flex;flex-direction:column}
+.sb-top{justify-content:space-between}
+.sb-arrow{font-size:10px;color:var(--text-tertiary);transition:transform .2s}
+.sb-group.open .sb-arrow{transform:rotate(180deg)}
+.sb-subs{display:none;flex-direction:column;gap:1px;padding-left:14px}
+.sb-group.open .sb-subs{display:flex}
+.sb-sub{font-size:12px;padding:6px 12px;color:var(--text-tertiary)}
+.sb-sub:hover{color:var(--text-secondary);background:var(--glass-accent)}
+.sb-sub.active{color:var(--accent);font-weight:600;background:var(--glass-accent)}
 .content{flex:1;display:flex;justify-content:center;overflow-y:auto;min-width:0}
 .ci{width:100%;max-width:768px;display:flex;flex-direction:column;padding:32px 28px 20px}
 .cat-panel{display:none;column-count:2;column-gap:10px;padding:4px 0}
@@ -228,6 +237,47 @@ html.locked .clock-bar{padding:0}
 .weather-sub-i span:last-child{font-size:13px;color:var(--text-secondary);font-variant-numeric:tabular-nums;font-family:'Courier New',ui-monospace,monospace}
 /* 热搜卡片 */
 .hot-card{padding:12px 14px}
+.hot-title{font-size:14px;font-weight:600;color:var(--text-secondary);letter-spacing:.5px;display:flex;align-items:center;gap:6px}
+.hot-swap{display:flex;align-items:center;gap:4px;padding:3px 9px;font-size:11px;font-weight:500;border:0.5px solid var(--glass-border);border-radius:var(--radius-xs);background:transparent;color:var(--text-secondary);cursor:pointer;font-family:inherit;transition:all .15s}
+.hot-swap:hover{border-color:var(--accent);color:var(--accent)}
+.hot-swap i{font-style:normal;font-size:10px;color:var(--text-tertiary)}
+/* 日历卡片 */
+.cal-card{padding:14px}
+.cal-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.cal-title{font-size:14px;font-weight:600;color:var(--text-secondary);letter-spacing:.5px}
+.cal-ym{display:flex;gap:4px;flex:1;justify-content:center}
+.cal-dd{position:relative}
+.cal-dd-btn{display:flex;align-items:center;gap:3px;padding:4px 8px;font-size:12px;font-weight:600;color:var(--text-secondary);border:none;border-radius:var(--radius-xs);background:var(--nm-surface);box-shadow:var(--nm-out-sm);cursor:pointer;font-family:inherit;transition:all .15s}
+.cal-dd-btn:hover{color:var(--accent)}
+.cal-dd.open .cal-dd-btn{color:var(--accent);box-shadow:var(--nm-in-sm)}
+.cal-dd-arrow{font-size:9px;color:var(--text-tertiary);transition:transform .2s}
+.cal-dd.open .cal-dd-arrow{transform:rotate(180deg);color:var(--accent)}
+.cal-dd-list{display:none;position:absolute;top:calc(100% + 4px);left:50%;transform:translateX(-50%);z-index:50;min-width:72px;max-height:220px;overflow-y:auto;background:var(--nm-surface);border-radius:var(--radius-sm);box-shadow:0 6px 18px rgba(0,0,0,0.12),var(--nm-out);border:0.5px solid var(--glass-border-h);padding:4px}
+.cal-dd.open .cal-dd-list{display:block}
+.cal-dd.open #calMonthList{display:grid;grid-template-columns:repeat(3,1fr);gap:2px;min-width:150px;max-height:none;overflow:visible;padding:6px}
+#calMonthList .cal-dd-opt{padding:6px 4px}
+.cal-dd-opt{padding:5px 10px;font-size:12px;color:var(--text-secondary);border-radius:5px;cursor:pointer;white-space:nowrap;text-align:center}
+.cal-dd-opt:hover{background:var(--glass-accent);color:var(--accent)}
+.cal-dd-opt.active{color:var(--accent);font-weight:700;background:var(--glass-accent)}
+.cal-dd-list::-webkit-scrollbar{width:6px}
+.cal-dd-list::-webkit-scrollbar-track{background:transparent}
+.cal-dd-list::-webkit-scrollbar-thumb{background:rgba(0,0,0,0.12);border-radius:3px}
+.cal-dd-list::-webkit-scrollbar-thumb:hover{background:rgba(0,0,0,0.22)}
+.cal-today{width:26px;height:26px;border-radius:50%;border:none;background:var(--glass-accent);color:var(--accent);cursor:pointer;font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;font-family:inherit;transition:all .15s}
+.cal-today:hover{background:var(--accent);color:#fff}
+.cal-nav{width:26px;height:26px;border-radius:50%;border:none;background:var(--nm-surface);box-shadow:var(--nm-out-sm);color:var(--text-tertiary);cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center;transition:color .15s,box-shadow .15s;font-family:inherit}
+.cal-nav:hover{color:var(--accent)}
+.cal-nav:active{box-shadow:var(--nm-in-sm)}
+.cal-week{display:grid;grid-template-columns:repeat(7,1fr);gap:2px;margin-bottom:4px}
+.cal-week span{font-size:10px;color:var(--text-tertiary);text-align:center;padding:2px 0}
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:2px}
+.cal-cell{aspect-ratio:1;display:flex;flex-direction:column;align-items:center;justify-content:center;border-radius:6px;padding:2px}
+.cal-cell.blank{visibility:hidden}
+.cal-cell:hover{background:var(--glass-accent)}
+.cal-d{font-size:12px;color:var(--text);font-weight:500}
+.cal-l{font-size:8px;color:var(--text-tertiary);margin-top:1px;line-height:1}
+.cal-cell.today{background:var(--glass-accent)}
+.cal-cell.today .cal-d{color:var(--accent);font-weight:700}
 .hot-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;gap:8px}
 .hot-tabs{display:flex;gap:2px;background:var(--nm-surface);border-radius:var(--radius-xs);padding:2px;box-shadow:var(--nm-in-sm)}
 .hot-tab{padding:3px 10px;border-radius:5px;font-size:11px;font-weight:500;color:var(--text-tertiary);cursor:pointer;transition:all .15s;user-select:none}
@@ -255,19 +305,14 @@ html.locked .clock-bar{padding:0}
 <body>
 <div class="app">
   <nav class="sidebar">
-    <div class="sidebar-nav">
-      <button class="sb-btn active" data-tab="0"><span class="ic">⌂</span>首页</button>
-    </div>
+    <div class="sidebar-nav" id="sidebarNav"></div>
     <div class="sb-div"></div>
     <button class="sb-btn" id="addWidgetBtn"><span class="ic">+</span>组件库</button>
     <button class="sb-btn" id="settingsBtn"><span class="ic">⚙</span>设置</button>
   </nav>
   <main class="content"><div class="ci">
     <div class="clock-bar" id="clockBar"><div id="wg-clock" class="wg-clock"><span style="font-size:100px;font-weight:600;letter-spacing:6px;color:white;line-height:1;cursor:pointer" id="timeDisplay">--:--</span><div style="font-size:20px;color:white;margin-top:10px;letter-spacing:2px" id="dateDisplay"></div></div></div>
-    <div class="cat-panel active" id="panel0"></div>
-    <div class="cat-panel" id="panel1"></div>
-    <div class="cat-panel" id="panel2"></div>
-    <div class="cat-panel" id="panel3"></div>
+    <div class="cat-panel active" id="panel"></div>
   </div></main>
 </div>
 <div class="ctx-menu" id="ctxMenu"><button id="ctxWallpaper">更换壁纸</button></div>

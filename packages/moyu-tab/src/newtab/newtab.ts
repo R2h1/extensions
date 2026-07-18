@@ -39,57 +39,177 @@ interface SalStt {
   monthlyIncome: number;
   payDay: number;
 }
-const CATS = ['home', 'fish', 'efficiency', 'tools'] as const;
+interface SubCat {
+  id: string;
+  name: string;
+}
+interface TopCat {
+  id: string;
+  name: string;
+  icon: string;
+  subs: SubCat[];
+}
+function svg(p: string) {
+  return `<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${p}</svg>`;
+}
+const ICONS: Record<string, string> = {
+  life: svg('<circle cx="12" cy="12" r="4"/><path d="M12 3v2M12 19v2M5.6 5.6l1.4 1.4M17 17l1.4 1.4M3 12h2M19 12h2M5.6 18.4l1.4-1.4M17 7l1.4-1.4"/>'),
+  news: svg('<path d="M18 8a6 6 0 1 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/>'),
+  fun: svg('<path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/>'),
+  work: svg('<rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/>'),
+  study: svg('<path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>'),
+  finance: svg('<path d="M3 17l6-6 4 4 8-8"/><path d="M21 7v6h-6"/>'),
+  tools: svg('<path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/>'),
+  games: svg('<rect x="3" y="3" width="18" height="18" rx="3"/><path d="M8 8h.01M16 8h.01M8 16h.01M16 16h.01M12 12h.01"/>'),
+};
+const CAT_TREE: TopCat[] = [
+  {
+    id: 'life',
+    name: '生活',
+    icon: ICONS.life,
+    subs: [
+      { id: 'weather', name: '天气' },
+      { id: 'calendar', name: '日历' },
+      { id: 'fortune', name: '运势' },
+      { id: 'trip', name: '出行' },
+    ],
+  },
+  {
+    id: 'news',
+    name: '资讯',
+    icon: ICONS.news,
+    subs: [
+      { id: 'hot', name: '热搜' },
+      { id: 'news', name: '新闻' },
+      { id: 'flash', name: '快讯' },
+    ],
+  },
+  {
+    id: 'fun',
+    name: '娱乐',
+    icon: ICONS.fun,
+    subs: [
+      { id: 'joke', name: '段子' },
+      { id: 'merit', name: '功德' },
+      { id: 'media', name: '影音' },
+      { id: 'read', name: '阅读' },
+    ],
+  },
+  {
+    id: 'work',
+    name: '工作',
+    icon: ICONS.work,
+    subs: [
+      { id: 'salary', name: '薪资' },
+      { id: 'effi', name: '效率' },
+      { id: 'office', name: '办公' },
+    ],
+  },
+  {
+    id: 'study',
+    name: '学习',
+    icon: ICONS.study,
+    subs: [
+      { id: 'wiki', name: '百科' },
+      { id: 'dict', name: '词典' },
+      { id: 'course', name: '课程' },
+    ],
+  },
+  {
+    id: 'finance',
+    name: '理财',
+    icon: ICONS.finance,
+    subs: [
+      { id: 'market', name: '行情' },
+      { id: 'stock', name: '股市' },
+      { id: 'rate', name: '汇率' },
+      { id: 'account', name: '记账' },
+    ],
+  },
+  {
+    id: 'tools',
+    name: '工具',
+    icon: ICONS.tools,
+    subs: [
+      { id: 'nav', name: '导航' },
+      { id: 'conv', name: '换算' },
+      { id: 'calc', name: '计算' },
+    ],
+  },
+  {
+    id: 'games',
+    name: '游戏',
+    icon: ICONS.games,
+    subs: [
+      { id: 'puzzle', name: '益智' },
+      { id: 'casual', name: '休闲' },
+    ],
+  },
+];
 interface WID {
   id: string;
   name: string;
   desc: string;
-  category: (typeof CATS)[number];
+  cat: string;
+  sub: string;
 }
 const ALL_WIDGETS: WID[] = [
-  { id: 'quote', name: '语录', desc: '随机摸鱼语录', category: 'home' },
-  { id: 'salary', name: '薪资跳动', desc: '实时薪资计数器', category: 'home' },
-  { id: 'gold', name: '金价', desc: '实时黄金价格', category: 'home' },
-  { id: 'fund', name: '基金', desc: '实时基金估值', category: 'home' },
-  { id: 'fish', name: '功德', desc: '敲木鱼计数器', category: 'home' },
-  { id: 'links', name: '网址', desc: '常用快捷网址', category: 'home' },
-  { id: 'weather', name: '天气', desc: '实时天气', category: 'home' },
-  { id: 'hot', name: '热搜', desc: '实时热搜榜', category: 'home' },
+  { id: 'weather', name: '天气', desc: '实时天气', cat: 'life', sub: 'weather' },
+  { id: 'calendar', name: '日历', desc: '月历+农历', cat: 'life', sub: 'calendar' },
+  { id: 'hot_weibo', name: '微博热搜', desc: '微博实时热搜', cat: 'news', sub: 'hot' },
+  { id: 'hot_bilibili', name: 'B站热搜', desc: 'B站实时热搜', cat: 'news', sub: 'hot' },
+  { id: 'hot_baidu', name: '百度热搜', desc: '百度实时热搜', cat: 'news', sub: 'hot' },
+  { id: 'quote', name: '语录', desc: '随机摸鱼语录', cat: 'fun', sub: 'joke' },
+  { id: 'fish', name: '功德', desc: '敲木鱼计数器', cat: 'fun', sub: 'merit' },
+  { id: 'salary', name: '薪资跳动', desc: '实时薪资计数器', cat: 'work', sub: 'salary' },
+  { id: 'gold', name: '金价', desc: '实时黄金价格', cat: 'finance', sub: 'market' },
+  { id: 'fund', name: '基金', desc: '实时基金估值', cat: 'finance', sub: 'market' },
+  { id: 'links', name: '网址', desc: '常用快捷网址', cat: 'tools', sub: 'nav' },
 ];
-type WData = { [K in (typeof CATS)[number]]: string[] };
+type WData = { subs: Record<string, string[]> };
+function subKey(cat: string, sub: string) {
+  return cat + '.' + sub;
+}
 async function getWD(): Promise<WData> {
   const r = await chrome.storage.sync.get(SW);
-  const cats = (r[SW] as { cats: WData } | undefined)?.cats ?? {
-    home: [],
-    fish: [],
-    efficiency: [],
-    tools: [],
-  };
-  // 迁移：时钟改为常驻顶栏(移除)；功德(fish)从摸鱼分类移到首页；网址(links)从工具移到首页
-  let changed = false;
-  for (const cat of CATS) {
-    let arr = cats[cat];
-    if (arr.includes('clock')) {
-      arr = arr.filter((id) => id !== 'clock');
-      changed = true;
+  const raw = r[SW] as
+    | { subs?: Record<string, string[]>; cats?: Record<string, string[]> }
+    | undefined;
+  if (raw?.subs && !raw.cats) return { subs: raw.subs };
+  // 迁移：旧 cats（按一级）或首次，按组件新 cat.sub 重组
+  const subs: Record<string, string[]> = {};
+  const feed = (id: string) => {
+    if (id === 'clock') return;
+    if (id === 'hot') {
+      // 旧单个 hot 拆为三平台卡片
+      ['hot_weibo', 'hot_bilibili', 'hot_baidu'].forEach((hid) => feed(hid));
+      return;
     }
-    cats[cat] = arr;
+    const w = ALL_WIDGETS.find((x) => x.id === id);
+    if (!w) return;
+    const k = subKey(w.cat, w.sub);
+    if (!subs[k]) subs[k] = [];
+    if (!subs[k].includes(id)) subs[k].push(id);
+  };
+  if (raw?.cats) {
+    for (const k of Object.keys(raw.cats)) {
+      const arr = raw.cats[k];
+      if (Array.isArray(arr)) arr.forEach(feed);
+    }
+  } else if (raw?.subs) {
+    for (const k of Object.keys(raw.subs)) {
+      const arr = raw.subs[k];
+      if (Array.isArray(arr)) arr.forEach(feed);
+    }
+  } else {
+    // 首次：默认开启所有现有组件
+    ALL_WIDGETS.forEach((w) => feed(w.id));
   }
-  if (cats.fish.includes('fish')) {
-    cats.fish = cats.fish.filter((id) => id !== 'fish');
-    if (!cats.home.includes('fish')) cats.home = [...cats.home, 'fish'];
-    changed = true;
-  }
-  if (cats.tools.includes('links')) {
-    cats.tools = cats.tools.filter((id) => id !== 'links');
-    if (!cats.home.includes('links')) cats.home = [...cats.home, 'links'];
-    changed = true;
-  }
-  if (changed) await chrome.storage.sync.set({ [SW]: { cats } });
-  return cats;
+  await chrome.storage.sync.set({ [SW]: { subs } });
+  return { subs };
 }
 async function setWD(d: WData) {
-  await chrome.storage.sync.set({ [SW]: { cats: d } });
+  await chrome.storage.sync.set({ [SW]: { subs: d.subs } });
 }
 async function getLinks(): Promise<Lk[]> {
   const r = await chrome.storage.sync.get(SL);
@@ -107,10 +227,10 @@ async function setSal(s: SalStt) {
 }
 const WDPM = 21.75;
 
-const TABS = document.querySelectorAll('.sb-btn[data-tab]');
 const nmContent = document.querySelector('.content') as HTMLElement;
 const NM_ENTER_DUR = 500;
-let nmActive = 0;
+let curCat = CAT_TREE[0].id;
+let curSub = CAT_TREE[0].subs[0].id;
 let nmEnterStart = 0;
 let nmLag = 0;
 let nmLastTop = nmContent.scrollTop;
@@ -124,7 +244,7 @@ function nmUpdate() {
   nmLag *= 0.85;
   if (Math.abs(nmLag) < 0.3) nmLag = 0;
   const now = performance.now();
-  const panel = document.getElementById('panel' + nmActive);
+  const panel = document.getElementById('panel');
   let entering = false;
   if (panel) {
     const cards = Array.from(panel.children) as HTMLElement[];
@@ -150,8 +270,7 @@ function nmUpdate() {
   }
   if (entering || nmLag !== 0) nmSchedule();
 }
-function nmTrigger(i: number) {
-  nmActive = i;
+function nmTrigger() {
   nmEnterStart = performance.now();
   nmSchedule();
 }
@@ -165,41 +284,67 @@ nmContent.addEventListener(
   },
   { passive: true },
 );
-function sw(i: number) {
-  ['panel0', 'panel1', 'panel2', 'panel3'].forEach((id, idx) =>
-    document.getElementById(id)!.classList.toggle('active', idx === i),
+function renderSidebar() {
+  const nav = document.getElementById('sidebarNav')!;
+  nav.innerHTML = CAT_TREE.map(
+    (top) =>
+      `<div class="sb-group" data-top="${top.id}"><button class="sb-btn sb-top" data-top="${top.id}"><span class="ic">${top.icon}</span>${top.name}<span class="sb-arrow">▾</span></button><div class="sb-subs">${top.subs
+        .map((s) => `<button class="sb-btn sb-sub" data-cat="${top.id}" data-sub="${s.id}">${s.name}</button>`)
+        .join('')}</div></div>`,
+  ).join('');
+  nav.querySelectorAll('.sb-top').forEach((b) =>
+    b.addEventListener('click', function (this: HTMLElement) {
+      const g = this.closest('.sb-group') as HTMLElement;
+      const wasOpen = g.classList.contains('open');
+      nav.querySelectorAll('.sb-group').forEach((x) => x.classList.remove('open'));
+      if (!wasOpen) g.classList.add('open');
+    }),
   );
-  TABS.forEach((b, idx) => b.classList.toggle('active', idx === i));
-  nmTrigger(i);
+  nav.querySelectorAll('.sb-sub').forEach((b) =>
+    b.addEventListener('click', () => {
+      const el = b as HTMLElement;
+      showSub(el.dataset.cat!, el.dataset.sub!);
+    }),
+  );
 }
-TABS.forEach((b) => b.addEventListener('click', () => sw(Number((b as HTMLElement).dataset.tab))));
+function highlightSub() {
+  const nav = document.getElementById('sidebarNav')!;
+  nav.querySelectorAll('.sb-sub').forEach((b) => {
+    const el = b as HTMLElement;
+    el.classList.toggle('active', el.dataset.cat === curCat && el.dataset.sub === curSub);
+  });
+  const g = nav.querySelector(`.sb-group[data-top="${curCat}"]`);
+  if (g && !g.classList.contains('open')) {
+    nav.querySelectorAll('.sb-group').forEach((x) => x.classList.remove('open'));
+    (g as HTMLElement).classList.add('open');
+  }
+}
 
 let rendered: Record<string, boolean> = {},
   salStt: SalStt = { monthlyIncome: 10000, payDay: 10 };
-async function renderAll() {
+async function showSub(cat: string, sub: string) {
+  curCat = cat;
+  curSub = sub;
   const d = await getWD();
+  const ids = d.subs[subKey(cat, sub)] || [];
+  const panel = document.getElementById('panel')!;
   rendered = {};
-  for (let i = 0; i < 4; i++) {
-    const cat = CATS[i],
-      panel = document.getElementById('panel' + i)!,
-      ids = d[cat];
-    if (!ids.length) {
-      panel.innerHTML = `<div class="empty"><div>暂无组件</div><div class="add-hint">左侧点击 组件库</div></div>`;
-      continue;
-    }
-    let h = '';
-    for (const id of ids) {
-      const w = ALL_WIDGETS.find((x) => x.id === id);
-      if (!w) continue;
-      h += getCard(w);
-    }
-    panel.innerHTML = h;
-    for (const id of ids) initW(id);
+  if (!ids.length) {
+    panel.innerHTML = `<div class="empty"><div>暂无组件</div><div class="add-hint">左侧点击 组件库</div></div>`;
+    highlightSub();
+    nmTrigger();
+    return;
   }
-  const ai = ['panel0', 'panel1', 'panel2', 'panel3'].findIndex((id) =>
-    document.getElementById(id)!.classList.contains('active'),
-  );
-  if (ai >= 0) nmTrigger(ai);
+  let h = '';
+  for (const id of ids) {
+    const w = ALL_WIDGETS.find((x) => x.id === id);
+    if (!w) continue;
+    h += getCard(w);
+  }
+  panel.innerHTML = h;
+  for (const id of ids) initW(id);
+  highlightSub();
+  nmTrigger();
 }
 function getCard(w: WID): string {
   if (w.id === 'quote')
@@ -315,17 +460,33 @@ function getCard(w: WID): string {
         <div class="weather-sub-i"><span>风速</span><span id="weatherWind">--</span></div>
       </div>
     </div>`;
-  if (w.id === 'hot')
+  if (w.id === 'calendar')
+    return `<div class="widget-card cal-card">
+      <div class="cal-head">
+        <button class="cal-nav" id="calPrev">‹</button>
+        <div class="cal-ym">
+          <div class="cal-dd" id="calYearDD"><button class="cal-dd-btn" type="button"><span class="cal-dd-val">年</span><span class="cal-dd-arrow">▾</span></button><div class="cal-dd-list" id="calYearList"></div></div>
+          <div class="cal-dd" id="calMonthDD"><button class="cal-dd-btn" type="button"><span class="cal-dd-val">月</span><span class="cal-dd-arrow">▾</span></button><div class="cal-dd-list" id="calMonthList"></div></div>
+        </div>
+        <button class="cal-nav" id="calNext">›</button>
+        <button class="cal-today" id="calToday" title="回到今日">今</button>
+      </div>
+      <div class="cal-week"><span>一</span><span>二</span><span>三</span><span>四</span><span>五</span><span>六</span><span>日</span></div>
+      <div class="cal-grid" id="calGrid"></div>
+    </div>`;
+  if (HOT_WIDGETS[w.id]) {
+    const p = HOT_WIDGETS[w.id].platform;
     return `<div class="widget-card hot-card">
       <div class="hot-head">
-        <div class="hot-tabs" id="hotTabs"></div>
+        <div class="hot-title">${HOT_WIDGETS[w.id].name}</div>
         <div class="hot-meta">
-          <span class="hot-upd" id="hotUpd"></span>
-          <button class="hot-refresh" id="hotRefresh" title="刷新">↻</button>
+          <span class="hot-upd" id="hotUpd-${p}"></span>
+          <button class="hot-swap" id="hotSwap-${p}" title="换一换">换一换 <i id="hotPage-${p}">1/3</i></button>
         </div>
       </div>
-      <div class="hot-list" id="hotList"><div class="hot-empty">加载中…</div></div>
+      <div class="hot-list" id="hotList-${p}"><div class="hot-empty">加载中…</div></div>
     </div>`;
+  }
   return `<div class="widget-card clickable" data-widget="${w.id}"><div class="widget-entry"><span>${w.desc}</span><span class="arrow">→</span></div></div>`;
 }
 async function initW(id: string) {
@@ -353,8 +514,17 @@ async function initW(id: string) {
     case 'weather':
       initWeather();
       break;
-    case 'hot':
-      initHot();
+    case 'calendar':
+      initCalendar();
+      break;
+    case 'hot_weibo':
+      initHotCard('weibo');
+      break;
+    case 'hot_bilibili':
+      initHotCard('bilibili');
+      break;
+    case 'hot_baidu':
+      initHotCard('baidu');
       break;
   }
 }
@@ -416,18 +586,20 @@ document.getElementById('wmClose')!.addEventListener('click', () => wm.classList
 wm.addEventListener('click', (e) => {
   if (e.target === wm) wm.classList.remove('open');
 });
-async function renderWmList(cat: (typeof CATS)[number]) {
+async function renderWmList(cat: string, sub: string) {
   const d = await getWD();
-  const wid = ALL_WIDGETS.filter((w) => w.category === cat);
+  const wid = ALL_WIDGETS.filter((w) => w.cat === cat && w.sub === sub);
+  const k = subKey(cat, sub);
+  const onIds = d.subs[k] || [];
   if (!wid.length) {
     document.getElementById('widgetList')!.innerHTML =
-      '<div style="font-size:12px;color:var(--text-tertiary);text-align:center;padding:20px 0">暂无可用组件</div>';
+      '<div style="font-size:12px;color:var(--text-tertiary);text-align:center;padding:20px 0">该分类暂无可用组件</div>';
     return;
   }
   let h = '';
   wid.forEach((w) => {
-    const on = d[cat].includes(w.id);
-    h += `<div class="wg-item"><div><div class="wg-name">${w.name}</div><div class="wg-desc">${w.desc}</div></div><button class="wg-toggle ${on ? 'on' : 'off'}" data-id="${w.id}" data-cat="${cat}"></button></div>`;
+    const on = onIds.includes(w.id);
+    h += `<div class="wg-item"><div><div class="wg-name">${w.name}</div><div class="wg-desc">${w.desc}</div></div><button class="wg-toggle ${on ? 'on' : 'off'}" data-id="${w.id}" data-cat="${cat}" data-sub="${sub}"></button></div>`;
   });
   document.getElementById('widgetList')!.innerHTML = h;
   document
@@ -436,23 +608,26 @@ async function renderWmList(cat: (typeof CATS)[number]) {
     .forEach((b) =>
       b.addEventListener('click', async function (this: HTMLElement) {
         const id = this.dataset.id!,
-          c = this.dataset.cat! as (typeof CATS)[number];
+          cat = this.dataset.cat!,
+          sub = this.dataset.sub!;
         const d = await getWD();
+        const k = subKey(cat, sub);
+        const arr = d.subs[k] || [];
         if (this.classList.contains('on')) {
           this.classList.replace('on', 'off');
-          d[c] = d[c].filter((x) => x !== id);
+          d.subs[k] = arr.filter((x) => x !== id);
         } else {
           this.classList.replace('off', 'on');
-          d[c] = [...d[c], id];
+          d.subs[k] = [...arr, id];
         }
         await setWD(d);
-        renderAll();
-        renderWmList(c);
+        showSub(cat, sub);
+        renderWmList(cat, sub);
       }),
     );
 }
 async function openWidgetModal() {
-  await renderWmList('home');
+  await renderWmList(curCat, curSub);
   wm.classList.add('open');
 }
 
@@ -657,62 +832,89 @@ const LUNAR_DAY = [
   '廿九',
   '三十',
 ];
-const LUNAR_NY: Record<number, [number, number]> = {
-  2025: [1, 29],
-  2026: [2, 17],
-  2027: [2, 6],
-  2028: [1, 26],
-};
-const LUNAR_MD: Record<number, number[]> = {
-  2025: [1, 0, 1, 0, 0, 0, 1, 0, 1, 0, 1, 1],
-  2026: [0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 0],
-  2027: [0, 1, 0, 1, 0, 1, 0, 0, 1, 0, 1, 1],
-  2028: [0, 1, 0, 1, 0, 0, 1, 0, 1, 0, 1, 0],
-};
+const LUNAR_INFO = [
+  0x04bd8, 0x04ae0, 0x0a570, 0x054d5, 0x0d260, 0x0d950, 0x16554, 0x056a0, 0x09ad0, 0x055d2, //1900-1909
+  0x04ae0, 0x0a5b6, 0x0a4d0, 0x0d250, 0x1d255, 0x0b540, 0x0d6a0, 0x0ada2, 0x095b0, 0x14977, //1910-1919
+  0x04970, 0x0a4b0, 0x0b4b5, 0x06a50, 0x06d40, 0x1ab54, 0x02b60, 0x09570, 0x052f2, 0x04970, //1920-1929
+  0x06566, 0x0d4a0, 0x0ea50, 0x16a95, 0x05ad0, 0x02b60, 0x186e3, 0x092e0, 0x1c8d7, 0x0c950, //1930-1939
+  0x0d4a0, 0x1d8a6, 0x0b550, 0x056a0, 0x1a5b4, 0x025d0, 0x092d0, 0x0d2b2, 0x0a950, 0x0b557, //1940-1949
+  0x06ca0, 0x0b550, 0x15355, 0x04da0, 0x0a5b0, 0x14573, 0x052b0, 0x0a9a8, 0x0e950, 0x06aa0, //1950-1959
+  0x0aea6, 0x0ab50, 0x04b60, 0x0aae4, 0x0a570, 0x05260, 0x0f263, 0x0d950, 0x05b57, 0x056a0, //1960-1969
+  0x096d0, 0x04dd5, 0x04ad0, 0x0a4d0, 0x0d4d4, 0x0d250, 0x0d558, 0x0b540, 0x0b6a0, 0x195a6, //1970-1979
+  0x095b0, 0x049b0, 0x0a974, 0x0a4b0, 0x0b27a, 0x06a50, 0x06d40, 0x0af46, 0x0ab60, 0x09570, //1980-1989
+  0x04af5, 0x04970, 0x064b0, 0x074a3, 0x0ea50, 0x06b58, 0x05ac0, 0x0ab60, 0x096d5, 0x092e0, //1990-1999
+  0x0c960, 0x0d954, 0x0d4a0, 0x0da50, 0x07552, 0x056a0, 0x0abb7, 0x025d0, 0x092d0, 0x0cab5, //2000-2009
+  0x0a950, 0x0b4a0, 0x0baa4, 0x0ad50, 0x055d9, 0x04ba0, 0x0a5b0, 0x15176, 0x052b0, 0x0a930, //2010-2019
+  0x07954, 0x06aa0, 0x0ad50, 0x05b52, 0x04b60, 0x0a6e6, 0x0a4e0, 0x0d260, 0x0ea65, 0x0d530, //2020-2029
+  0x05aa0, 0x076a3, 0x096d0, 0x04afb, 0x04ad0, 0x0a4d0, 0x1d0b6, 0x0d250, 0x0d520, 0x0dd45, //2030-2039
+  0x0b5a0, 0x056d0, 0x055b2, 0x049b0, 0x0a577, 0x0a4b0, 0x0aa50, 0x1b255, 0x06d20, 0x0ada0, //2040-2049
+  0x14b63, 0x09370, 0x049f8, 0x04970, 0x064b0, 0x168a6, 0x0ea50, 0x06b20, 0x1a6c4, 0x0aae0, //2050-2059
+  0x092e0, 0x0d2e3, 0x0c960, 0x0d557, 0x0d4a0, 0x0da50, 0x05d55, 0x056a0, 0x0a6d0, 0x055d4, //2060-2069
+  0x052d0, 0x0a9b8, 0x0a950, 0x0b4a0, 0x0b6a6, 0x0ad50, 0x055a0, 0x0aba4, 0x0a5b0, 0x052b0, //2070-2079
+  0x0b273, 0x06930, 0x07337, 0x06aa0, 0x0ad50, 0x14b55, 0x04b60, 0x0a570, 0x054e4, 0x0d160, //2080-2089
+  0x0e968, 0x0d520, 0x0daa0, 0x16aa6, 0x056d0, 0x04ae0, 0x0a9d4, 0x0a2d0, 0x0d150, 0x0f252, //2090-2099
+  0x0d520, //2100
+];
+function lYearDays(y: number): number {
+  let s = 348;
+  for (let i = 0x8000; i > 0x8; i >>= 1) s += LUNAR_INFO[y - 1900] & i ? 1 : 0;
+  return s + lLeapDays(y);
+}
+function lLeapMonth(y: number): number {
+  return LUNAR_INFO[y - 1900] & 0xf;
+}
+function lLeapDays(y: number): number {
+  if (lLeapMonth(y)) return LUNAR_INFO[y - 1900] & 0x10000 ? 30 : 29;
+  return 0;
+}
+function lMonthDays(y: number, m: number): number {
+  return LUNAR_INFO[y - 1900] & (0x10000 >> m) ? 30 : 29;
+}
 function getLunar(
   y: number,
   m: number,
   d: number,
 ): { lm: number; ld: number; cM: string; cD: string } {
-  const ny = LUNAR_NY[y];
-  if (!ny) return { lm: 0, ld: 0, cM: '', cD: '' };
-  const [nyM, nyD] = ny;
-  const gDate = new Date(y, m - 1, d),
-    nyDate = new Date(y, nyM - 1, nyD);
-  let diff = Math.floor((gDate.getTime() - nyDate.getTime()) / 86400000);
-  if (diff < 0) {
-    const py = y - 1;
-    const pny = LUNAR_NY[py];
-    if (!pny) return { lm: 0, ld: 0, cM: '', cD: '' };
-    const pnyDate = new Date(py, pny[0] - 1, pny[1]);
-    diff = Math.floor((gDate.getTime() - pnyDate.getTime()) / 86400000);
-    const pMD = LUNAR_MD[py] || [];
-    let lm = 0,
-      acc = 0;
-    for (let i = 0; i < 12; i++) {
-      const dc = 29 + (pMD[i] || 0);
-      if (acc + dc > diff) {
-        lm = i;
-        break;
-      }
-      acc += dc;
-    }
-    const ld = diff - acc + 1;
-    return { lm, ld, cM: LUNAR_MONTH[lm], cD: LUNAR_DAY[ld] };
+  if (y < 1900 || y > 2100) return { lm: 0, ld: 0, cM: '', cD: '' };
+  let offset = Math.floor((Date.UTC(y, m - 1, d) - Date.UTC(1900, 0, 31)) / 86400000);
+  let i: number,
+    temp = 0;
+  for (i = 1900; i < 2101 && offset > 0; i++) {
+    temp = lYearDays(i);
+    offset -= temp;
   }
-  const MD = LUNAR_MD[y] || [];
-  let lm = 0,
-    acc = 0;
-  for (let i = 0; i < 12; i++) {
-    const dc = 29 + (MD[i] || 0);
-    if (acc + dc > diff) {
-      lm = i;
-      break;
-    }
-    acc += dc;
+  if (offset < 0) {
+    offset += temp;
+    i--;
   }
-  const ld = diff - acc + 1;
-  return { lm, ld, cM: LUNAR_MONTH[lm], cD: LUNAR_DAY[ld] };
+  const ly = i;
+  const leap = lLeapMonth(ly);
+  let isLeap = false;
+  for (i = 1; i < 13 && offset > 0; i++) {
+    if (leap > 0 && i === leap + 1 && !isLeap) {
+      i--;
+      isLeap = true;
+      temp = lLeapDays(ly);
+    } else {
+      temp = lMonthDays(ly, i);
+    }
+    if (isLeap && i === leap + 1) isLeap = false;
+    offset -= temp;
+  }
+  if (offset === 0 && leap > 0 && i === leap + 1) {
+    if (isLeap) isLeap = false;
+    else {
+      isLeap = true;
+      i--;
+    }
+  }
+  if (offset < 0) {
+    offset += temp;
+    i--;
+  }
+  const lm = i,
+    ld = offset + 1;
+  return { lm, ld, cM: (isLeap ? '闰' : '') + (LUNAR_MONTH[lm - 1] || ''), cD: LUNAR_DAY[ld] || '' };
 }
 function updT() {
   const n = new Date(),
@@ -1758,31 +1960,138 @@ async function initWeather() {
   document.addEventListener('visibilitychange', onWeatherVis);
 }
 
-// ── 热搜（微博 / B站 / 百度，SW 直抓）──
-const HP_KEY = 'moyu_hot_platform';
+// ── 日历 ──
+let calYear = 0,
+  calMonth = 0;
+let calDocCloseBound = false;
+function closeAllDropdowns() {
+  document.querySelectorAll('.cal-dd.open').forEach((dd) => dd.classList.remove('open'));
+}
+function buildDropdown(
+  ddId: string,
+  opts: { v: string; label: string }[],
+  current: string,
+  onChange: (v: string) => void,
+) {
+  const dd = document.getElementById(ddId);
+  if (!dd) return;
+  const list = dd.querySelector('.cal-dd-list');
+  if (list && !list.children.length) {
+    list.innerHTML = opts
+      .map((o) => `<div class="cal-dd-opt${o.v === current ? ' active' : ''}" data-v="${o.v}">${o.label}</div>`)
+      .join('');
+  }
+  const btn = dd.querySelector('.cal-dd-btn');
+  btn?.addEventListener('click', (e) => {
+    e.stopPropagation();
+    const wasOpen = dd.classList.contains('open');
+    closeAllDropdowns();
+    if (!wasOpen) {
+      dd.classList.add('open');
+      list?.querySelector('.active')?.scrollIntoView({ block: 'nearest' });
+    }
+  });
+  list?.querySelectorAll('.cal-dd-opt').forEach((opt) =>
+    opt.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const v = (opt as HTMLElement).dataset.v!;
+      dd.classList.remove('open');
+      onChange(v);
+    }),
+  );
+}
+function syncDD(ddId: string, value: string, label: string) {
+  const dd = document.getElementById(ddId);
+  if (!dd) return;
+  const valEl = dd.querySelector('.cal-dd-val');
+  if (valEl) valEl.textContent = label;
+  dd.querySelectorAll('.cal-dd-opt').forEach((o) =>
+    o.classList.toggle('active', (o as HTMLElement).dataset.v === value),
+  );
+}
+function renderCalendar() {
+  const grid = document.getElementById('calGrid');
+  if (!grid) return;
+  const y = calYear,
+    m = calMonth;
+  syncDD('calYearDD', String(y), y + '年');
+  syncDD('calMonthDD', String(m), m + 1 + '月');
+  const firstWeekday = (new Date(y, m, 1).getDay() + 6) % 7; // 周一=0
+  const lastDate = new Date(y, m + 1, 0).getDate();
+  const today = new Date();
+  const isCurMonth = today.getFullYear() === y && today.getMonth() === m;
+  let html = '';
+  for (let i = 0; i < firstWeekday; i++) html += '<div class="cal-cell blank"></div>';
+  for (let d = 1; d <= lastDate; d++) {
+    const isToday = isCurMonth && d === today.getDate();
+    const lunar = getLunar(y, m + 1, d);
+    const lunarText = d === 1 ? (lunar.cM ? lunar.cM + '月' : '') : lunar.cD || '';
+    html += `<div class="cal-cell${isToday ? ' today' : ''}"><span class="cal-d">${d}</span><span class="cal-l">${lunarText}</span></div>`;
+  }
+  grid.innerHTML = html;
+}
+function initCalendar() {
+  const now = new Date();
+  calYear = now.getFullYear();
+  calMonth = now.getMonth();
+  const yOpts: { v: string; label: string }[] = [];
+  for (let y = 1900; y <= 2099; y++) yOpts.push({ v: String(y), label: y + '年' });
+  const mOpts: { v: string; label: string }[] = [];
+  for (let m = 0; m < 12; m++) mOpts.push({ v: String(m), label: m + 1 + '月' });
+  buildDropdown('calYearDD', yOpts, String(calYear), (v) => {
+    calYear = Number(v);
+    renderCalendar();
+  });
+  buildDropdown('calMonthDD', mOpts, String(calMonth), (v) => {
+    calMonth = Number(v);
+    renderCalendar();
+  });
+  renderCalendar();
+  document.getElementById('calPrev')?.addEventListener('click', () => {
+    calMonth--;
+    if (calMonth < 0) {
+      calMonth = 11;
+      calYear--;
+    }
+    renderCalendar();
+  });
+  document.getElementById('calNext')?.addEventListener('click', () => {
+    calMonth++;
+    if (calMonth > 11) {
+      calMonth = 0;
+      calYear++;
+    }
+    renderCalendar();
+  });
+  document.getElementById('calToday')?.addEventListener('click', () => {
+    const n = new Date();
+    calYear = n.getFullYear();
+    calMonth = n.getMonth();
+    renderCalendar();
+  });
+  if (!calDocCloseBound) {
+    calDocCloseBound = true;
+    document.addEventListener('click', closeAllDropdowns);
+  }
+}
+
+// ── 热搜（微博 / B站 / 百度，SW 直抓，三张独立卡片）──
 const HC_KEY = 'moyu_hot_cache';
-const HOT_PLATFORMS = [
-  { id: 'weibo', name: '微博' },
-  { id: 'bilibili', name: 'B站' },
-  { id: 'baidu', name: '百度' },
-];
+const HOT_WIDGETS: Record<string, { platform: string; name: string }> = {
+  hot_weibo: { platform: 'weibo', name: '微博热搜' },
+  hot_bilibili: { platform: 'bilibili', name: 'B站热搜' },
+  hot_baidu: { platform: 'baidu', name: '百度热搜' },
+};
 interface HItem {
   title: string;
   hot: string;
   url: string;
   tag?: string;
 }
-let hotPlatform = 'weibo';
-let hotLoading = false;
-let hotLastFetch = 0;
-let hotInited = false;
-async function getHotPlatform(): Promise<string> {
-  const r = await chrome.storage.sync.get(HP_KEY);
-  return (r[HP_KEY] as string) || 'weibo';
-}
-async function setHotPlatform(p: string) {
-  await chrome.storage.sync.set({ [HP_KEY]: p });
-}
+const hotLoading: Record<string, boolean> = {};
+const hotLastFetch: Record<string, number> = {};
+const hotInited: Record<string, boolean> = {};
+const hotPage: Record<string, number> = {};
 function loadHotCache(): Record<string, { items: HItem[]; ts: number }> {
   try {
     const raw = localStorage.getItem(HC_KEY);
@@ -1800,83 +2109,73 @@ function fmtHotTime(ts: number) {
   const d = new Date(ts);
   return pad(d.getHours()) + ':' + pad(d.getMinutes());
 }
-function renderHotTabs() {
-  const tabs = document.getElementById('hotTabs');
-  if (!tabs) return;
-  tabs.innerHTML = HOT_PLATFORMS.map(
-    (p) => `<div class="hot-tab${p.id === hotPlatform ? ' active' : ''}" data-p="${p.id}">${p.name}</div>`,
-  ).join('');
-  tabs.querySelectorAll('.hot-tab').forEach((b) =>
-    b.addEventListener('click', async () => {
-      const p = (b as HTMLElement).dataset.p!;
-      if (p === hotPlatform) return;
-      hotPlatform = p;
-      await setHotPlatform(p);
-      renderHotTabs();
-      renderHotList(false);
-      refreshHot();
-    }),
-  );
-}
-function renderHotList(error: boolean) {
-  const list = document.getElementById('hotList');
-  const upd = document.getElementById('hotUpd');
+function renderHotList(platform: string, error: boolean) {
+  const list = document.getElementById('hotList-' + platform);
+  const upd = document.getElementById('hotUpd-' + platform);
+  const pageEl = document.getElementById('hotPage-' + platform);
   if (!list) return;
   const cache = loadHotCache();
-  const c = cache[hotPlatform];
+  const c = cache[platform];
   if (!c || !c.items.length) {
-    list.innerHTML = `<div class="hot-empty">${error ? '⚠ 获取失败 · 点刷新重试' : '加载中…'}</div>`;
+    list.innerHTML = `<div class="hot-empty">${error ? '⚠ 获取失败' : '加载中…'}</div>`;
     if (upd) upd.textContent = error ? '⚠ 失败' : '';
     return;
   }
-  list.innerHTML = c.items
-    .map(
-      (it, i) =>
-        `<a class="hot-row" href="${it.url}" target="_blank" rel="noopener"><span class="hot-rank${i < 3 ? ' top' : ''}">${i + 1}</span><span class="hot-title">${esc(it.title)}${it.tag ? `<i class="hot-tag">${esc(it.tag)}</i>` : ''}</span>${it.hot ? `<span class="hot-num">${esc(it.hot)}</span>` : ''}</a>`,
-    )
+  const total = Math.min(3, Math.ceil(c.items.length / 10) || 1);
+  const page = (hotPage[platform] || 0) % total;
+  const slice = c.items.slice(page * 10, page * 10 + 10);
+  list.innerHTML = slice
+    .map((it, i) => {
+      const rank = page * 10 + i + 1;
+      return `<a class="hot-row" href="${it.url}" target="_blank" rel="noopener"><span class="hot-rank${rank <= 3 ? ' top' : ''}">${rank}</span><span class="hot-title">${esc(it.title)}${it.tag ? `<i class="hot-tag">${esc(it.tag)}</i>` : ''}</span>${it.hot ? `<span class="hot-num">${esc(it.hot)}</span>` : ''}</a>`;
+    })
     .join('');
+  if (pageEl) pageEl.textContent = page + 1 + '/' + total;
   if (upd) upd.textContent = (error ? '⚠ ' : '') + fmtHotTime(c.ts) + ' 更新';
 }
-async function refreshHot() {
-  if (hotLoading) return;
-  if (!document.getElementById('hotList')) return;
-  const btn = document.getElementById('hotRefresh');
-  hotLoading = true;
-  btn?.classList.add('spin');
+function swapHotPage(platform: string) {
+  const cache = loadHotCache();
+  const c = cache[platform];
+  if (!c || !c.items.length) return;
+  const total = Math.min(3, Math.ceil(c.items.length / 10) || 1);
+  hotPage[platform] = ((hotPage[platform] || 0) + 1) % total;
+  renderHotList(platform, false);
+}
+async function refreshHot(platform: string) {
+  if (hotLoading[platform]) return;
+  if (!document.getElementById('hotList-' + platform)) return;
+  hotLoading[platform] = true;
   try {
-    const res = (await chrome.runtime.sendMessage({ type: 'HOT_FETCH', platform: hotPlatform })) as
+    const res = (await chrome.runtime.sendMessage({ type: 'HOT_FETCH', platform })) as
       | { success: boolean; data?: HItem[]; error?: string }
       | undefined;
     if (res?.success && res.data) {
       const cache = loadHotCache();
-      cache[hotPlatform] = { items: res.data, ts: Date.now() };
+      cache[platform] = { items: res.data, ts: Date.now() };
       saveHotCache(cache);
-      hotLastFetch = Date.now();
-      renderHotList(false);
+      hotLastFetch[platform] = Date.now();
+      renderHotList(platform, false);
     } else {
-      renderHotList(true);
+      renderHotList(platform, true);
     }
   } catch {
-    renderHotList(true);
+    renderHotList(platform, true);
   } finally {
-    hotLoading = false;
-    btn?.classList.remove('spin');
+    hotLoading[platform] = false;
   }
 }
-function onHotVis() {
+function onHotVis(platform: string) {
   if (document.visibilityState !== 'visible') return;
-  if (Date.now() - hotLastFetch > 300000) refreshHot();
+  if (Date.now() - (hotLastFetch[platform] || 0) > 300000) refreshHot(platform);
 }
-async function initHot() {
-  hotPlatform = await getHotPlatform();
-  renderHotTabs();
-  renderHotList(false);
-  document.getElementById('hotRefresh')?.addEventListener('click', refreshHot);
-  if (hotInited) return;
-  hotInited = true;
-  refreshHot();
-  setInterval(refreshHot, 300000);
-  document.addEventListener('visibilitychange', onHotVis);
+async function initHotCard(platform: string) {
+  renderHotList(platform, false);
+  document.getElementById('hotSwap-' + platform)?.addEventListener('click', () => swapHotPage(platform));
+  if (hotInited[platform]) return;
+  hotInited[platform] = true;
+  refreshHot(platform);
+  setInterval(() => refreshHot(platform), 300000);
+  document.addEventListener('visibilitychange', () => onHotVis(platform));
 }
 
 async function init() {
@@ -1888,7 +2187,8 @@ async function init() {
   await loadSch();
   await loadM();
   await loadSal();
-  renderAll();
+  renderSidebar();
+  await showSub(curCat, curSub);
   setInterval(() => {
     updT();
     tickSalary();

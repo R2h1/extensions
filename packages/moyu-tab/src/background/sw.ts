@@ -232,7 +232,7 @@ async function fetchWeiboHot(): Promise<HotItem[]> {
   if (!res.ok) throw new Error('HTTP ' + res.status);
   const j = await res.json();
   const arr = (j?.data?.realtime ?? []) as any[];
-  return arr.slice(0, 15).map((r) => ({
+  return arr.slice(0, 30).map((r) => ({
     title: String(r.word || r.note || ''),
     hot: r.num ? String(r.num) : '',
     url: `https://s.weibo.com/weibo?q=${encodeURIComponent(r.word_scheme || r.word || '')}`,
@@ -242,13 +242,13 @@ async function fetchWeiboHot(): Promise<HotItem[]> {
 
 /** B站热搜：search/square 接口无需鉴权。 */
 async function fetchBilibiliHot(): Promise<HotItem[]> {
-  const res = await fetch('https://api.bilibili.com/x/web-interface/wbi/search/square?limit=15', {
+  const res = await fetch('https://api.bilibili.com/x/web-interface/wbi/search/square?limit=30', {
     cache: 'no-store',
   });
   if (!res.ok) throw new Error('HTTP ' + res.status);
   const j = await res.json();
   const arr = (j?.data?.trending?.list ?? []) as any[];
-  return arr.slice(0, 15).map((r) => ({
+  return arr.slice(0, 30).map((r) => ({
     title: String(r.keyword || r.show_name || ''),
     hot: '',
     url: `https://search.bilibili.com/all?keyword=${encodeURIComponent(r.keyword || '')}`,
@@ -261,7 +261,7 @@ async function fetchBaiduHot(): Promise<HotItem[]> {
   if (!res.ok) throw new Error('HTTP ' + res.status);
   const j = await res.json();
   const arr = (j?.data?.cards?.[0]?.content?.[0]?.content ?? []) as any[];
-  return arr.slice(0, 15).map((r) => ({
+  return arr.slice(0, 30).map((r) => ({
     title: String(r.word || ''),
     hot: '',
     url: String(r.url || `https://www.baidu.com/s?wd=${encodeURIComponent(r.word || '')}`),
