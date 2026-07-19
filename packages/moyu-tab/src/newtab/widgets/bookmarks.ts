@@ -2,6 +2,7 @@
 import { esc } from '../utils';
 
 const BM_BAR_ID = '1';
+const BM_ROOT_ID = '0';
 type Node = chrome.bookmarks.BookmarkTreeNode;
 
 let bmTree: Node[] = []; // 顶层 = [书签栏, 其他书签]
@@ -103,19 +104,27 @@ function renderGrid() {
   const grid = document.getElementById('bmGrid');
   const bar = document.getElementById('bmBar');
   if (!grid) return;
-  const folder = findFolder(bmCurrentFolder);
-  const items = folder?.children ?? [];
+  const isRoot = bmCurrentFolder === BM_ROOT_ID;
+  const folder = isRoot ? null : findFolder(bmCurrentFolder);
+  const items = isRoot ? bmTree : (folder?.children ?? []);
   if (bar) {
-    const path = breadcrumbPath(bmCurrentFolder);
-    bar.innerHTML = path
-      .map((n, i) => {
+    const segs: string[] = [];
+    if (isRoot) {
+      segs.push(`<span class="bm-crumb cur">书签</span>`);
+    } else {
+      segs.push(`<button class="bm-crumb" data-id="${BM_ROOT_ID}">书签</button>`);
+      const path = breadcrumbPath(bmCurrentFolder);
+      path.forEach((n, i) => {
         const isLast = i === path.length - 1;
-        const title = n.id === BM_BAR_ID ? '书签栏' : n.title || '文件夹';
-        return isLast
-          ? `<span class="bm-crumb cur">${esc(title)}</span>`
-          : `<button class="bm-crumb" data-id="${n.id}">${esc(title)}</button>`;
-      })
-      .join('<span class="bm-sep">›</span>');
+        const title = n.title || '文件夹';
+        segs.push(
+          isLast
+            ? `<span class="bm-crumb cur">${esc(title)}</span>`
+            : `<button class="bm-crumb" data-id="${n.id}">${esc(title)}</button>`,
+        );
+      });
+    }
+    bar.innerHTML = segs.join('<span class="bm-sep">›</span>');
     bar.querySelectorAll('.bm-crumb[data-id]').forEach((b) =>
       b.addEventListener('click', () => {
         bmCurrentFolder = (b as HTMLElement).dataset.id!;
