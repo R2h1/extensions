@@ -12,5 +12,20 @@
       "urlFilter": "weibo.com/ajax/side/hotSearch",
       "resourceTypes": ["xmlhttprequest", "other"]
     }
+  },
+  {
+    "id": 2,
+    "priority": 1,
+    "action": {
+      "type": "modifyHeaders",
+      "requestHeaders": [
+        { "header": "Origin", "operation": "set", "value": "https://juejin.cn" },
+        { "header": "Referer", "operation": "set", "value": "https://juejin.cn/" }
+      ]
+    },
+    "condition": {
+      "urlFilter": "api.juejin.cn",
+      "resourceTypes": ["xmlhttprequest", "other"]
+    }
   }
 ]
