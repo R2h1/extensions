@@ -465,9 +465,12 @@ function getCard(w: WID): string {
     return `<div class="widget-card tv-card">
       <div class="tv-head">
         <div class="tv-title">▶ 视频</div>
-        <a class="tv-open" href="http://app.conan.js.cn/tv" target="_blank" rel="noopener">新标签打开 ↗</a>
+        <div class="tv-controls">
+          <button class="tv-back" id="tvBack" title="返回">←</button>
+          <a class="tv-open" href="http://app.conan.js.cn/tv" target="_blank" rel="noopener">新标签打开 ↗</a>
+        </div>
       </div>
-      <iframe class="tv-frame" src="http://app.conan.js.cn/tv?v=${new Date().toISOString().slice(0, 10)}" referrerpolicy="no-referrer" loading="lazy" allow="fullscreen; encrypted-media" allowfullscreen></iframe>
+      <iframe class="tv-frame" id="tvFrame" src="http://app.conan.js.cn/tv?v=${new Date().toISOString().slice(0, 10)}" referrerpolicy="no-referrer" loading="lazy" allow="fullscreen; encrypted-media" allowfullscreen></iframe>
     </div>`;
   if (w.id === 'music')
     return `<div class="widget-card music-card">
@@ -523,6 +526,9 @@ async function initW(id: string) {
       break;
     case 'music':
       initMusic();
+      break;
+    case 'tv':
+      initTv();
       break;
     case 'hot_weibo':
       initHotCard('weibo');
@@ -1818,6 +1824,20 @@ async function initMusic() {
     container.innerHTML = '<div class="hot-empty">⚠ 加载失败 · 点击重试</div>';
     container.onclick = () => initMusic();
   }
+}
+
+function initTv() {
+  document.getElementById('tvBack')?.addEventListener('click', () => {
+    const f = document.getElementById('tvFrame') as HTMLIFrameElement | null;
+    if (!f) return;
+    try {
+      // 跨域 iframe 会拦截 history 访问，能回退就用回退
+      f.contentWindow?.history.back();
+    } catch {
+      // 拦截则重载回首页（带唯一 r 防同 URL 不刷新）
+      f.src = `http://app.conan.js.cn/tv?v=${new Date().toISOString().slice(0, 10)}&r=${Date.now()}`;
+    }
+  });
 }
 
 async function init() {
