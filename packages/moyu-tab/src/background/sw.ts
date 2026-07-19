@@ -703,6 +703,65 @@ async function handleWereadRecommendFetch(apiKey: string): Promise<WereadRecomme
   }
 }
 
+// ─── Weread Notes (我的笔记) ────────────────────────────
+
+interface WereadNotesBook { bid: string; title: string; author: string; deepLink: string; noteCount: number; progress: number; finished: boolean; sort: number; }
+interface WereadNotesResponse { success: boolean; data?: { books: WereadNotesBook[]; totalBooks: number; totalNotes: number }; error?: string; }
+
+/** 微信读书笔记概览：/user/notebooks，需 API Key。单本笔记数 = reviewCount + noteCount + bookmarkCount。 */
+async function handleWereadNotesFetch(apiKey: string): Promise<WereadNotesResponse> {
+  if (!apiKey) return { success: false, error: 'no_key' };
+  const ctrl = new AbortController();
+  const to = setTimeout(() => ctrl.abort(), 12000);
+  try {
+    const res = await fetch('https://i.weread.qq.com/api/agent/gateway', {
+      method: 'POST',
+      headers: { Authorization: 'Bearer ' + apiKey, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ api_name: '/user/notebooks', count: 20, skill_version: '1.0.4' }),
+      cache: 'no-store',
+      signal: ctrl.signal,
+    });
+    if (res.status === 401) return { success: false, error: 'invalid_key' };
+    if (!res.ok) return { success: false, error: 'HTTP ' + res.status };
+    const j = await res.json();
+    if (j?.errcode && j.errcode !== 0) return { success: false, error: String(j.errmsg || j.errcode) };
+    const books = ((j?.books ?? []) as unknown[])
+      .map((it) => {
+        const b = it as Record<string, unknown>;
+        const info = (b.book as Record<string, unknown>) ?? {};
+        const bid = String(b.bookId ?? info.bookId ?? '');
+        const reviewCount = Number(b.reviewCount ?? 0);
+        const noteCount = Number(b.noteCount ?? 0);
+        const bookmarkCount = Number(b.bookmarkCount ?? 0);
+        const progress = Number(b.readingProgress ?? 0);
+        return {
+          bid,
+          title: String(info.title ?? b.title ?? ''),
+          author: String(info.author ?? b.author ?? ''),
+          deepLink: String(info.deepLink ?? b.deepLink ?? '') || wereadBookUrl(bid),
+          noteCount: reviewCount + noteCount + bookmarkCount,
+          progress,
+          finished: progress >= 100,
+          sort: Number(b.sort ?? 0),
+        };
+      })
+      .filter((b) => b.bid && b.title);
+    if (!books.length) return { success: false, error: 'empty' };
+    return {
+      success: true,
+      data: {
+        books,
+        totalBooks: Number(j?.totalBookCount ?? books.length),
+        totalNotes: Number(j?.totalNoteCount ?? 0),
+      },
+    };
+  } catch (e) {
+    return { success: false, error: e instanceof Error ? e.message : String(e) };
+  } finally {
+    clearTimeout(to);
+  }
+}
+
 chrome.runtime.onMessage.addListener((message: { type: string }, _sender, sendResponse) => {
   if (message?.type === 'GOLD_FETCH') {
     handleGoldFetch().then(sendResponse);
@@ -724,6 +783,8 @@ chrome.runtime.onMessage.addListener((message: { type: string }, _sender, sendRe
     handleWereadReaddataFetch((message as unknown as { apiKey?: string }).apiKey ?? '').then(sendResponse);
   } else if (message?.type === 'WEREAD_RECOMMEND_FETCH') {
     handleWereadRecommendFetch((message as unknown as { apiKey?: string }).apiKey ?? '').then(sendResponse);
+  } else if (message?.type === 'WEREAD_NOTES_FETCH') {
+    handleWereadNotesFetch((message as unknown as { apiKey?: string }).apiKey ?? '').then(sendResponse);
   } else {
     handlePomodoroMessage(message as PomodoroMessage).then(sendResponse);
   }

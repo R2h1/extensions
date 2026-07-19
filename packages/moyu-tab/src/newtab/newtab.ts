@@ -7,6 +7,7 @@ import { initZhihu, renderZhihuCard } from './widgets/zhihu';
 import { initWeread, renderWereadCard } from './widgets/weread';
 import { initReaddata, renderReaddataCard } from './widgets/readdata';
 import { initRecommend, renderRecommendCard } from './widgets/recommend';
+import { initNotes, renderNotesCard } from './widgets/notes';
 import { initSinaFlash, renderSinaFlashCard } from './widgets/sina-flash';
 import { initFund, renderFundCard } from './widgets/fund';
 import { initWeather, renderWeatherCard } from './widgets/weather';
@@ -197,6 +198,7 @@ const ALL_WIDGETS: WID[] = [
   { id: 'weread', name: '微信读书', desc: '我的书架', cat: 'fun', sub: 'read' },
   { id: 'readdata', name: '阅读统计', desc: '本月阅读数据', cat: 'fun', sub: 'read' },
   { id: 'recommend', name: '为你推荐', desc: '个性化推荐', cat: 'fun', sub: 'read' },
+  { id: 'notes', name: '我的笔记', desc: '笔记与划线', cat: 'fun', sub: 'read' },
   { id: 'salary', name: '薪资跳动', desc: '实时薪资计数器', cat: 'work', sub: 'salary' },
   { id: 'gold', name: '金价', desc: '实时黄金价格', cat: 'finance', sub: 'market' },
   { id: 'fund', name: '基金', desc: '实时基金估值', cat: 'finance', sub: 'market' },
@@ -499,6 +501,8 @@ function getCard(w: WID): string {
     return renderReaddataCard();
   if (w.id === 'recommend')
     return renderRecommendCard();
+  if (w.id === 'notes')
+    return renderNotesCard();
   if (w.id === 'sina_flash')
     return renderSinaFlashCard();
   if (HOT_WIDGETS[w.id])
@@ -565,6 +569,9 @@ async function initW(id: string) {
       break;
     case 'recommend':
       initRecommend();
+      break;
+    case 'notes':
+      initNotes();
       break;
     case 'sina_flash':
       initSinaFlash();

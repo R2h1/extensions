@@ -148,6 +148,7 @@ export const ALL_WIDGETS: WID[] = [
   { id: 'weread', name: '微信读书', desc: '我的书架', cat: 'fun', sub: 'read' },
   { id: 'readdata', name: '阅读统计', desc: '本月阅读数据', cat: 'fun', sub: 'read' },
   { id: 'recommend', name: '为你推荐', desc: '个性化推荐', cat: 'fun', sub: 'read' },
+  { id: 'notes', name: '我的笔记', desc: '笔记与划线', cat: 'fun', sub: 'read' },
   { id: 'salary', name: '薪资跳动', desc: '实时薪资计数器', cat: 'work', sub: 'salary' },
   { id: 'gold', name: '金价', desc: '实时黄金价格', cat: 'finance', sub: 'market' },
   { id: 'fund', name: '基金', desc: '实时基金估值', cat: 'finance', sub: 'market' },
