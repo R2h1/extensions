@@ -54,6 +54,18 @@ function findFolder(id: string, nodes: Node[] = bmTree): Node | null {
   return null;
 }
 
+/** 从书签栏到当前文件夹的完整路径（根->当前），用于面包屑 */
+function breadcrumbPath(folderId: string): Node[] {
+  const path: Node[] = [];
+  let cur = findFolder(folderId);
+  while (cur && cur.id !== '0') {
+    path.unshift(cur);
+    if (!cur.parentId || cur.parentId === '0') break;
+    cur = findFolder(cur.parentId);
+  }
+  return path;
+}
+
 interface FlatBm {
   title: string;
   url: string;
@@ -94,15 +106,22 @@ function renderGrid() {
   const folder = findFolder(bmCurrentFolder);
   const items = folder?.children ?? [];
   if (bar) {
-    if (bmCurrentFolder !== BM_BAR_ID && folder?.parentId && folder.parentId !== '0') {
-      bar.innerHTML = `<button class="bm-back" id="bmBack" title="返回">‹</button><span class="bm-crumbs">${esc(folder.title || '')}</span>`;
-      document.getElementById('bmBack')?.addEventListener('click', () => {
-        bmCurrentFolder = folder.parentId!;
+    const path = breadcrumbPath(bmCurrentFolder);
+    bar.innerHTML = path
+      .map((n, i) => {
+        const isLast = i === path.length - 1;
+        const title = n.id === BM_BAR_ID ? '书签栏' : n.title || '文件夹';
+        return isLast
+          ? `<span class="bm-crumb cur">${esc(title)}</span>`
+          : `<button class="bm-crumb" data-id="${n.id}">${esc(title)}</button>`;
+      })
+      .join('<span class="bm-sep">›</span>');
+    bar.querySelectorAll('.bm-crumb[data-id]').forEach((b) =>
+      b.addEventListener('click', () => {
+        bmCurrentFolder = (b as HTMLElement).dataset.id!;
         render();
-      });
-    } else {
-      bar.innerHTML = `<span class="bm-crumbs">书签栏</span>`;
-    }
+      }),
+    );
   }
   grid.className = 'bm-grid';
   if (!items.length) {
