@@ -762,6 +762,132 @@ async function handleWereadNotesFetch(apiKey: string): Promise<WereadNotesRespon
   }
 }
 
+// ─── Weread Review (书评) ───────────────────────────────
+
+interface WereadReviewItem { author: string; star: number; content: string; time: number; }
+interface WereadReviewResponse { success: boolean; data?: { bookTitle: string; bookDeepLink: string; reviews: WereadReviewItem[]; total: number }; error?: string; }
+
+/** 微信读书书评：取书架最近阅读书，调 /review/list 显示该书公开点评。需 API Key。 */
+async function handleWereadReviewFetch(apiKey: string): Promise<WereadReviewResponse> {
+  if (!apiKey) return { success: false, error: 'no_key' };
+  const ctrl = new AbortController();
+  const to = setTimeout(() => ctrl.abort(), 15000);
+  try {
+    const shelfRes = await fetch('https://i.weread.qq.com/api/agent/gateway', {
+      method: 'POST',
+      headers: { Authorization: 'Bearer ' + apiKey, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ api_name: '/shelf/sync', skill_version: '1.0.4' }),
+      cache: 'no-store',
+      signal: ctrl.signal,
+    });
+    if (shelfRes.status === 401) return { success: false, error: 'invalid_key' };
+    if (!shelfRes.ok) return { success: false, error: 'HTTP ' + shelfRes.status };
+    const sj = await shelfRes.json();
+    if (sj?.errcode && sj.errcode !== 0) return { success: false, error: String(sj.errmsg || sj.errcode) };
+    const shelfBooks = ((sj?.books ?? []) as unknown[])
+      .map((it) => {
+        const b = it as Record<string, unknown>;
+        return {
+          bid: String(b.bookId ?? ''),
+          title: String(b.title ?? ''),
+          deepLink: String(b.deepLink ?? ''),
+          readUpdateTime: Number(b.readUpdateTime ?? 0),
+        };
+      })
+      .filter((b) => b.bid && b.title)
+      .sort((a, b) => b.readUpdateTime - a.readUpdateTime);
+    if (!shelfBooks.length) return { success: false, error: 'empty_shelf' };
+    const book = shelfBooks[0];
+    const revRes = await fetch('https://i.weread.qq.com/api/agent/gateway', {
+      method: 'POST',
+      headers: { Authorization: 'Bearer ' + apiKey, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ api_name: '/review/list', bookId: book.bid, reviewListType: 0, count: 10, skill_version: '1.0.4' }),
+      cache: 'no-store',
+      signal: ctrl.signal,
+    });
+    if (!revRes.ok) return { success: false, error: 'HTTP ' + revRes.status };
+    const rj = await revRes.json();
+    if (rj?.errcode && rj.errcode !== 0) return { success: false, error: String(rj.errmsg || rj.errcode) };
+    const reviews = ((rj?.reviews ?? []) as unknown[])
+      .map((it) => {
+        const rv = ((it as { review?: { review?: Record<string, unknown> } })?.review?.review) ?? {};
+        const author = rv.author as { name?: string } | undefined;
+        return {
+          author: String(author?.name ?? ''),
+          star: Number(rv.star ?? 0),
+          content: String(rv.content ?? ''),
+          time: Number(rv.createTime ?? 0),
+        };
+      })
+      .filter((r) => r.content);
+    if (!reviews.length) return { success: false, error: 'empty' };
+    return {
+      success: true,
+      data: {
+        bookTitle: book.title,
+        bookDeepLink: book.deepLink || wereadBookUrl(book.bid),
+        reviews,
+        total: Number(rj?.reviewsCnt ?? reviews.length),
+      },
+    };
+  } catch (e) {
+    return { success: false, error: e instanceof Error ? e.message : String(e) };
+  } finally {
+    clearTimeout(to);
+  }
+}
+
+// ─── Weread Search (搜书) ───────────────────────────────
+
+interface WereadSearchBook { bid: string; title: string; author: string; rating: number; deepLink: string; }
+interface WereadSearchResponse { success: boolean; data?: { books: WereadSearchBook[] }; error?: string; }
+
+/** 微信读书搜书：/store/search scope=10 电子书。需 API Key。 */
+async function handleWereadSearchFetch(apiKey: string, keyword: string): Promise<WereadSearchResponse> {
+  if (!apiKey) return { success: false, error: 'no_key' };
+  if (!keyword) return { success: false, error: 'no_keyword' };
+  const ctrl = new AbortController();
+  const to = setTimeout(() => ctrl.abort(), 12000);
+  try {
+    const res = await fetch('https://i.weread.qq.com/api/agent/gateway', {
+      method: 'POST',
+      headers: { Authorization: 'Bearer ' + apiKey, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ api_name: '/store/search', keyword, scope: 10, count: 10, skill_version: '1.0.4' }),
+      cache: 'no-store',
+      signal: ctrl.signal,
+    });
+    if (res.status === 401) return { success: false, error: 'invalid_key' };
+    if (!res.ok) return { success: false, error: 'HTTP ' + res.status };
+    const j = await res.json();
+    if (j?.errcode && j.errcode !== 0) return { success: false, error: String(j.errmsg || j.errcode) };
+    const groups = (j?.results ?? []) as unknown[];
+    const books: WereadSearchBook[] = [];
+    for (const g of groups) {
+      const list = (g as { books?: unknown[] })?.books ?? [];
+      for (const it of list) {
+        const info = (it as { bookInfo?: Record<string, unknown> })?.bookInfo ?? {};
+        const bid = String(info.bookId ?? '');
+        if (!bid) continue;
+        books.push({
+          bid,
+          title: String(info.title ?? ''),
+          author: String(info.author ?? ''),
+          rating: Number(info.newRating ?? 0),
+          deepLink: String(info.deepLink ?? '') || wereadBookUrl(bid),
+        });
+      }
+    }
+    const seen = new Set<string>();
+    const deduped = books.filter((b) => b.title && !seen.has(b.bid) && seen.add(b.bid));
+    if (!deduped.length) return { success: false, error: 'empty' };
+    return { success: true, data: { books: deduped } };
+  } catch (e) {
+    return { success: false, error: e instanceof Error ? e.message : String(e) };
+  } finally {
+    clearTimeout(to);
+  }
+}
+
 chrome.runtime.onMessage.addListener((message: { type: string }, _sender, sendResponse) => {
   if (message?.type === 'GOLD_FETCH') {
     handleGoldFetch().then(sendResponse);
@@ -785,6 +911,11 @@ chrome.runtime.onMessage.addListener((message: { type: string }, _sender, sendRe
     handleWereadRecommendFetch((message as unknown as { apiKey?: string }).apiKey ?? '').then(sendResponse);
   } else if (message?.type === 'WEREAD_NOTES_FETCH') {
     handleWereadNotesFetch((message as unknown as { apiKey?: string }).apiKey ?? '').then(sendResponse);
+  } else if (message?.type === 'WEREAD_REVIEW_FETCH') {
+    handleWereadReviewFetch((message as unknown as { apiKey?: string }).apiKey ?? '').then(sendResponse);
+  } else if (message?.type === 'WEREAD_SEARCH_FETCH') {
+    const m = message as unknown as { apiKey?: string; keyword?: string };
+    handleWereadSearchFetch(m.apiKey ?? '', m.keyword ?? '').then(sendResponse);
   } else {
     handlePomodoroMessage(message as PomodoroMessage).then(sendResponse);
   }
