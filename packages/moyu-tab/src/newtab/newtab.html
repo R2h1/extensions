@@ -120,11 +120,14 @@ html.locked .clock-bar{padding:0}
 .ctx-menu.open{display:block}
 .ctx-menu button{display:block;width:100%;padding:8px 14px;font-size:12px;font-family:inherit;border:none;background:transparent;color:var(--text);cursor:pointer;text-align:left;border-radius:6px;transition:all 0.1s}
 .ctx-menu button:hover{background:var(--glass-accent);color:var(--accent)}
-.wp-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
-.wp-item{aspect-ratio:16/10;border-radius:var(--radius-sm);cursor:pointer;background-size:cover;background-position:center;border:2px solid transparent;transition:all 0.2s}
-.wp-item:hover{border-color:var(--accent);transform:scale(1.02)}
-.wp-item.active{border-color:var(--accent)}
-.wp-item.active::after{content:'✓';position:absolute;top:6px;right:8px;color:#fff;font-size:14px;font-weight:700;text-shadow:0 1px 3px rgba(0,0,0,0.5)}
+.wp-preview{width:100%;aspect-ratio:16/9;border-radius:var(--radius-sm);background-size:cover;background-position:center;box-shadow:var(--nm-in-sm);margin-bottom:12px}
+.wp-status{font-size:12px;color:var(--text-secondary);text-align:center;margin-bottom:12px}
+.wp-actions{display:flex;gap:8px}
+.wp-btn{flex:1;padding:9px;font-size:13px;font-weight:600;border:none;border-radius:var(--radius-xs);background:var(--glass-accent);color:var(--accent);cursor:pointer;font-family:inherit;transition:all .15s}
+.wp-btn:hover{filter:brightness(0.96)}
+.wp-btn-ghost{background:transparent;color:var(--text-secondary);border:0.5px solid var(--glass-border)}
+.wp-btn-ghost:hover{border-color:var(--accent);color:var(--accent);filter:none}
+.wp-hint{font-size:11px;color:var(--text-tertiary);text-align:center;margin-top:10px}
 /* 薪资跳动 · 明细卡片 */
 .sal-card{padding:18px 18px 16px}
 .sal-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px 28px;align-items:start}
@@ -493,7 +496,7 @@ html.locked .clock-bar{padding:0}
     <div class="cat-panel active" id="panel"></div>
   </div></main>
 </div>
-<div class="ctx-menu" id="ctxMenu"><button id="ctxWallpaper">更换壁纸</button></div>
+<div class="ctx-menu" id="ctxMenu"><button id="ctxWidgets">组件库</button><button id="ctxWallpaper">更换壁纸</button></div>
 <div class="mo" id="widgetModal"><div class="ms"><div class="mh"><span class="mt">组件库</span><button class="mc" id="wmClose">x</button></div><div class="modal-split"><div class="modal-content" id="widgetList"></div></div></div></div>
 <div class="mo" id="settingsModal"><div class="ms"><div class="mh"><span class="mt">设置</span><button class="mc" id="smClose">x</button></div><div class="modal-split"><div class="modal-sidebar" id="smSidebar"><button class="msb active" data-s="time">时间</button><button class="msb" data-s="quote">语录</button><button class="msb" data-s="salary">发薪日</button></div><div class="modal-content" id="settingsBody"></div></div></div></div>
 <div class="mo" id="wallpaperModal"><div class="ms" style="max-width:600px"><div class="mh"><span class="mt">更换壁纸</span><button class="mc" id="wpClose">x</button></div><div class="modal-content" id="wpBody" style="padding:16px 20px 20px"></div></div></div>

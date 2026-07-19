@@ -1630,7 +1630,14 @@ async function loadSch() {
 
 // ── Wallpaper ──
 const WP_KEY = 'moyu_wallpaper';
-const WP_LIST = 'moyu_wp_list';
+// 默认壁纸：SVG 渐变（硬编码，零文件零存储）
+const DEFAULT_WP_SVG = `<svg xmlns='http://www.w3.org/2000/svg' width='1440' height='900'><defs><linearGradient id='g' x1='0' y1='0' x2='1' y2='1'><stop offset='0%' stop-color='#fde68a'/><stop offset='50%' stop-color='#fca5a5'/><stop offset='100%' stop-color='#a5b4fc'/></linearGradient></defs><rect width='100%' height='100%' fill='url(#g)'/></svg>`;
+const DEFAULT_WP_URL = `url("data:image/svg+xml,${encodeURIComponent(DEFAULT_WP_SVG)}")`;
+const WP_DB = 'moyu_db';
+const WP_STORE = 'wallpaper';
+const WP_REC_ID = 'custom';
+let curObjUrl = '';
+let wpPreviewUrl = '';
 const ctxMenu = document.getElementById('ctxMenu')!;
 const wpModal = document.getElementById('wallpaperModal')!;
 document
@@ -1646,96 +1653,165 @@ document.addEventListener('contextmenu', (e) => {
   ctxMenu.classList.add('open');
 });
 document.addEventListener('click', () => ctxMenu.classList.remove('open'));
+document.getElementById('ctxWidgets')!.addEventListener('click', () => {
+  ctxMenu.classList.remove('open');
+  openWidgetModal();
+});
 document.getElementById('ctxWallpaper')!.addEventListener('click', async () => {
   ctxMenu.classList.remove('open');
   await openWallpaperModal();
 });
 
-async function getWpList(): Promise<{ name: string; dataUrl: string }[]> {
-  const r = await chrome.storage.local.get(WP_LIST);
-  return (r[WP_LIST] as any[]) || [];
+// IndexedDB 轻封装：单条 Blob 记录（用户壁纸）
+function idbOpen(): Promise<IDBDatabase> {
+  return new Promise((resolve, reject) => {
+    const req = indexedDB.open(WP_DB, 1);
+    req.onupgradeneeded = () => req.result.createObjectStore(WP_STORE);
+    req.onsuccess = () => resolve(req.result);
+    req.onerror = () => reject(req.error);
+  });
 }
-async function saveWpList(list: { name: string; dataUrl: string }[]) {
-  await chrome.storage.local.set({ [WP_LIST]: list });
+async function idbPutBlob(blob: Blob) {
+  const db = await idbOpen();
+  await new Promise<void>((resolve, reject) => {
+    const tx = db.transaction(WP_STORE, 'readwrite');
+    tx.objectStore(WP_STORE).put(blob, WP_REC_ID);
+    tx.oncomplete = () => resolve();
+    tx.onerror = () => reject(tx.error);
+  });
+  db.close();
+}
+async function idbGetBlob(): Promise<Blob | null> {
+  const db = await idbOpen();
+  const blob = await new Promise<Blob | null>((resolve) => {
+    const tx = db.transaction(WP_STORE, 'readonly');
+    const req = tx.objectStore(WP_STORE).get(WP_REC_ID);
+    req.onsuccess = () => resolve((req.result as Blob) ?? null);
+    req.onerror = () => resolve(null);
+  });
+  db.close();
+  return blob;
+}
+async function idbDelBlob() {
+  const db = await idbOpen();
+  await new Promise<void>((resolve, reject) => {
+    const tx = db.transaction(WP_STORE, 'readwrite');
+    tx.objectStore(WP_STORE).delete(WP_REC_ID);
+    tx.oncomplete = () => resolve();
+    tx.onerror = () => reject(tx.error);
+  });
+  db.close();
+}
+// 压缩图片：最大边 1920，JPEG 质量 0.85，避免 IndexedDB 占用过大
+function compressImage(file: File): Promise<Blob> {
+  return new Promise((resolve, reject) => {
+    const u = URL.createObjectURL(file);
+    const img = new Image();
+    img.onload = () => {
+      URL.revokeObjectURL(u);
+      const maxSide = 1920;
+      let w = img.width,
+        h = img.height;
+      if (w > maxSide || h > maxSide) {
+        if (w >= h) {
+          h = Math.round((h * maxSide) / w);
+          w = maxSide;
+        } else {
+          w = Math.round((w * maxSide) / h);
+          h = maxSide;
+        }
+      }
+      const c = document.createElement('canvas');
+      c.width = w;
+      c.height = h;
+      c.getContext('2d')!.drawImage(img, 0, 0, w, h);
+      c.toBlob((b) => (b ? resolve(b) : reject(new Error('toBlob'))), 'image/jpeg', 0.85);
+    };
+    img.onerror = () => {
+      URL.revokeObjectURL(u);
+      reject(new Error('load'));
+    };
+    img.src = u;
+  });
+}
+// 应用壁纸：custom 读 IndexedDB Blob，default 用内置 SVG
+async function applyWallpaper(mode: 'default' | 'custom') {
+  if (curObjUrl) {
+    URL.revokeObjectURL(curObjUrl);
+    curObjUrl = '';
+  }
+  if (mode === 'custom') {
+    const blob = await idbGetBlob();
+    if (blob) {
+      curObjUrl = URL.createObjectURL(blob);
+      document.body.style.backgroundImage = `url(${curObjUrl})`;
+      localStorage.setItem(WP_KEY, 'custom');
+      return;
+    }
+  }
+  document.body.style.backgroundImage = DEFAULT_WP_URL;
+  localStorage.setItem(WP_KEY, 'default');
 }
 
 async function openWallpaperModal() {
-  const list = await getWpList();
-  const current = localStorage.getItem(WP_KEY) || '';
-  let html = `<div style="margin-bottom:12px;text-align:right"><input type="file" id="wpUpload" accept="image/*" multiple style="display:none"/><button id="wpUploadBtn" style="padding:6px 16px;font-size:12px;font-weight:500;border:0.5px solid var(--glass-border);border-radius:var(--radius-xs);background:var(--glass);color:var(--text-secondary);cursor:pointer;font-family:inherit">上传图片</button></div>`;
-  if (list.length) {
-    html += '<div class="wp-grid">';
-    list.forEach((img, i) => {
-      html += `<div class="wp-item${img.dataUrl === current ? ' active' : ''}" data-url="${img.dataUrl}" style="background-image:url(${img.dataUrl})" title="${img.name}"><button class="wp-del" data-i="${i}" style="position:absolute;top:4px;right:4px;background:rgba(0,0,0,0.4);border:none;color:#fff;width:20px;height:20px;border-radius:50%;cursor:pointer;font-size:10px;display:none">x</button></div>`;
-    });
-    html += '</div>';
-  } else {
-    html +=
-      '<div style="text-align:center;padding:48px 0;color:var(--text-tertiary);font-size:13px">暂无壁纸 · 点击上方按钮上传</div>';
+  if (wpPreviewUrl) {
+    URL.revokeObjectURL(wpPreviewUrl);
+    wpPreviewUrl = '';
   }
-  document.getElementById('wpBody')!.innerHTML = html;
+  const mode = (localStorage.getItem(WP_KEY) as 'default' | 'custom') || 'default';
+  let bg = DEFAULT_WP_URL;
+  if (mode === 'custom') {
+    const blob = await idbGetBlob();
+    if (blob) {
+      wpPreviewUrl = URL.createObjectURL(blob);
+      bg = `url(${wpPreviewUrl})`;
+    }
+  }
+  document.getElementById('wpBody')!.innerHTML = `
+    <div class="wp-preview" style="background-image:${bg}"></div>
+    <div class="wp-status">${mode === 'custom' ? '当前：自定义壁纸' : '当前：默认壁纸'}</div>
+    <div class="wp-actions">
+      <input type="file" id="wpUpload" accept="image/*" style="display:none"/>
+      <button class="wp-btn" id="wpUploadBtn">上传壁纸</button>
+      ${mode === 'custom' ? '<button class="wp-btn wp-btn-ghost" id="wpReset">恢复默认</button>' : ''}
+    </div>
+    <div class="wp-hint">上传将替换当前壁纸（仅保留一张）</div>`;
   wpModal.classList.add('open');
-  // click to apply
-  document.querySelectorAll('.wp-item').forEach((el) =>
-    el.addEventListener('click', function (this: HTMLElement) {
-      const url = this.dataset.url!;
-      localStorage.setItem(WP_KEY, url);
-      document.body.style.backgroundImage = `url(${url})`;
-      document.querySelectorAll('.wp-item').forEach((e) => e.classList.remove('active'));
-      this.classList.add('active');
-    }),
-  );
-  // hover to show delete
-  document.querySelectorAll('.wp-item').forEach((el) => {
-    el.addEventListener('mouseenter', function (this: HTMLElement) {
-      const d = this.querySelector('.wp-del') as HTMLElement;
-      if (d) d.style.display = 'block';
-    });
-    el.addEventListener('mouseleave', function (this: HTMLElement) {
-      const d = this.querySelector('.wp-del') as HTMLElement;
-      if (d) d.style.display = 'none';
-    });
-  });
-  // delete
-  document.querySelectorAll('.wp-del').forEach((b) =>
-    b.addEventListener('click', async (e) => {
-      e.stopPropagation();
-      const i = Number((b as HTMLElement).dataset.i);
-      const list = await getWpList();
-      const removed = list[i];
-      list.splice(i, 1);
-      await saveWpList(list);
-      if (localStorage.getItem(WP_KEY) === removed.dataUrl) {
-        localStorage.removeItem(WP_KEY);
-        document.body.style.backgroundImage = 'none';
-      }
-      openWallpaperModal();
-    }),
-  );
-  // upload
   const fileInput = document.getElementById('wpUpload') as HTMLInputElement;
   document.getElementById('wpUploadBtn')!.addEventListener('click', () => fileInput.click());
   fileInput.onchange = async () => {
-    const files = fileInput.files;
-    if (!files) return;
-    const list = await getWpList();
-    for (const f of files) {
-      const dataUrl = await new Promise<string>((resolve) => {
-        const reader = new FileReader();
-        reader.onload = () => resolve(reader.result as string);
-        reader.readAsDataURL(f);
-      });
-      list.push({ name: f.name, dataUrl });
+    const f = fileInput.files?.[0];
+    if (!f) return;
+    try {
+      const blob = await compressImage(f);
+      await idbPutBlob(blob);
+      await applyWallpaper('custom');
+    } catch {
+      const h = document.querySelector('.wp-hint');
+      if (h) h.textContent = '⚠ 图片加载失败，请换一张';
+      return;
     }
-    await saveWpList(list);
     fileInput.value = '';
     openWallpaperModal();
   };
+  document.getElementById('wpReset')?.addEventListener('click', async () => {
+    await idbDelBlob();
+    await applyWallpaper('default');
+    openWallpaperModal();
+  });
 }
 
 function loadWallpaper() {
-  const url = localStorage.getItem(WP_KEY);
-  if (url) document.body.style.backgroundImage = `url(${url})`;
+  // 先立即应用默认壁纸，避免首屏空白；若用户设过自定义则异步加载替换
+  document.body.style.backgroundImage = DEFAULT_WP_URL;
+  const m = localStorage.getItem(WP_KEY);
+  if (m === 'custom') {
+    applyWallpaper('custom');
+  } else if (m && m !== 'default') {
+    // 旧版本曾把 dataUrl 直接写进 localStorage，清理残留并释放空间
+    localStorage.removeItem(WP_KEY);
+    chrome.storage.local.remove('moyu_wp_list');
+  }
 }
 
 // ── 日历 ──
