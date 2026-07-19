@@ -383,7 +383,13 @@ async function handleJuejinFetch(): Promise<JuejinResponse> {
     const res = await fetch('https://api.juejin.cn/recommend_api/v1/article/recommend_all_feed', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ cursor: '0', limit: 30, sort_type: 7, id_type: 42, client_type: 2608 }),
+      body: JSON.stringify({
+        cursor: '0',
+        limit: 30,
+        sort_type: 7,
+        id_type: 42,
+        client_type: 2608,
+      }),
       cache: 'no-store',
       signal: ctrl.signal,
     });
@@ -391,7 +397,16 @@ async function handleJuejinFetch(): Promise<JuejinResponse> {
     const j = await res.json();
     const arr = (j?.data ?? []) as unknown[];
     const items: JuejinItem[] = arr
-      .map((x) => x as { item_type?: number; item_info?: { article_info?: { article_id?: string; title?: string; digg_count?: number }; article_counters?: { digg_count?: number } } })
+      .map(
+        (x) =>
+          x as {
+            item_type?: number;
+            item_info?: {
+              article_info?: { article_id?: string; title?: string; digg_count?: number };
+              article_counters?: { digg_count?: number };
+            };
+          },
+      )
       .filter((x) => x?.item_type === 2 && x?.item_info?.article_info)
       .map((x) => {
         const a = x.item_info!.article_info!;
@@ -439,7 +454,13 @@ async function handleZhihuFetch(): Promise<ZhihuResponse> {
     const j = await res.json();
     const stories = (j?.stories ?? []) as unknown[];
     const list: ZhihuItem[] = stories.map((s) => {
-      const x = s as { title?: string; url?: string; id?: number; images?: string[]; hint?: string };
+      const x = s as {
+        title?: string;
+        url?: string;
+        id?: number;
+        images?: string[];
+        hint?: string;
+      };
       return {
         title: String(x.title || ''),
         url: String(x.url || (x.id ? `https://daily.zhihu.com/story/${x.id}` : '')),
@@ -491,7 +512,12 @@ async function handleSinaFlashFetch(): Promise<SinaFlashResponse> {
     const arr = (j?.result?.data?.feed?.list ?? []) as unknown[];
     const items: SinaFlashItem[] = arr
       .map((x) => {
-        const it = x as { rich_text?: string; create_time?: string; update_time?: string; docurl?: string };
+        const it = x as {
+          rich_text?: string;
+          create_time?: string;
+          update_time?: string;
+          docurl?: string;
+        };
         const t = String(it.create_time || it.update_time || '');
         return {
           text: stripHtml(String(it.rich_text || '')),
@@ -520,8 +546,21 @@ function wereadBookUrl(bookId: string): string {
   return 'https://weread.qq.com/#book/' + bookId;
 }
 
-interface WereadShelfBook { bid: string; title: string; author: string; category: string; deepLink: string; readUpdateTime: number; finished: boolean; isTop: boolean; }
-interface WereadShelfResponse { success: boolean; data?: { books: WereadShelfBook[]; total: number }; error?: string; }
+interface WereadShelfBook {
+  bid: string;
+  title: string;
+  author: string;
+  category: string;
+  deepLink: string;
+  readUpdateTime: number;
+  finished: boolean;
+  isTop: boolean;
+}
+interface WereadShelfResponse {
+  success: boolean;
+  data?: { books: WereadShelfBook[]; total: number };
+  error?: string;
+}
 
 /** 微信读书书架：经 Agent API Gateway 调 /shelf/sync，需用户 API Key（wrk-）。books[].deepLink 直达阅读。 */
 async function handleWereadShelfFetch(apiKey: string): Promise<WereadShelfResponse> {
@@ -539,7 +578,8 @@ async function handleWereadShelfFetch(apiKey: string): Promise<WereadShelfRespon
     if (res.status === 401) return { success: false, error: 'invalid_key' };
     if (!res.ok) return { success: false, error: 'HTTP ' + res.status };
     const j = await res.json();
-    if (j?.errcode && j.errcode !== 0) return { success: false, error: String(j.errmsg || j.errcode) };
+    if (j?.errcode && j.errcode !== 0)
+      return { success: false, error: String(j.errmsg || j.errcode) };
     const books = (j?.books ?? []) as unknown[];
     const albums = (j?.albums ?? []) as unknown[];
     const total = books.length + albums.length + (j?.mp ? 1 : 0);
@@ -578,7 +618,11 @@ interface WereadReaddata {
   categoryWord?: string;
   timeWord?: string;
 }
-interface WereadReaddataResponse { success: boolean; data?: WereadReaddata; error?: string; }
+interface WereadReaddataResponse {
+  success: boolean;
+  data?: WereadReaddata;
+  error?: string;
+}
 
 /** 微信读书阅读统计：/readdata/detail mode=monthly，需 API Key。时长字段单位为秒。 */
 async function handleWereadReaddataFetch(apiKey: string): Promise<WereadReaddataResponse> {
@@ -589,17 +633,26 @@ async function handleWereadReaddataFetch(apiKey: string): Promise<WereadReaddata
     const res = await fetch('https://i.weread.qq.com/api/agent/gateway', {
       method: 'POST',
       headers: { Authorization: 'Bearer ' + apiKey, 'Content-Type': 'application/json' },
-      body: JSON.stringify({ api_name: '/readdata/detail', mode: 'monthly', skill_version: '1.0.4' }),
+      body: JSON.stringify({
+        api_name: '/readdata/detail',
+        mode: 'monthly',
+        skill_version: '1.0.4',
+      }),
       cache: 'no-store',
       signal: ctrl.signal,
     });
     if (res.status === 401) return { success: false, error: 'invalid_key' };
     if (!res.ok) return { success: false, error: 'HTTP ' + res.status };
     const j = await res.json();
-    if (j?.errcode && j.errcode !== 0) return { success: false, error: String(j.errmsg || j.errcode) };
+    if (j?.errcode && j.errcode !== 0)
+      return { success: false, error: String(j.errmsg || j.errcode) };
     const longest = ((j?.readLongest ?? []) as unknown[])
       .map((it) => {
-        const x = it as { book?: Record<string, unknown>; albumInfo?: Record<string, unknown>; readTime?: number };
+        const x = it as {
+          book?: Record<string, unknown>;
+          albumInfo?: Record<string, unknown>;
+          readTime?: number;
+        };
         const b = x.book ?? x.albumInfo ?? {};
         const bid = String(b.bookId ?? b.albumId ?? '');
         return {
@@ -636,8 +689,19 @@ async function handleWereadReaddataFetch(apiKey: string): Promise<WereadReaddata
 
 // ─── Weread Recommend (为你推荐) ────────────────────────
 
-interface WereadRecommendBook { bid: string; title: string; author: string; rating: number; reason: string; deepLink: string; }
-interface WereadRecommendResponse { success: boolean; data?: { books: WereadRecommendBook[] }; error?: string; }
+interface WereadRecommendBook {
+  bid: string;
+  title: string;
+  author: string;
+  rating: number;
+  reason: string;
+  deepLink: string;
+}
+interface WereadRecommendResponse {
+  success: boolean;
+  data?: { books: WereadRecommendBook[] };
+  error?: string;
+}
 
 /** 微信读书推荐：/book/recommend，需 API Key。books[].deepLink 直达阅读。 */
 async function handleWereadRecommendFetch(apiKey: string): Promise<WereadRecommendResponse> {
@@ -655,7 +719,8 @@ async function handleWereadRecommendFetch(apiKey: string): Promise<WereadRecomme
     if (res.status === 401) return { success: false, error: 'invalid_key' };
     if (!res.ok) return { success: false, error: 'HTTP ' + res.status };
     const j = await res.json();
-    if (j?.errcode && j.errcode !== 0) return { success: false, error: String(j.errmsg || j.errcode) };
+    if (j?.errcode && j.errcode !== 0)
+      return { success: false, error: String(j.errmsg || j.errcode) };
     const books = ((j?.books ?? []) as unknown[])
       .map((it) => {
         const b = it as Record<string, unknown>;
@@ -705,8 +770,21 @@ async function handleWereadRecommendFetch(apiKey: string): Promise<WereadRecomme
 
 // ─── Weread Notes (我的笔记) ────────────────────────────
 
-interface WereadNotesBook { bid: string; title: string; author: string; deepLink: string; noteCount: number; progress: number; finished: boolean; sort: number; }
-interface WereadNotesResponse { success: boolean; data?: { books: WereadNotesBook[]; totalBooks: number; totalNotes: number }; error?: string; }
+interface WereadNotesBook {
+  bid: string;
+  title: string;
+  author: string;
+  deepLink: string;
+  noteCount: number;
+  progress: number;
+  finished: boolean;
+  sort: number;
+}
+interface WereadNotesResponse {
+  success: boolean;
+  data?: { books: WereadNotesBook[]; totalBooks: number; totalNotes: number };
+  error?: string;
+}
 
 /** 微信读书笔记概览：/user/notebooks，需 API Key。单本笔记数 = reviewCount + noteCount + bookmarkCount。 */
 async function handleWereadNotesFetch(apiKey: string): Promise<WereadNotesResponse> {
@@ -724,7 +802,8 @@ async function handleWereadNotesFetch(apiKey: string): Promise<WereadNotesRespon
     if (res.status === 401) return { success: false, error: 'invalid_key' };
     if (!res.ok) return { success: false, error: 'HTTP ' + res.status };
     const j = await res.json();
-    if (j?.errcode && j.errcode !== 0) return { success: false, error: String(j.errmsg || j.errcode) };
+    if (j?.errcode && j.errcode !== 0)
+      return { success: false, error: String(j.errmsg || j.errcode) };
     const books = ((j?.books ?? []) as unknown[])
       .map((it) => {
         const b = it as Record<string, unknown>;
@@ -764,8 +843,17 @@ async function handleWereadNotesFetch(apiKey: string): Promise<WereadNotesRespon
 
 // ─── Weread Review (书评) ───────────────────────────────
 
-interface WereadReviewItem { author: string; star: number; content: string; time: number; }
-interface WereadReviewResponse { success: boolean; data?: { bookTitle: string; bookDeepLink: string; reviews: WereadReviewItem[]; total: number }; error?: string; }
+interface WereadReviewItem {
+  author: string;
+  star: number;
+  content: string;
+  time: number;
+}
+interface WereadReviewResponse {
+  success: boolean;
+  data?: { bookTitle: string; bookDeepLink: string; reviews: WereadReviewItem[]; total: number };
+  error?: string;
+}
 
 /** 微信读书书评：取书架最近阅读书，调 /review/list 显示该书公开点评。需 API Key。 */
 async function handleWereadReviewFetch(apiKey: string): Promise<WereadReviewResponse> {
@@ -783,7 +871,8 @@ async function handleWereadReviewFetch(apiKey: string): Promise<WereadReviewResp
     if (shelfRes.status === 401) return { success: false, error: 'invalid_key' };
     if (!shelfRes.ok) return { success: false, error: 'HTTP ' + shelfRes.status };
     const sj = await shelfRes.json();
-    if (sj?.errcode && sj.errcode !== 0) return { success: false, error: String(sj.errmsg || sj.errcode) };
+    if (sj?.errcode && sj.errcode !== 0)
+      return { success: false, error: String(sj.errmsg || sj.errcode) };
     const shelfBooks = ((sj?.books ?? []) as unknown[])
       .map((it) => {
         const b = it as Record<string, unknown>;
@@ -801,16 +890,23 @@ async function handleWereadReviewFetch(apiKey: string): Promise<WereadReviewResp
     const revRes = await fetch('https://i.weread.qq.com/api/agent/gateway', {
       method: 'POST',
       headers: { Authorization: 'Bearer ' + apiKey, 'Content-Type': 'application/json' },
-      body: JSON.stringify({ api_name: '/review/list', bookId: book.bid, reviewListType: 0, count: 10, skill_version: '1.0.4' }),
+      body: JSON.stringify({
+        api_name: '/review/list',
+        bookId: book.bid,
+        reviewListType: 0,
+        count: 10,
+        skill_version: '1.0.4',
+      }),
       cache: 'no-store',
       signal: ctrl.signal,
     });
     if (!revRes.ok) return { success: false, error: 'HTTP ' + revRes.status };
     const rj = await revRes.json();
-    if (rj?.errcode && rj.errcode !== 0) return { success: false, error: String(rj.errmsg || rj.errcode) };
+    if (rj?.errcode && rj.errcode !== 0)
+      return { success: false, error: String(rj.errmsg || rj.errcode) };
     const reviews = ((rj?.reviews ?? []) as unknown[])
       .map((it) => {
-        const rv = ((it as { review?: { review?: Record<string, unknown> } })?.review?.review) ?? {};
+        const rv = (it as { review?: { review?: Record<string, unknown> } })?.review?.review ?? {};
         const author = rv.author as { name?: string } | undefined;
         return {
           author: String(author?.name ?? ''),
@@ -839,11 +935,24 @@ async function handleWereadReviewFetch(apiKey: string): Promise<WereadReviewResp
 
 // ─── Weread Search (搜书) ───────────────────────────────
 
-interface WereadSearchBook { bid: string; title: string; author: string; rating: number; deepLink: string; }
-interface WereadSearchResponse { success: boolean; data?: { books: WereadSearchBook[] }; error?: string; }
+interface WereadSearchBook {
+  bid: string;
+  title: string;
+  author: string;
+  rating: number;
+  deepLink: string;
+}
+interface WereadSearchResponse {
+  success: boolean;
+  data?: { books: WereadSearchBook[] };
+  error?: string;
+}
 
 /** 微信读书搜书：/store/search scope=10 电子书。需 API Key。 */
-async function handleWereadSearchFetch(apiKey: string, keyword: string): Promise<WereadSearchResponse> {
+async function handleWereadSearchFetch(
+  apiKey: string,
+  keyword: string,
+): Promise<WereadSearchResponse> {
   if (!apiKey) return { success: false, error: 'no_key' };
   if (!keyword) return { success: false, error: 'no_keyword' };
   const ctrl = new AbortController();
@@ -852,14 +961,21 @@ async function handleWereadSearchFetch(apiKey: string, keyword: string): Promise
     const res = await fetch('https://i.weread.qq.com/api/agent/gateway', {
       method: 'POST',
       headers: { Authorization: 'Bearer ' + apiKey, 'Content-Type': 'application/json' },
-      body: JSON.stringify({ api_name: '/store/search', keyword, scope: 10, count: 10, skill_version: '1.0.4' }),
+      body: JSON.stringify({
+        api_name: '/store/search',
+        keyword,
+        scope: 10,
+        count: 10,
+        skill_version: '1.0.4',
+      }),
       cache: 'no-store',
       signal: ctrl.signal,
     });
     if (res.status === 401) return { success: false, error: 'invalid_key' };
     if (!res.ok) return { success: false, error: 'HTTP ' + res.status };
     const j = await res.json();
-    if (j?.errcode && j.errcode !== 0) return { success: false, error: String(j.errmsg || j.errcode) };
+    if (j?.errcode && j.errcode !== 0)
+      return { success: false, error: String(j.errmsg || j.errcode) };
     const groups = (j?.results ?? []) as unknown[];
     const books: WereadSearchBook[] = [];
     for (const g of groups) {
@@ -927,7 +1043,9 @@ chrome.runtime.onMessage.addListener((message: { type: string }, _sender, sendRe
   } else if (message?.type === 'FUND_FETCH') {
     handleFundFetch((message as unknown as { codes?: string[] }).codes ?? []).then(sendResponse);
   } else if (message?.type === 'HOT_FETCH') {
-    handleHotFetch((message as unknown as { platform?: string }).platform ?? 'weibo').then(sendResponse);
+    handleHotFetch((message as unknown as { platform?: string }).platform ?? 'weibo').then(
+      sendResponse,
+    );
   } else if (message?.type === 'HOLIDAY_FETCH') {
     handleHolidayFetch().then(sendResponse);
   } else if (message?.type === 'JUEJIN_FETCH') {
@@ -937,15 +1055,25 @@ chrome.runtime.onMessage.addListener((message: { type: string }, _sender, sendRe
   } else if (message?.type === 'SINA_FLASH_FETCH') {
     handleSinaFlashFetch().then(sendResponse);
   } else if (message?.type === 'WEREAD_SHELF_FETCH') {
-    handleWereadShelfFetch((message as unknown as { apiKey?: string }).apiKey ?? '').then(sendResponse);
+    handleWereadShelfFetch((message as unknown as { apiKey?: string }).apiKey ?? '').then(
+      sendResponse,
+    );
   } else if (message?.type === 'WEREAD_READDATA_FETCH') {
-    handleWereadReaddataFetch((message as unknown as { apiKey?: string }).apiKey ?? '').then(sendResponse);
+    handleWereadReaddataFetch((message as unknown as { apiKey?: string }).apiKey ?? '').then(
+      sendResponse,
+    );
   } else if (message?.type === 'WEREAD_RECOMMEND_FETCH') {
-    handleWereadRecommendFetch((message as unknown as { apiKey?: string }).apiKey ?? '').then(sendResponse);
+    handleWereadRecommendFetch((message as unknown as { apiKey?: string }).apiKey ?? '').then(
+      sendResponse,
+    );
   } else if (message?.type === 'WEREAD_NOTES_FETCH') {
-    handleWereadNotesFetch((message as unknown as { apiKey?: string }).apiKey ?? '').then(sendResponse);
+    handleWereadNotesFetch((message as unknown as { apiKey?: string }).apiKey ?? '').then(
+      sendResponse,
+    );
   } else if (message?.type === 'WEREAD_REVIEW_FETCH') {
-    handleWereadReviewFetch((message as unknown as { apiKey?: string }).apiKey ?? '').then(sendResponse);
+    handleWereadReviewFetch((message as unknown as { apiKey?: string }).apiKey ?? '').then(
+      sendResponse,
+    );
   } else if (message?.type === 'WEREAD_SEARCH_FETCH') {
     const m = message as unknown as { apiKey?: string; keyword?: string };
     handleWereadSearchFetch(m.apiKey ?? '', m.keyword ?? '').then(sendResponse);

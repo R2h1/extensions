@@ -17,7 +17,9 @@
     "storage",
     "alarms",
     "notifications",
-    "declarativeNetRequestWithHostAccess"
+    "declarativeNetRequestWithHostAccess",
+    "bookmarks",
+    "favicon"
   ],
 
   "host_permissions": [

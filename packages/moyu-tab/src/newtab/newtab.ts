@@ -15,6 +15,7 @@ import { initTax, renderTaxCard } from './widgets/tax';
 import { initMortgage, renderMortgageCard } from './widgets/mortgage';
 import { initBmi, renderBmiCard } from './widgets/bmi';
 import { initCurrency, renderCurrencyCard } from './widgets/currency';
+import { initBookmarks, renderBookmarksCard } from './widgets/bookmarks';
 import { initFund, renderFundCard } from './widgets/fund';
 import { initWeather, renderWeatherCard } from './widgets/weather';
 import { HOT_WIDGETS, renderHotCard, initHotCard } from './widgets/hot';
@@ -211,6 +212,7 @@ const ALL_WIDGETS: WID[] = [
   { id: 'gold', name: '金价', desc: '实时黄金价格', cat: 'finance', sub: 'market' },
   { id: 'fund', name: '基金', desc: '实时基金估值', cat: 'finance', sub: 'market' },
   { id: 'links', name: '网址', desc: '常用快捷网址', cat: 'tools', sub: 'nav' },
+  { id: 'bookmarks', name: '书签同步', desc: '浏览器书签栏', cat: 'tools', sub: 'nav' },
   { id: 'tax', name: '个税计算器', desc: '月薪到手税后', cat: 'tools', sub: 'calc' },
   { id: 'mortgage', name: '房贷计算器', desc: '等额本息/本金', cat: 'tools', sub: 'calc' },
   { id: 'bmi', name: 'BMI 计算器', desc: '身体质量指数', cat: 'tools', sub: 'calc' },
@@ -440,10 +442,8 @@ function getCard(w: WID): string {
         <div class="sal-payday" id="salPayDay"></div>
       </div>
     </div></div>`;
-  if (w.id === 'gold')
-    return renderGoldCard();
-  if (w.id === 'fund')
-    return renderFundCard();
+  if (w.id === 'gold') return renderGoldCard();
+  if (w.id === 'fund') return renderFundCard();
   if (w.id === 'fish')
     return `<div class="widget-card fish-card">
       <div class="fish-head">
@@ -463,10 +463,8 @@ function getCard(w: WID): string {
         <button id="lnkAdd">+</button>
       </div>
     </div>`;
-  if (w.id === 'weather')
-    return renderWeatherCard();
-  if (w.id === 'holiday')
-    return renderHolidayCard();
+  if (w.id === 'weather') return renderWeatherCard();
+  if (w.id === 'holiday') return renderHolidayCard();
   if (w.id === 'calendar')
     return `<div class="widget-card cal-card">
       <div class="cal-head">
@@ -503,34 +501,21 @@ function getCard(w: WID): string {
       </div>
       <div class="music-player" id="musicPlayer"></div>
     </div>`;
-  if (w.id === 'juejin')
-    return renderJuejinCard();
-  if (w.id === 'zhihu')
-    return renderZhihuCard();
-  if (w.id === 'weread')
-    return renderWereadCard();
-  if (w.id === 'readdata')
-    return renderReaddataCard();
-  if (w.id === 'recommend')
-    return renderRecommendCard();
-  if (w.id === 'notes')
-    return renderNotesCard();
-  if (w.id === 'review')
-    return renderReviewCard();
-  if (w.id === 'search')
-    return renderSearchCard();
-  if (w.id === 'sina_flash')
-    return renderSinaFlashCard();
-  if (w.id === 'tax')
-    return renderTaxCard();
-  if (w.id === 'mortgage')
-    return renderMortgageCard();
-  if (w.id === 'bmi')
-    return renderBmiCard();
-  if (w.id === 'currency')
-    return renderCurrencyCard();
-  if (HOT_WIDGETS[w.id])
-    return renderHotCard(w);
+  if (w.id === 'juejin') return renderJuejinCard();
+  if (w.id === 'zhihu') return renderZhihuCard();
+  if (w.id === 'weread') return renderWereadCard();
+  if (w.id === 'readdata') return renderReaddataCard();
+  if (w.id === 'recommend') return renderRecommendCard();
+  if (w.id === 'notes') return renderNotesCard();
+  if (w.id === 'review') return renderReviewCard();
+  if (w.id === 'search') return renderSearchCard();
+  if (w.id === 'sina_flash') return renderSinaFlashCard();
+  if (w.id === 'tax') return renderTaxCard();
+  if (w.id === 'mortgage') return renderMortgageCard();
+  if (w.id === 'bmi') return renderBmiCard();
+  if (w.id === 'currency') return renderCurrencyCard();
+  if (w.id === 'bookmarks') return renderBookmarksCard();
+  if (HOT_WIDGETS[w.id]) return renderHotCard(w);
   return `<div class="widget-card clickable" data-widget="${w.id}"><div class="widget-entry"><span>${w.desc}</span><span class="arrow">→</span></div></div>`;
 }
 async function initW(id: string) {
@@ -617,6 +602,9 @@ async function initW(id: string) {
       break;
     case 'currency':
       initCurrency();
+      break;
+    case 'bookmarks':
+      initBookmarks();
       break;
   }
 }
