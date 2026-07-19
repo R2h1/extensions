@@ -467,7 +467,7 @@ function getCard(w: WID): string {
         <div class="tv-title">▶ 视频</div>
         <a class="tv-open" href="http://app.conan.js.cn/tv" target="_blank" rel="noopener">新标签打开 ↗</a>
       </div>
-      <iframe class="tv-frame" src="http://app.conan.js.cn/tv" referrerpolicy="no-referrer" loading="lazy" allow="fullscreen; encrypted-media" allowfullscreen></iframe>
+      <iframe class="tv-frame" src="http://app.conan.js.cn/tv?v=${new Date().toISOString().slice(0, 10)}" referrerpolicy="no-referrer" loading="lazy" allow="fullscreen; encrypted-media" allowfullscreen></iframe>
     </div>`;
   if (w.id === 'music')
     return `<div class="widget-card music-card">
