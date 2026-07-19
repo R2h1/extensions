@@ -888,6 +888,39 @@ async function handleWereadSearchFetch(apiKey: string, keyword: string): Promise
   }
 }
 
+// ─── Exchange Rate (汇率换算) ──────────────────────────
+
+interface ExchangeResponse {
+  success: boolean;
+  data?: { rates: Record<string, number>; ts: number };
+  error?: string;
+}
+
+/** 汇率：open.er-api.com 免 key，base USD，返回 ~160 币种。无 CORS 头，由 SW 凭 host_permissions 绕过。 */
+async function handleExchangeFetch(): Promise<ExchangeResponse> {
+  const ctrl = new AbortController();
+  const to = setTimeout(() => ctrl.abort(), 12000);
+  try {
+    const res = await fetch('https://open.er-api.com/v6/latest/USD', {
+      cache: 'no-store',
+      signal: ctrl.signal,
+    });
+    if (!res.ok) return { success: false, error: 'HTTP ' + res.status };
+    const j = (await res.json()) as {
+      result?: string;
+      rates?: Record<string, number>;
+      time_last_update_unix?: number;
+    };
+    if (j?.result !== 'success' || !j?.rates) return { success: false, error: 'bad data' };
+    const ts = j.time_last_update_unix ? j.time_last_update_unix * 1000 : Date.now();
+    return { success: true, data: { rates: j.rates, ts } };
+  } catch (e) {
+    return { success: false, error: e instanceof Error ? e.message : String(e) };
+  } finally {
+    clearTimeout(to);
+  }
+}
+
 chrome.runtime.onMessage.addListener((message: { type: string }, _sender, sendResponse) => {
   if (message?.type === 'GOLD_FETCH') {
     handleGoldFetch().then(sendResponse);
@@ -916,6 +949,8 @@ chrome.runtime.onMessage.addListener((message: { type: string }, _sender, sendRe
   } else if (message?.type === 'WEREAD_SEARCH_FETCH') {
     const m = message as unknown as { apiKey?: string; keyword?: string };
     handleWereadSearchFetch(m.apiKey ?? '', m.keyword ?? '').then(sendResponse);
+  } else if (message?.type === 'EXCHANGE_FETCH') {
+    handleExchangeFetch().then(sendResponse);
   } else {
     handlePomodoroMessage(message as PomodoroMessage).then(sendResponse);
   }

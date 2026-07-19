@@ -11,6 +11,10 @@ import { initNotes, renderNotesCard } from './widgets/notes';
 import { initReview, renderReviewCard } from './widgets/review';
 import { initSearch, renderSearchCard } from './widgets/search';
 import { initSinaFlash, renderSinaFlashCard } from './widgets/sina-flash';
+import { initTax, renderTaxCard } from './widgets/tax';
+import { initMortgage, renderMortgageCard } from './widgets/mortgage';
+import { initBmi, renderBmiCard } from './widgets/bmi';
+import { initCurrency, renderCurrencyCard } from './widgets/currency';
 import { initFund, renderFundCard } from './widgets/fund';
 import { initWeather, renderWeatherCard } from './widgets/weather';
 import { HOT_WIDGETS, renderHotCard, initHotCard } from './widgets/hot';
@@ -207,6 +211,10 @@ const ALL_WIDGETS: WID[] = [
   { id: 'gold', name: '金价', desc: '实时黄金价格', cat: 'finance', sub: 'market' },
   { id: 'fund', name: '基金', desc: '实时基金估值', cat: 'finance', sub: 'market' },
   { id: 'links', name: '网址', desc: '常用快捷网址', cat: 'tools', sub: 'nav' },
+  { id: 'tax', name: '个税计算器', desc: '月薪到手税后', cat: 'tools', sub: 'calc' },
+  { id: 'mortgage', name: '房贷计算器', desc: '等额本息/本金', cat: 'tools', sub: 'calc' },
+  { id: 'bmi', name: 'BMI 计算器', desc: '身体质量指数', cat: 'tools', sub: 'calc' },
+  { id: 'currency', name: '汇率换算', desc: '实时汇率换算', cat: 'tools', sub: 'conv' },
 ];
 type WData = { subs: Record<string, string[]> };
 function subKey(cat: string, sub: string) {
@@ -513,6 +521,14 @@ function getCard(w: WID): string {
     return renderSearchCard();
   if (w.id === 'sina_flash')
     return renderSinaFlashCard();
+  if (w.id === 'tax')
+    return renderTaxCard();
+  if (w.id === 'mortgage')
+    return renderMortgageCard();
+  if (w.id === 'bmi')
+    return renderBmiCard();
+  if (w.id === 'currency')
+    return renderCurrencyCard();
   if (HOT_WIDGETS[w.id])
     return renderHotCard(w);
   return `<div class="widget-card clickable" data-widget="${w.id}"><div class="widget-entry"><span>${w.desc}</span><span class="arrow">→</span></div></div>`;
@@ -589,6 +605,18 @@ async function initW(id: string) {
       break;
     case 'sina_flash':
       initSinaFlash();
+      break;
+    case 'tax':
+      initTax();
+      break;
+    case 'mortgage':
+      initMortgage();
+      break;
+    case 'bmi':
+      initBmi();
+      break;
+    case 'currency':
+      initCurrency();
       break;
   }
 }

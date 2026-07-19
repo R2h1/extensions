@@ -35,7 +35,8 @@
     "https://zhibo.sina.com.cn/*",
     "https://*.music.126.net/*",
     "https://weread.qq.com/*",
-    "https://i.weread.qq.com/*"
+    "https://i.weread.qq.com/*",
+    "https://open.er-api.com/*"
   ],
   "declarative_net_request": {
     "rule_resources": [

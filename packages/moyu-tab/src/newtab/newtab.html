@@ -423,6 +423,60 @@ html.locked .clock-bar{padding:0}
 .sina-text{font-size:12px;color:var(--text);line-height:1.45;flex:1;min-width:0}
 .sina-list::-webkit-scrollbar{width:5px}
 .sina-list::-webkit-scrollbar-thumb{background:rgba(0,0,0,0.12);border-radius:3px}
+/* 计算器卡片（个税/房贷/BMI 共用） */
+.calc-card{padding:12px 14px}
+.calc-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+.calc-title{font-size:14px;font-weight:600;color:var(--text-secondary);letter-spacing:.5px;display:flex;align-items:center;gap:6px}
+.calc-sub{font-size:10px;color:var(--text-tertiary)}
+.calc-form{display:flex;flex-direction:column;gap:6px}
+.calc-field{display:flex;flex-direction:column;gap:3px}
+.calc-field span{font-size:11px;color:var(--text-tertiary)}
+.calc-field input{padding:7px 10px;font-size:12px;border:none;border-radius:var(--radius-xs);background:var(--nm-surface);color:var(--text);outline:none;font-family:inherit;box-shadow:var(--nm-in);width:100%}
+.calc-field input:focus{box-shadow:var(--nm-in),0 0 0 1.5px var(--accent)}
+.calc-row2{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.calc-toggle{display:flex;background:var(--nm-surface);border-radius:var(--radius-xs);padding:2px;box-shadow:var(--nm-in-sm);gap:2px}
+.calc-tb{flex:1;text-align:center;padding:6px 0;border-radius:5px;font-size:11px;font-weight:500;color:var(--text-tertiary);cursor:pointer;transition:all .15s;user-select:none}
+.calc-tb.active{background:var(--nm-surface);color:var(--accent);box-shadow:var(--nm-out-sm);font-weight:600}
+.calc-result{margin-top:10px;background:var(--nm-surface);border-radius:var(--radius-sm);padding:10px 12px;box-shadow:var(--nm-in)}
+.calc-rows{display:flex;flex-direction:column;gap:5px}
+.calc-row{display:flex;align-items:center;justify-content:space-between;font-size:12px;color:var(--text-secondary)}
+.calc-row span:first-child{color:var(--text-tertiary);font-size:11px}
+.calc-empty{font-size:12px;color:var(--text-tertiary);text-align:center;padding:6px 0}
+.calc-val{font-variant-numeric:tabular-nums;font-family:'Courier New',ui-monospace,monospace;font-weight:600}
+.calc-val.tax{color:#ef4444}
+.calc-val.after{color:var(--accent)}
+.bmi-main{display:flex;align-items:baseline;gap:10px;margin-bottom:8px}
+.bmi-val{font-size:34px;font-weight:700;font-variant-numeric:tabular-nums;font-family:'Courier New',ui-monospace,monospace;letter-spacing:-1px;line-height:1}
+.bmi-tag{font-size:12px;font-weight:600;padding:2px 10px;border-radius:10px}
+.bmi-val.up,.bmi-tag.up{color:#10b981}
+.bmi-tag.up{background:rgba(16,185,129,.12)}
+.bmi-val.warn,.bmi-tag.warn{color:var(--accent)}
+.bmi-tag.warn{background:var(--glass-accent)}
+.bmi-val.down,.bmi-tag.down{color:#ef4444}
+.bmi-tag.down{background:rgba(239,68,68,.12)}
+.bmi-range{margin-top:4px}
+/* 汇率换算卡片 */
+.currency-card{padding:12px 14px}
+.cur-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+.cur-title{font-size:14px;font-weight:600;color:var(--text-secondary);letter-spacing:.5px;display:flex;align-items:center;gap:6px}
+.cur-meta{display:flex;align-items:center;gap:8px}
+.cur-upd{font-size:10px;color:var(--text-tertiary);font-variant-numeric:tabular-nums;min-height:12px}
+.cur-refresh{width:26px;height:26px;border-radius:50%;border:none;background:var(--nm-surface);box-shadow:var(--nm-out),0 2px 4px rgba(0,0,0,0.1);color:var(--text-tertiary);cursor:pointer;font-size:13px;display:flex;align-items:center;justify-content:center;transition:color .15s,box-shadow .15s;font-family:inherit}
+.cur-refresh:hover{color:var(--accent)}
+.cur-refresh:active{box-shadow:var(--nm-in-sm)}
+.cur-refresh.spin{color:var(--accent);animation:goldspin 1s linear infinite}
+.cur-form{display:flex;flex-direction:column;gap:6px}
+.cur-form input{padding:8px 10px;font-size:13px;border:none;border-radius:var(--radius-xs);background:var(--nm-surface);color:var(--text);outline:none;font-family:inherit;box-shadow:var(--nm-in);width:100%}
+.cur-form input:focus{box-shadow:var(--nm-in),0 0 0 1.5px var(--accent)}
+.cur-row{display:flex;align-items:center;gap:6px}
+.cur-row select{flex:1;min-width:0;padding:7px 8px;font-size:12px;border:none;border-radius:var(--radius-xs);background:var(--nm-surface);color:var(--text);outline:none;font-family:inherit;box-shadow:var(--nm-in);cursor:pointer}
+.cur-swap{width:34px;height:32px;border:none;border-radius:var(--radius-xs);background:var(--glass-accent);color:var(--accent);cursor:pointer;font-size:14px;flex-shrink:0;font-family:inherit;transition:all .15s}
+.cur-swap:hover{background:var(--accent);color:#fff}
+.cur-result{margin-top:10px;background:var(--nm-surface);border-radius:var(--radius-sm);padding:12px;box-shadow:var(--nm-in);text-align:center}
+.cur-amount{font-size:26px;font-weight:700;color:var(--accent);font-variant-numeric:tabular-nums;font-family:'Courier New',ui-monospace,monospace;letter-spacing:-.5px;line-height:1.2}
+.cur-unit{font-size:13px;color:var(--text-tertiary);font-weight:500}
+.cur-rate{font-size:12px;color:var(--text-secondary);margin-top:6px}
+.cur-rate-sub{font-size:10px;color:var(--text-tertiary);margin-top:3px}
 </style>
 <script src="boot.js"></script>
 </head>

@@ -155,4 +155,8 @@ export const ALL_WIDGETS: WID[] = [
   { id: 'gold', name: '金价', desc: '实时黄金价格', cat: 'finance', sub: 'market' },
   { id: 'fund', name: '基金', desc: '实时基金估值', cat: 'finance', sub: 'market' },
   { id: 'links', name: '网址', desc: '常用快捷网址', cat: 'tools', sub: 'nav' },
+  { id: 'tax', name: '个税计算器', desc: '月薪到手税后', cat: 'tools', sub: 'calc' },
+  { id: 'mortgage', name: '房贷计算器', desc: '等额本息/本金', cat: 'tools', sub: 'calc' },
+  { id: 'bmi', name: 'BMI 计算器', desc: '身体质量指数', cat: 'tools', sub: 'calc' },
+  { id: 'currency', name: '汇率换算', desc: '实时汇率换算', cat: 'tools', sub: 'conv' },
 ];
