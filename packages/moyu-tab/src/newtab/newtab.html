@@ -343,6 +343,33 @@ html.locked .clock-bar{padding:0}
 .hot-row:hover .hot-title{color:var(--accent)}
 .hot-tag{font-style:normal;font-size:9px;color:var(--accent);border:0.5px solid var(--accent);padding:0 3px;border-radius:3px;flex-shrink:0;line-height:1.4}
 .hot-num{font-size:10px;color:var(--text-tertiary);flex-shrink:0;font-variant-numeric:tabular-nums;font-family:'Courier New',ui-monospace,monospace}
+/* 微信读书卡片 */
+.weread-body{display:flex;flex-direction:column}
+.weread-total{font-size:10px;color:var(--text-tertiary);margin-bottom:6px}
+.weread-author{font-size:10px;color:var(--text-tertiary);font-weight:normal}
+.weread-cat{font-size:9px;color:var(--text-tertiary);font-weight:normal;opacity:.8}
+.weread-tag{font-size:9px;padding:0 5px;border-radius:3px;flex-shrink:0;line-height:1.5}
+.weread-tag.done{color:var(--accent);border:0.5px solid var(--accent)}
+.weread-setup{padding:6px 0}
+.weread-setup-hint{font-size:12px;color:var(--text-secondary);margin-bottom:8px}
+.weread-setup-row{display:flex;gap:6px}
+.weread-setup-row input{flex:1;min-width:0;padding:6px 9px;font-size:12px;border:0.5px solid var(--glass-border);border-radius:var(--radius-xs);background:rgba(255,255,255,.5);color:var(--text);outline:none;font-family:inherit}
+.weread-setup-row input:focus{border-color:var(--accent)}
+.weread-key-btn{padding:6px 14px;font-size:12px;font-weight:500;border:0.5px solid var(--glass-border);border-radius:var(--radius-xs);background:var(--glass);color:var(--text-secondary);cursor:pointer;font-family:inherit}
+.weread-key-btn:hover{border-color:var(--accent);color:var(--accent)}
+.weread-setup-tip{font-size:10px;color:var(--text-tertiary);margin-top:6px;line-height:1.4}
+.weread-setup-link{color:var(--accent);text-decoration:none;margin-left:2px}
+.weread-setup-link:hover{text-decoration:underline}
+.weread-card .hot-swap.spin{animation:goldspin 1s linear infinite;color:var(--accent)}
+/* 阅读统计卡片 */
+.readdata-body{display:flex;flex-direction:column}
+.readdata-stats{display:flex;gap:6px;margin-bottom:8px}
+.readdata-stat{flex:1;text-align:center;padding:6px 2px;background:var(--glass);border-radius:var(--radius-xs);border:0.5px solid var(--glass-border)}
+.readdata-stat-val{font-size:13px;font-weight:600;color:var(--text);font-variant-numeric:tabular-nums;line-height:1.3}
+.readdata-stat-label{font-size:9px;color:var(--text-tertiary);margin-top:2px}
+.readdata-section{font-size:11px;color:var(--text-secondary);margin:6px 0 2px;font-weight:500}
+.readdata-cats{display:flex;flex-wrap:wrap;gap:4px;margin-top:6px}
+.readdata-cat{font-size:10px;padding:1px 6px;border-radius:3px;background:var(--glass);color:var(--text-secondary);border:0.5px solid var(--glass-border)}
 /* 知乎日报卡片 */
 .zhihu-card{padding:12px 14px}
 .zhihu-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;gap:8px}

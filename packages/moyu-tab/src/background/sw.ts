@@ -511,6 +511,198 @@ async function handleSinaFlashFetch(): Promise<SinaFlashResponse> {
 
 // ─── Message Router ─────────────────────────────────────
 
+// ─── Weread Shelf (微信读书书架) ────────────────────────
+
+/** bookId 是 hex（reader ID）则拼阅读器页，数字则拼详情页；接口 deepLink 缺失时兜底。 */
+function wereadBookUrl(bookId: string): string {
+  if (!bookId) return '';
+  if (/^[0-9a-fA-F]{20,}$/.test(bookId)) return 'https://weread.qq.com/web/reader/' + bookId;
+  return 'https://weread.qq.com/#book/' + bookId;
+}
+
+interface WereadShelfBook { bid: string; title: string; author: string; category: string; deepLink: string; readUpdateTime: number; finished: boolean; isTop: boolean; }
+interface WereadShelfResponse { success: boolean; data?: { books: WereadShelfBook[]; total: number }; error?: string; }
+
+/** 微信读书书架：经 Agent API Gateway 调 /shelf/sync，需用户 API Key（wrk-）。books[].deepLink 直达阅读。 */
+async function handleWereadShelfFetch(apiKey: string): Promise<WereadShelfResponse> {
+  if (!apiKey) return { success: false, error: 'no_key' };
+  const ctrl = new AbortController();
+  const to = setTimeout(() => ctrl.abort(), 12000);
+  try {
+    const res = await fetch('https://i.weread.qq.com/api/agent/gateway', {
+      method: 'POST',
+      headers: { Authorization: 'Bearer ' + apiKey, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ api_name: '/shelf/sync', skill_version: '1.0.4' }),
+      cache: 'no-store',
+      signal: ctrl.signal,
+    });
+    if (res.status === 401) return { success: false, error: 'invalid_key' };
+    if (!res.ok) return { success: false, error: 'HTTP ' + res.status };
+    const j = await res.json();
+    if (j?.errcode && j.errcode !== 0) return { success: false, error: String(j.errmsg || j.errcode) };
+    const books = (j?.books ?? []) as unknown[];
+    const albums = (j?.albums ?? []) as unknown[];
+    const total = books.length + albums.length + (j?.mp ? 1 : 0);
+    const parsed: WereadShelfBook[] = books
+      .map((it) => {
+        const b = it as Record<string, unknown>;
+        return {
+          bid: String(b.bookId ?? ''),
+          title: String(b.title ?? ''),
+          author: String(b.author ?? ''),
+          category: String(b.category ?? ''),
+          deepLink: String(b.deepLink ?? '') || wereadBookUrl(String(b.bookId ?? '')),
+          readUpdateTime: Number(b.readUpdateTime ?? 0),
+          finished: b.finishReading === 1,
+          isTop: b.isTop === 1,
+        };
+      })
+      .filter((b) => b.bid && b.title);
+    if (!parsed.length) return { success: false, error: 'empty' };
+    return { success: true, data: { books: parsed, total } };
+  } catch (e) {
+    return { success: false, error: e instanceof Error ? e.message : String(e) };
+  } finally {
+    clearTimeout(to);
+  }
+}
+
+// ─── Weread Readdata (阅读统计) ────────────────────────
+
+interface WereadReaddata {
+  totalReadTime: number;
+  readDays: number;
+  dayAverageReadTime: number;
+  longest: { title: string; author: string; readTime: number; deepLink: string }[];
+  categories: string[];
+  categoryWord?: string;
+  timeWord?: string;
+}
+interface WereadReaddataResponse { success: boolean; data?: WereadReaddata; error?: string; }
+
+/** 微信读书阅读统计：/readdata/detail mode=monthly，需 API Key。时长字段单位为秒。 */
+async function handleWereadReaddataFetch(apiKey: string): Promise<WereadReaddataResponse> {
+  if (!apiKey) return { success: false, error: 'no_key' };
+  const ctrl = new AbortController();
+  const to = setTimeout(() => ctrl.abort(), 12000);
+  try {
+    const res = await fetch('https://i.weread.qq.com/api/agent/gateway', {
+      method: 'POST',
+      headers: { Authorization: 'Bearer ' + apiKey, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ api_name: '/readdata/detail', mode: 'monthly', skill_version: '1.0.4' }),
+      cache: 'no-store',
+      signal: ctrl.signal,
+    });
+    if (res.status === 401) return { success: false, error: 'invalid_key' };
+    if (!res.ok) return { success: false, error: 'HTTP ' + res.status };
+    const j = await res.json();
+    if (j?.errcode && j.errcode !== 0) return { success: false, error: String(j.errmsg || j.errcode) };
+    const longest = ((j?.readLongest ?? []) as unknown[])
+      .map((it) => {
+        const x = it as { book?: Record<string, unknown>; albumInfo?: Record<string, unknown>; readTime?: number };
+        const b = x.book ?? x.albumInfo ?? {};
+        const bid = String(b.bookId ?? b.albumId ?? '');
+        return {
+          title: String(b.title ?? b.name ?? ''),
+          author: String(b.author ?? b.authorName ?? ''),
+          readTime: Number(x.readTime ?? 0),
+          deepLink: String(b.deepLink ?? '') || wereadBookUrl(bid),
+        };
+      })
+      .filter((b) => b.title)
+      .slice(0, 3);
+    const categories = ((j?.preferCategory ?? []) as unknown[])
+      .map((c) => String((c as Record<string, unknown>)?.categoryTitle ?? ''))
+      .filter(Boolean)
+      .slice(0, 5);
+    return {
+      success: true,
+      data: {
+        totalReadTime: Number(j?.totalReadTime ?? 0),
+        readDays: Number(j?.readDays ?? 0),
+        dayAverageReadTime: Number(j?.dayAverageReadTime ?? 0),
+        longest,
+        categories,
+        categoryWord: j?.preferCategoryWord ? String(j.preferCategoryWord) : undefined,
+        timeWord: j?.preferTimeWord ? String(j.preferTimeWord) : undefined,
+      },
+    };
+  } catch (e) {
+    return { success: false, error: e instanceof Error ? e.message : String(e) };
+  } finally {
+    clearTimeout(to);
+  }
+}
+
+// ─── Weread Recommend (为你推荐) ────────────────────────
+
+interface WereadRecommendBook { bid: string; title: string; author: string; rating: number; reason: string; deepLink: string; }
+interface WereadRecommendResponse { success: boolean; data?: { books: WereadRecommendBook[] }; error?: string; }
+
+/** 微信读书推荐：/book/recommend，需 API Key。books[].deepLink 直达阅读。 */
+async function handleWereadRecommendFetch(apiKey: string): Promise<WereadRecommendResponse> {
+  if (!apiKey) return { success: false, error: 'no_key' };
+  const ctrl = new AbortController();
+  const to = setTimeout(() => ctrl.abort(), 12000);
+  try {
+    const res = await fetch('https://i.weread.qq.com/api/agent/gateway', {
+      method: 'POST',
+      headers: { Authorization: 'Bearer ' + apiKey, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ api_name: '/book/recommend', count: 10, skill_version: '1.0.4' }),
+      cache: 'no-store',
+      signal: ctrl.signal,
+    });
+    if (res.status === 401) return { success: false, error: 'invalid_key' };
+    if (!res.ok) return { success: false, error: 'HTTP ' + res.status };
+    const j = await res.json();
+    if (j?.errcode && j.errcode !== 0) return { success: false, error: String(j.errmsg || j.errcode) };
+    const books = ((j?.books ?? []) as unknown[])
+      .map((it) => {
+        const b = it as Record<string, unknown>;
+        const info = (b.bookInfo as Record<string, unknown>) ?? {};
+        const bid = String(info.bookId ?? b.bookId ?? '');
+        const dl = String(info.deepLink ?? b.deepLink ?? '');
+        return {
+          bid,
+          title: String(info.title ?? b.title ?? ''),
+          author: String(info.author ?? b.author ?? ''),
+          rating: Number(info.newRating ?? b.newRating ?? 0),
+          reason: String(b.reason ?? info.reason ?? ''),
+          deepLink: dl || wereadBookUrl(bid),
+        };
+      })
+      .filter((b) => b.bid && b.title);
+    if (!books.length) return { success: false, error: 'empty' };
+    // recommend 接口不返回 deepLink，逐本调 /book/info 补 book-detail 链接（并发，失败保留兜底）
+    const enriched = await Promise.all(
+      books.map(async (b) => {
+        if (b.deepLink && b.deepLink !== wereadBookUrl(b.bid)) return b;
+        try {
+          const r = await fetch('https://i.weread.qq.com/api/agent/gateway', {
+            method: 'POST',
+            headers: { Authorization: 'Bearer ' + apiKey, 'Content-Type': 'application/json' },
+            body: JSON.stringify({ api_name: '/book/info', bookId: b.bid, skill_version: '1.0.4' }),
+            cache: 'no-store',
+          });
+          if (r.ok) {
+            const ji = await r.json();
+            if (!ji?.errcode || ji.errcode === 0) {
+              const dl = String(ji?.deepLink ?? '');
+              if (dl) return { ...b, deepLink: dl };
+            }
+          }
+        } catch {}
+        return b;
+      }),
+    );
+    return { success: true, data: { books: enriched } };
+  } catch (e) {
+    return { success: false, error: e instanceof Error ? e.message : String(e) };
+  } finally {
+    clearTimeout(to);
+  }
+}
+
 chrome.runtime.onMessage.addListener((message: { type: string }, _sender, sendResponse) => {
   if (message?.type === 'GOLD_FETCH') {
     handleGoldFetch().then(sendResponse);
@@ -526,6 +718,12 @@ chrome.runtime.onMessage.addListener((message: { type: string }, _sender, sendRe
     handleZhihuFetch().then(sendResponse);
   } else if (message?.type === 'SINA_FLASH_FETCH') {
     handleSinaFlashFetch().then(sendResponse);
+  } else if (message?.type === 'WEREAD_SHELF_FETCH') {
+    handleWereadShelfFetch((message as unknown as { apiKey?: string }).apiKey ?? '').then(sendResponse);
+  } else if (message?.type === 'WEREAD_READDATA_FETCH') {
+    handleWereadReaddataFetch((message as unknown as { apiKey?: string }).apiKey ?? '').then(sendResponse);
+  } else if (message?.type === 'WEREAD_RECOMMEND_FETCH') {
+    handleWereadRecommendFetch((message as unknown as { apiKey?: string }).apiKey ?? '').then(sendResponse);
   } else {
     handlePomodoroMessage(message as PomodoroMessage).then(sendResponse);
   }
