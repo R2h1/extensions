@@ -1037,6 +1037,73 @@ async function handleExchangeFetch(): Promise<ExchangeResponse> {
   }
 }
 
+// ─── AI HOT (AI 资讯 24h 精选) ─────────────────────────
+
+interface AihotItem {
+  id: string;
+  title: string;
+  source: string;
+  publishedAt: string;
+  summary: string;
+  permalink: string;
+  category: string;
+  score: number;
+  url: string;
+}
+interface AihotResponse {
+  success: boolean;
+  data?: { items: AihotItem[]; ts: number };
+  error?: string;
+}
+
+/** AI HOT 公开只读 API：过去 24h 精选条目。默认 curl UA 被 403，浏览器 UA 放行，SW fetch 自带浏览器 UA，无需 DNR 改写。 */
+async function handleAihotFetch(): Promise<AihotResponse> {
+  const ctrl = new AbortController();
+  const to = setTimeout(() => ctrl.abort(), 12000);
+  try {
+    const since = new Date(Date.now() - 86400000).toISOString();
+    const res = await fetch(
+      `https://aihot.virxact.com/api/public/items?mode=selected&since=${since}&take=50`,
+      { cache: 'no-store', signal: ctrl.signal },
+    );
+    if (!res.ok) return { success: false, error: 'HTTP ' + res.status };
+    const j = await res.json();
+    const arr = (j?.items ?? []) as unknown[];
+    const items: AihotItem[] = arr
+      .map((x) => {
+        const it = x as {
+          id?: string;
+          title?: string;
+          source?: string;
+          publishedAt?: string;
+          summary?: string;
+          permalink?: string;
+          category?: string;
+          score?: number;
+          url?: string;
+        };
+        return {
+          id: String(it.id ?? ''),
+          title: String(it.title ?? ''),
+          source: String(it.source ?? ''),
+          publishedAt: String(it.publishedAt ?? ''),
+          summary: String(it.summary ?? ''),
+          permalink: String(it.permalink ?? ''),
+          category: String(it.category ?? ''),
+          score: Number(it.score ?? 0),
+          url: String(it.url ?? ''),
+        };
+      })
+      .filter((x) => x.title && x.permalink);
+    if (!items.length) return { success: false, error: 'empty' };
+    return { success: true, data: { items, ts: Date.now() } };
+  } catch (e) {
+    return { success: false, error: e instanceof Error ? e.message : String(e) };
+  } finally {
+    clearTimeout(to);
+  }
+}
+
 chrome.runtime.onMessage.addListener((message: { type: string }, _sender, sendResponse) => {
   if (message?.type === 'GOLD_FETCH') {
     handleGoldFetch().then(sendResponse);
@@ -1079,6 +1146,8 @@ chrome.runtime.onMessage.addListener((message: { type: string }, _sender, sendRe
     handleWereadSearchFetch(m.apiKey ?? '', m.keyword ?? '').then(sendResponse);
   } else if (message?.type === 'EXCHANGE_FETCH') {
     handleExchangeFetch().then(sendResponse);
+  } else if (message?.type === 'AIHOT_FETCH') {
+    handleAihotFetch().then(sendResponse);
   } else {
     handlePomodoroMessage(message as PomodoroMessage).then(sendResponse);
   }

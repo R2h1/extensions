@@ -16,6 +16,7 @@ import { initMortgage, renderMortgageCard } from './widgets/mortgage';
 import { initBmi, renderBmiCard } from './widgets/bmi';
 import { initCurrency, renderCurrencyCard } from './widgets/currency';
 import { initBookmarks, renderBookmarksCard } from './widgets/bookmarks';
+import { initAihot, renderAihotCard } from './widgets/aihot';
 import { initFund, renderFundCard } from './widgets/fund';
 import { initWeather, renderWeatherCard } from './widgets/weather';
 import { HOT_WIDGETS, renderHotCard, initHotCard } from './widgets/hot';
@@ -94,20 +95,13 @@ const ICONS: Record<string, string> = {
   tools: svg(
     '<path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/>',
   ),
-  games: svg(
-    '<rect x="3" y="3" width="18" height="18" rx="3"/><path d="M8 8h.01M16 8h.01M8 16h.01M16 16h.01M12 12h.01"/>',
-  ),
 };
 const CAT_TREE: TopCat[] = [
   {
     id: 'life',
     name: '生活',
     icon: ICONS.life,
-    subs: [
-      { id: 'weather', name: '天气' },
-      { id: 'calendar', name: '日历' },
-      { id: 'trip', name: '出行' },
-    ],
+    subs: [{ id: 'daily', name: '日常' }],
   },
   {
     id: 'news',
@@ -115,8 +109,7 @@ const CAT_TREE: TopCat[] = [
     icon: ICONS.news,
     subs: [
       { id: 'hot', name: '热搜' },
-      { id: 'news', name: '新闻' },
-      { id: 'flash', name: '快讯' },
+      { id: 'news', name: '资讯' },
     ],
   },
   {
@@ -124,21 +117,16 @@ const CAT_TREE: TopCat[] = [
     name: '娱乐',
     icon: ICONS.fun,
     subs: [
-      { id: 'joke', name: '段子' },
-      { id: 'merit', name: '功德' },
       { id: 'media', name: '影音' },
-      { id: 'read', name: '阅读' },
+      { id: 'joke', name: '趣味' },
+      { id: 'game', name: '游戏' },
     ],
   },
   {
     id: 'work',
     name: '工作',
     icon: ICONS.work,
-    subs: [
-      { id: 'salary', name: '薪资' },
-      { id: 'effi', name: '效率' },
-      { id: 'office', name: '办公' },
-    ],
+    subs: [{ id: 'salary', name: '薪资' }],
   },
   {
     id: 'study',
@@ -146,38 +134,22 @@ const CAT_TREE: TopCat[] = [
     icon: ICONS.study,
     subs: [
       { id: 'wiki', name: '百科' },
-      { id: 'dict', name: '词典' },
-      { id: 'course', name: '课程' },
+      { id: 'read', name: '读书' },
     ],
   },
   {
     id: 'finance',
     name: '理财',
     icon: ICONS.finance,
-    subs: [
-      { id: 'market', name: '行情' },
-      { id: 'stock', name: '股市' },
-      { id: 'rate', name: '汇率' },
-      { id: 'account', name: '记账' },
-    ],
+    subs: [{ id: 'market', name: '行情' }],
   },
   {
     id: 'tools',
     name: '工具',
     icon: ICONS.tools,
     subs: [
-      { id: 'nav', name: '导航' },
-      { id: 'conv', name: '换算' },
       { id: 'calc', name: '计算' },
-    ],
-  },
-  {
-    id: 'games',
-    name: '游戏',
-    icon: ICONS.games,
-    subs: [
-      { id: 'puzzle', name: '益智' },
-      { id: 'casual', name: '休闲' },
+      { id: 'nav', name: '导航' },
     ],
   },
 ];
@@ -189,34 +161,35 @@ interface WID {
   sub: string;
 }
 const ALL_WIDGETS: WID[] = [
-  { id: 'weather', name: '天气', desc: '实时天气', cat: 'life', sub: 'weather' },
-  { id: 'holiday', name: '节假日倒计时', desc: '距下次放假', cat: 'life', sub: 'trip' },
-  { id: 'calendar', name: '日历', desc: '月历+农历', cat: 'life', sub: 'calendar' },
+  { id: 'weather', name: '天气', desc: '实时天气', cat: 'life', sub: 'daily' },
+  { id: 'holiday', name: '节假日倒计时', desc: '距下次放假', cat: 'life', sub: 'daily' },
+  { id: 'calendar', name: '日历', desc: '月历+农历', cat: 'life', sub: 'daily' },
   { id: 'hot_weibo', name: '微博热搜', desc: '微博实时热搜', cat: 'news', sub: 'hot' },
   { id: 'hot_bilibili', name: 'B站热搜', desc: 'B站实时热搜', cat: 'news', sub: 'hot' },
   { id: 'hot_baidu', name: '百度热搜', desc: '百度实时热搜', cat: 'news', sub: 'hot' },
   { id: 'juejin', name: '掘金热榜', desc: '掘金热门文章', cat: 'news', sub: 'news' },
   { id: 'zhihu', name: '知乎日报', desc: '每日精选', cat: 'news', sub: 'news' },
-  { id: 'sina_flash', name: '7x24快讯', desc: '财经实时快讯', cat: 'news', sub: 'flash' },
+  { id: 'sina_flash', name: '7x24快讯', desc: '财经实时快讯', cat: 'news', sub: 'news' },
+  { id: 'aihot', name: 'AI资讯', desc: 'AI 圈 24h 精选', cat: 'news', sub: 'news' },
   { id: 'quote', name: '语录', desc: '随机摸鱼语录', cat: 'fun', sub: 'joke' },
-  { id: 'fish', name: '功德', desc: '敲木鱼计数器', cat: 'fun', sub: 'merit' },
+  { id: 'fish', name: '功德', desc: '敲木鱼计数器', cat: 'fun', sub: 'joke' },
   { id: 'tv', name: '视频', desc: '视频网站', cat: 'fun', sub: 'media' },
   { id: 'music', name: '音乐', desc: '音乐播放器', cat: 'fun', sub: 'media' },
-  { id: 'weread', name: '微信读书', desc: '我的书架', cat: 'fun', sub: 'read' },
-  { id: 'readdata', name: '阅读统计', desc: '本月阅读数据', cat: 'fun', sub: 'read' },
-  { id: 'recommend', name: '为你推荐', desc: '个性化推荐', cat: 'fun', sub: 'read' },
-  { id: 'notes', name: '我的笔记', desc: '笔记与划线', cat: 'fun', sub: 'read' },
-  { id: 'review', name: '书评', desc: '最近在读书评', cat: 'fun', sub: 'read' },
-  { id: 'search', name: '搜书', desc: '搜索书城', cat: 'fun', sub: 'read' },
+  { id: 'weread', name: '微信读书', desc: '我的书架', cat: 'study', sub: 'read' },
+  { id: 'readdata', name: '阅读统计', desc: '本月阅读数据', cat: 'study', sub: 'read' },
+  { id: 'recommend', name: '为你推荐', desc: '个性化推荐', cat: 'study', sub: 'read' },
+  { id: 'notes', name: '我的笔记', desc: '笔记与划线', cat: 'study', sub: 'read' },
+  { id: 'review', name: '书评', desc: '最近在读书评', cat: 'study', sub: 'read' },
+  { id: 'search', name: '搜书', desc: '搜索书城', cat: 'study', sub: 'read' },
   { id: 'salary', name: '薪资跳动', desc: '实时薪资计数器', cat: 'work', sub: 'salary' },
   { id: 'gold', name: '金价', desc: '实时黄金价格', cat: 'finance', sub: 'market' },
   { id: 'fund', name: '基金', desc: '实时基金估值', cat: 'finance', sub: 'market' },
+  { id: 'currency', name: '汇率换算', desc: '实时汇率换算', cat: 'finance', sub: 'market' },
   { id: 'links', name: '网址', desc: '常用快捷网址', cat: 'tools', sub: 'nav' },
   { id: 'bookmarks', name: '书签同步', desc: '浏览器书签栏', cat: 'tools', sub: 'nav' },
   { id: 'tax', name: '个税计算器', desc: '月薪到手税后', cat: 'tools', sub: 'calc' },
   { id: 'mortgage', name: '房贷计算器', desc: '等额本息/本金', cat: 'tools', sub: 'calc' },
   { id: 'bmi', name: 'BMI 计算器', desc: '身体质量指数', cat: 'tools', sub: 'calc' },
-  { id: 'currency', name: '汇率换算', desc: '实时汇率换算', cat: 'tools', sub: 'conv' },
 ];
 type WData = { subs: Record<string, string[]> };
 function subKey(cat: string, sub: string) {
@@ -510,6 +483,7 @@ function getCard(w: WID): string {
   if (w.id === 'review') return renderReviewCard();
   if (w.id === 'search') return renderSearchCard();
   if (w.id === 'sina_flash') return renderSinaFlashCard();
+  if (w.id === 'aihot') return renderAihotCard();
   if (w.id === 'tax') return renderTaxCard();
   if (w.id === 'mortgage') return renderMortgageCard();
   if (w.id === 'bmi') return renderBmiCard();
@@ -590,6 +564,9 @@ async function initW(id: string) {
       break;
     case 'sina_flash':
       initSinaFlash();
+      break;
+    case 'aihot':
+      initAihot();
       break;
     case 'tax':
       initTax();
