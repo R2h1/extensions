@@ -481,10 +481,15 @@ html.locked .clock-bar{padding:0}
 .cur-form input{padding:8px 10px;font-size:13px;border:none;border-radius:var(--radius-xs);background:var(--nm-surface);color:var(--text);outline:none;font-family:inherit;box-shadow:var(--nm-in);width:100%}
 .cur-form input:focus{box-shadow:var(--nm-in),0 0 0 1.5px var(--accent)}
 .cur-row{display:flex;align-items:center;gap:6px}
-.cur-row select{flex:1;min-width:0;padding:7px 8px;font-size:12px;border:none;border-radius:var(--radius-xs);background:var(--nm-surface);color:var(--text);outline:none;font-family:inherit;box-shadow:var(--nm-in);cursor:pointer}
+.cur-dd{flex:1;min-width:0}
+.cur-dd .cal-dd-btn{width:100%;justify-content:center;padding:7px 8px;font-size:12px;font-weight:500;color:var(--text);box-shadow:var(--nm-in)}
+.cur-dd .cal-dd-btn:hover{color:var(--accent)}
+.cur-dd.open .cal-dd-btn{color:var(--accent);box-shadow:var(--nm-in-sm)}
+.cur-dd .cal-dd-list{left:0;transform:none;min-width:100%}
+.cur-ic{flex-shrink:0}
 .cur-swap{width:34px;height:32px;border:none;border-radius:var(--radius-xs);background:var(--glass-accent);color:var(--accent);cursor:pointer;font-size:14px;flex-shrink:0;font-family:inherit;transition:all .15s}
 .cur-swap:hover{background:var(--accent);color:#fff}
-.cur-result{margin-top:10px;background:var(--nm-surface);border-radius:var(--radius-sm);padding:12px;box-shadow:var(--nm-in);text-align:center}
+.cur-result{margin-top:10px;background:var(--nm-surface);border-radius:var(--radius-sm);padding:12px;text-align:center}
 .cur-amount{font-size:26px;font-weight:700;color:var(--accent);font-variant-numeric:tabular-nums;font-family:'Courier New',ui-monospace,monospace;letter-spacing:-.5px;line-height:1.2}
 .cur-unit{font-size:13px;color:var(--text-tertiary);font-weight:500}
 .cur-rate{font-size:12px;color:var(--text-secondary);margin-top:6px}
