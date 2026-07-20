@@ -586,7 +586,7 @@ async function initW(id: string) {
   }
 }
 
-document.getElementById('addWidgetBtn')!.addEventListener('click', openWidgetModal);
+document.getElementById('addWidgetBtn')!.addEventListener('click', () => openWidgetModal(true));
 document.getElementById('settingsBtn')!.addEventListener('click', openSettings);
 
 // ── 快捷网址卡片 ──
@@ -683,8 +683,59 @@ async function renderWmList(cat: string, sub: string) {
       }),
     );
 }
-async function openWidgetModal() {
-  await renderWmList(curCat, curSub);
+let wmCat = curCat;
+let wmSub = curSub;
+function renderWmSidebar() {
+  const sb = document.getElementById('wmSidebar')!;
+  sb.innerHTML = CAT_TREE.map(
+    (top) =>
+      `<button class="wm-cat${top.id === wmCat ? ' active' : ''}" data-cat="${top.id}">${top.name}</button>`,
+  ).join('');
+  sb.querySelectorAll('.wm-cat').forEach((b) =>
+    b.addEventListener('click', () => {
+      wmCat = (b as HTMLElement).dataset.cat!;
+      const top = CAT_TREE.find((t) => t.id === wmCat);
+      wmSub = top?.subs[0]?.id ?? '';
+      renderWmSidebar();
+      renderWmTabs();
+      renderWmList(wmCat, wmSub);
+    }),
+  );
+}
+function renderWmTabs() {
+  const tabs = document.getElementById('wmTabs')!;
+  const top = CAT_TREE.find((t) => t.id === wmCat);
+  const subs = top?.subs ?? [];
+  if (subs.length <= 1) {
+    tabs.style.display = 'none';
+    return;
+  }
+  tabs.style.display = '';
+  tabs.innerHTML = subs
+    .map(
+      (s) => `<button class="wm-tab${s.id === wmSub ? ' active' : ''}" data-sub="${s.id}">${s.name}</button>`,
+    )
+    .join('');
+  tabs.querySelectorAll('.wm-tab').forEach((b) =>
+    b.addEventListener('click', () => {
+      wmSub = (b as HTMLElement).dataset.sub!;
+      renderWmTabs();
+      renderWmList(wmCat, wmSub);
+    }),
+  );
+}
+async function openWidgetModal(showTree: boolean) {
+  wmCat = curCat;
+  wmSub = curSub;
+  const sb = document.getElementById('wmSidebar')!;
+  if (showTree) {
+    renderWmSidebar();
+    sb.style.display = '';
+  } else {
+    sb.style.display = 'none';
+  }
+  renderWmTabs();
+  await renderWmList(wmCat, wmSub);
   wm.classList.add('open');
 }
 
@@ -1620,7 +1671,7 @@ document.addEventListener('contextmenu', (e) => {
 document.addEventListener('click', () => ctxMenu.classList.remove('open'));
 document.getElementById('ctxWidgets')!.addEventListener('click', () => {
   ctxMenu.classList.remove('open');
-  openWidgetModal();
+  openWidgetModal(false);
 });
 document.getElementById('ctxWallpaper')!.addEventListener('click', async () => {
   ctxMenu.classList.remove('open');

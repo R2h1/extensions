@@ -68,7 +68,7 @@ html.locked .clock-bar{padding:0}
 .msb:hover{color:var(--text-secondary);background:rgba(0,0,0,0.03)}
 .msb.active{color:var(--accent);background:var(--glass-accent)}
 .modal-content{flex:1;padding:20px 24px;overflow-y:auto;min-width:0}
-.wg-item{display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:0.5px solid rgba(0,0,0,0.04)}
+.wg-item{display:flex;align-items:center;justify-content:space-between;padding:10px 6px 10px 0;border-bottom:0.5px solid rgba(0,0,0,0.04)}
 .wg-item:last-child{border-bottom:none}
 .wg-name{font-size:13px;color:var(--text)}
 .wg-desc{font-size:11px;color:var(--text-tertiary)}
@@ -542,6 +542,18 @@ html.locked .clock-bar{padding:0}
 .aihot-score{font-style:normal;font-size:9px;color:var(--text-tertiary);background:var(--glass);border:0.5px solid var(--glass-border);padding:0 4px;border-radius:3px;flex-shrink:0;line-height:1.5;font-variant-numeric:tabular-nums}
 .aihot-list::-webkit-scrollbar{width:5px}
 .aihot-list::-webkit-scrollbar-thumb{background:rgba(0,0,0,0.12);border-radius:3px}
+/* 组件库弹窗：左侧一级 + 右侧顶部二级 tab */
+.wm-sidebar{width:110px;flex-shrink:0;padding:12px 6px;border-right:0.5px solid rgba(0,0,0,0.05);display:flex;flex-direction:column;gap:2px;overflow-y:auto}
+.wm-cat{display:flex;align-items:center;padding:8px 10px;border-radius:var(--radius-xs);background:transparent;border:none;color:var(--text-tertiary);font-size:12px;font-family:inherit;cursor:pointer;transition:all .2s;text-align:left;width:100%}
+.wm-cat:hover{color:var(--text-secondary);background:rgba(0,0,0,0.03)}
+.wm-cat.active{color:var(--accent);background:var(--glass-accent)}
+.wm-tabs{display:flex;gap:4px;flex-wrap:wrap;padding-bottom:12px;border-bottom:0.5px solid rgba(0,0,0,0.05);margin-bottom:12px}
+.wm-tab{padding:5px 12px;border-radius:var(--radius-xs);font-size:11px;font-weight:500;color:var(--text-tertiary);cursor:pointer;transition:all .15s;user-select:none;background:transparent;border:none;font-family:inherit}
+.wm-tab:hover{color:var(--text-secondary)}
+.wm-tab.active{background:var(--nm-surface);color:var(--accent);box-shadow:2px 2px 6px rgba(174,174,178,.3),-2px -2px 6px rgba(255,255,255,.8);font-weight:600}
+#widgetList{max-height:168px;overflow-y:auto}
+#widgetList::-webkit-scrollbar{width:5px}
+#widgetList::-webkit-scrollbar-thumb{background:rgba(0,0,0,0.12);border-radius:3px}
 </style>
 <script src="boot.js"></script>
 </head>
@@ -559,7 +571,7 @@ html.locked .clock-bar{padding:0}
   </div></main>
 </div>
 <div class="ctx-menu" id="ctxMenu"><button id="ctxWidgets">组件库</button><button id="ctxWallpaper">更换壁纸</button></div>
-<div class="mo" id="widgetModal"><div class="ms"><div class="mh"><span class="mt">组件库</span><button class="mc" id="wmClose">x</button></div><div class="modal-split"><div class="modal-content" id="widgetList"></div></div></div></div>
+<div class="mo" id="widgetModal"><div class="ms"><div class="mh"><span class="mt">组件库</span><button class="mc" id="wmClose">x</button></div><div class="modal-split"><div class="wm-sidebar" id="wmSidebar"></div><div class="modal-content"><div class="wm-tabs" id="wmTabs"></div><div id="widgetList"></div></div></div></div></div>
 <div class="mo" id="settingsModal"><div class="ms"><div class="mh"><span class="mt">设置</span><button class="mc" id="smClose">x</button></div><div class="modal-split"><div class="modal-sidebar" id="smSidebar"><button class="msb active" data-s="time">时间</button><button class="msb" data-s="quote">语录</button><button class="msb" data-s="salary">发薪日</button></div><div class="modal-content" id="settingsBody"></div></div></div></div>
 <div class="mo" id="wallpaperModal"><div class="ms" style="max-width:600px"><div class="mh"><span class="mt">更换壁纸</span><button class="mc" id="wpClose">x</button></div><div class="modal-content" id="wpBody" style="padding:16px 20px 20px"></div></div></div>
 <script src="newtab.js"></script>
