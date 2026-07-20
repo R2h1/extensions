@@ -19,6 +19,11 @@ export function renderWeatherCard(): string {
         <div class="weather-sub-i"><span>体感</span><span id="weatherFeel">--</span></div>
         <div class="weather-sub-i"><span>湿度</span><span id="weatherHum">--</span></div>
         <div class="weather-sub-i"><span>风速</span><span id="weatherWind">--</span></div>
+        <div class="weather-sub-i"><span>空气</span><span id="weatherAqi">--</span></div>
+      </div>
+      <div class="weather-daily" id="weatherDaily" style="display:none">
+        <div class="weather-daily-head">7天预报</div>
+        <div class="weather-daily-grid" id="weatherDailyGrid"></div>
       </div>
     </div>`;
 }
@@ -29,6 +34,17 @@ interface WCity {
   lat: number;
   lon: number;
 }
+interface WDaily {
+  code: number;
+  tmax: number;
+  tmin: number;
+  pop: number;
+}
+interface WAqi {
+  usAqi: number;
+  pm25: number;
+  pm10: number;
+}
 interface WCache {
   temp: number;
   feel: number;
@@ -37,6 +53,8 @@ interface WCache {
   code: number;
   ts: number;
   city: string;
+  daily?: WDaily[];
+  aqi?: WAqi | null;
 }
 const WMO: Record<number, { t: string; e: string }> = {
   0: { t: '晴', e: '☀️' },
@@ -95,6 +113,21 @@ function fmtWTime(ts: number) {
   const d = new Date(ts);
   return pad(d.getHours()) + ':' + pad(d.getMinutes());
 }
+function aqiLevel(v: number): { label: string; color: string } {
+  if (v <= 50) return { label: '优', color: '#22c55e' };
+  if (v <= 100) return { label: '良', color: '#eab308' };
+  if (v <= 150) return { label: '轻度', color: '#f97316' };
+  if (v <= 200) return { label: '中度', color: '#ef4444' };
+  if (v <= 300) return { label: '重度', color: '#a855f7' };
+  return { label: '严重', color: '#7f1d1d' };
+}
+function dailyWeekday(i: number): string {
+  if (i === 0) return '今';
+  if (i === 1) return '明';
+  const d = new Date();
+  d.setDate(d.getDate() + i);
+  return '周' + ['日', '一', '二', '三', '四', '五', '六'][d.getDay()];
+}
 function renderWeather(c: WCache | null, error: boolean) {
   const cityEl = document.getElementById('weatherCity');
   const iconEl = document.getElementById('weatherIcon');
@@ -117,6 +150,33 @@ function renderWeather(c: WCache | null, error: boolean) {
   if (humEl) humEl.textContent = c.hum + '%';
   if (windEl) windEl.textContent = Math.round(c.wind) + ' km/h';
   if (updEl) updEl.textContent = (error ? '⚠ 更新失败 · ' : '') + fmtWTime(c.ts) + ' 更新';
+  const aqiEl = document.getElementById('weatherAqi');
+  if (aqiEl) {
+    if (c.aqi) {
+      const lv = aqiLevel(c.aqi.usAqi);
+      aqiEl.textContent = `${Math.round(c.aqi.usAqi)} ${lv.label}`;
+      aqiEl.style.color = lv.color;
+      aqiEl.setAttribute('title', `PM2.5 ${Math.round(c.aqi.pm25)} · PM10 ${Math.round(c.aqi.pm10)}`);
+    } else {
+      aqiEl.textContent = '--';
+      aqiEl.style.color = '';
+    }
+  }
+  const dailyWrap = document.getElementById('weatherDaily');
+  const gridEl = document.getElementById('weatherDailyGrid');
+  if (dailyWrap && gridEl) {
+    if (c.daily && c.daily.length) {
+      gridEl.innerHTML = c.daily
+        .map((d, i) => {
+          const wmo = WMO[d.code] || { t: '', e: '🌡️' };
+          return `<div class="weather-dcell"><span class="weather-dwd">${dailyWeekday(i)}</span><span class="weather-dicon">${wmo.e}</span><span class="weather-dtemp">${Math.round(d.tmax)}°/${Math.round(d.tmin)}°</span>${d.pop >= 30 ? `<span class="weather-dpop">${d.pop}%</span>` : ''}</div>`;
+        })
+        .join('');
+      dailyWrap.style.display = '';
+    } else {
+      dailyWrap.style.display = 'none';
+    }
+  }
 }
 async function geocodeCity(name: string): Promise<WCity | null> {
   const url = `https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(name)}&count=1&language=zh`;
@@ -143,12 +203,27 @@ async function refreshWeather() {
   wLoading = true;
   btn?.classList.add('spin');
   try {
-    const url = `https://api.open-meteo.com/v1/forecast?latitude=${wCity.lat}&longitude=${wCity.lon}&current=temperature_2m,relative_humidity_2m,apparent_temperature,weather_code,wind_speed_10m&timezone=auto`;
-    const res = await fetch(url);
+    const url = `https://api.open-meteo.com/v1/forecast?latitude=${wCity.lat}&longitude=${wCity.lon}&current=temperature_2m,relative_humidity_2m,apparent_temperature,weather_code,wind_speed_10m&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max&forecast_days=7&timezone=auto`;
+    const aqiUrl = `https://air-quality-api.open-meteo.com/v1/air-quality?latitude=${wCity.lat}&longitude=${wCity.lon}&current=pm2_5,pm10,us_aqi&timezone=auto`;
+    const [res, aRes] = await Promise.all([fetch(url), fetch(aqiUrl).catch(() => null)]);
     if (!res.ok) throw new Error('HTTP ' + res.status);
     const j = await res.json();
     const cur = j?.current;
     if (!cur) throw new Error('bad data');
+    const daily: WDaily[] = (j?.daily?.time ?? []).map((_: string, i: number) => ({
+      code: j.daily.weather_code[i],
+      tmax: j.daily.temperature_2m_max[i],
+      tmin: j.daily.temperature_2m_min[i],
+      pop: j.daily.precipitation_probability_max[i] ?? 0,
+    }));
+    let aqi: WAqi | null = null;
+    if (aRes && aRes.ok) {
+      const aj = await aRes.json();
+      const ac = aj?.current;
+      if (ac && typeof ac.us_aqi === 'number') {
+        aqi = { usAqi: ac.us_aqi, pm25: ac.pm2_5 ?? 0, pm10: ac.pm10 ?? 0 };
+      }
+    }
     const c: WCache = {
       temp: cur.temperature_2m,
       feel: cur.apparent_temperature,
@@ -157,6 +232,8 @@ async function refreshWeather() {
       code: cur.weather_code,
       ts: Date.now(),
       city: wCity.name,
+      daily,
+      aqi,
     };
     renderWeather(c, false);
     saveWCache(c);

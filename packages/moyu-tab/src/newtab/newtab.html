@@ -239,6 +239,15 @@ html.locked .clock-bar{padding:0}
 .weather-sub-i{display:flex;flex-direction:column;gap:2px}
 .weather-sub-i span:first-child{font-size:10px;color:var(--text-tertiary)}
 .weather-sub-i span:last-child{font-size:13px;color:var(--text-secondary);font-variant-numeric:tabular-nums;font-family:'Courier New',ui-monospace,monospace}
+/* 天气7天预报 */
+.weather-daily{margin-top:10px;border-top:0.5px solid var(--glass-border);padding-top:8px}
+.weather-daily-head{font-size:11px;color:var(--text-tertiary);margin-bottom:6px;letter-spacing:.3px}
+.weather-daily-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:2px}
+.weather-dcell{display:flex;flex-direction:column;align-items:center;gap:2px;padding:2px 0}
+.weather-dwd{font-size:10px;color:var(--text-tertiary)}
+.weather-dicon{font-size:16px;line-height:1}
+.weather-dtemp{font-size:10px;color:var(--text-secondary);font-variant-numeric:tabular-nums;font-family:'Courier New',ui-monospace,monospace;white-space:nowrap}
+.weather-dpop{font-size:9px;color:#3b82f6;font-variant-numeric:tabular-nums}
 /* 节假日卡片 */
 .holiday-card{padding:12px 14px}
 .holiday-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}

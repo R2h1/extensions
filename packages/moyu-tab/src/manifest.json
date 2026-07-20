@@ -27,6 +27,7 @@
     "https://fundgz.1234567.com.cn/*",
     "https://api.open-meteo.com/*",
     "https://geocoding-api.open-meteo.com/*",
+    "https://air-quality-api.open-meteo.com/*",
     "https://weibo.com/*",
     "https://api.bilibili.com/*",
     "https://top.baidu.com/*",
