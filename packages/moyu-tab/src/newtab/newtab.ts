@@ -364,22 +364,16 @@ function getCard(w: WID): string {
         <button class="cal-nav" id="calNext">›</button>
         <button class="cal-today" id="calToday" title="回到今日">今</button>
       </div>
-      <div class="cal-weekbar">
-        <div class="cal-weekend">
-          <span class="cal-weekend-label">距周末</span>
-          <span class="cal-weekend-num" id="holidayWeekDays">--</span>
-          <span class="cal-weekend-unit">天</span>
-          <span class="cal-weekend-date" id="holidayWeekDate">--</span>
-        </div>
-        <div class="cal-head-meta">
-          <span class="holiday-upd" id="holidayUpd">加载中…</span>
-          <button class="holiday-refresh" id="holidayRefresh" title="刷新">↻</button>
-        </div>
-      </div>
-      <div class="cal-week"><span>一</span><span>二</span><span>三</span><span>四</span><span>五</span><span>六</span><span>日</span></div>
+      <div class="cal-week"><span>一</span><span>二</span><span>三</span><span>四</span><span>五</span><span class="cal-wkend">六</span><span class="cal-wkend">日</span></div>
       <div class="cal-grid" id="calGrid"></div>
+      <div class="cal-wkstat">
+        <span class="cal-wk-label">距周末</span>
+        <span class="cal-wk-num" id="holidayWeekDays">--</span>
+        <span class="cal-wk-unit">天</span>
+        <span class="cal-wk-date" id="holidayWeekDate">--</span>
+      </div>
       <div class="cal-hol">
-        <div class="hol-list-head">接下来的假期</div>
+        <div class="hol-list-head"><span>接下来的假期</span><span class="cal-head-meta"><span class="holiday-upd" id="holidayUpd">加载中…</span><button class="holiday-refresh" id="holidayRefresh" title="刷新">↻</button></span></div>
         <div class="hol-list" id="holidayList"><div class="hot-empty">加载中…</div></div>
       </div>
     </div>`;
@@ -1659,9 +1653,10 @@ function renderCalendar() {
   for (let i = 0; i < firstWeekday; i++) html += '<div class="cal-cell blank"></div>';
   for (let d = 1; d <= lastDate; d++) {
     const isToday = isCurMonth && d === today.getDate();
+    const isWeekend = (firstWeekday + d - 1) % 7 >= 5;
     const lunar = getLunar(y, m + 1, d);
     const lunarText = d === 1 ? (lunar.cM ? lunar.cM + '月' : '') : lunar.cD || '';
-    html += `<div class="cal-cell${isToday ? ' today' : ''}"><span class="cal-d">${d}</span><span class="cal-l">${lunarText}</span></div>`;
+    html += `<div class="cal-cell${isToday ? ' today' : ''}${isWeekend ? ' weekend' : ''}"><span class="cal-d">${d}</span><span class="cal-l">${lunarText}</span></div>`;
   }
   grid.innerHTML = html;
 }

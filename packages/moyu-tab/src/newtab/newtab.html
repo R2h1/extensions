@@ -239,7 +239,7 @@ html.locked .clock-bar{padding:0}
 .holiday-refresh:hover{color:var(--accent)}
 .holiday-refresh:active{box-shadow:var(--nm-in-sm)}
 .holiday-refresh.spin{color:var(--accent);animation:goldspin 1s linear infinite}
-.hol-list-head{font-size:11px;color:var(--text-tertiary);margin:10px 0 4px;letter-spacing:.3px}
+.hol-list-head{display:flex;align-items:center;justify-content:space-between;gap:8px;font-size:11px;color:var(--text-tertiary);margin:10px 0 4px;letter-spacing:.3px}
 .hol-list{display:flex;flex-direction:column}
 .hol-row{display:flex;align-items:center;gap:8px;padding:5px 2px;border-bottom:0.5px solid var(--glass-border)}
 .hol-row:last-child{border-bottom:none}
@@ -254,13 +254,12 @@ html.locked .clock-bar{padding:0}
 .hot-swap i{font-style:normal;font-size:10px;color:var(--text-tertiary)}
 /* 日历卡片 */
 .cal-card{padding:14px}
-.cal-weekbar{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:6px 10px;margin-bottom:8px;background:var(--glass-accent);border-radius:var(--radius-sm)}
-.cal-weekend{display:flex;align-items:baseline;gap:4px}
-.cal-weekend-label{font-size:11px;color:var(--text-tertiary)}
-.cal-weekend-num{font-size:16px;font-weight:700;color:var(--accent);font-variant-numeric:tabular-nums;font-family:'Courier New',ui-monospace,monospace;line-height:1}
-.cal-weekend-unit{font-size:11px;color:var(--text-secondary)}
-.cal-weekend-date{font-size:11px;color:var(--text-tertiary);font-variant-numeric:tabular-nums;white-space:nowrap}
-.cal-weekend-date::before{content:'·';margin-right:4px;color:var(--text-tertiary)}
+.cal-wkend{opacity:.55}
+.cal-cell.weekend .cal-d{color:var(--text-tertiary)}
+.cal-wkstat{display:flex;align-items:baseline;justify-content:center;gap:4px;margin-top:8px;font-size:11px;color:var(--text-tertiary)}
+.cal-wk-num{font-size:13px;font-weight:700;color:var(--text-secondary);font-variant-numeric:tabular-nums;font-family:'Courier New',ui-monospace,monospace}
+.cal-wk-date{font-size:11px;color:var(--text-tertiary);font-variant-numeric:tabular-nums}
+.cal-wk-date::before{content:'·';margin-right:4px}
 .cal-head-meta{display:flex;align-items:center;gap:6px}
 .cal-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
 .cal-title{font-size:14px;font-weight:600;color:var(--text-secondary);letter-spacing:.5px}
