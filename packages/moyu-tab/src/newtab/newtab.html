@@ -19,15 +19,15 @@ html.locked .entry-grid{opacity:0;visibility:hidden;transition:opacity 0.3s ease
 html.locked #timeDisplay{font-size:120px!important}
 html.locked #dateDisplay{font-size:24px!important;transition:font-size 0.5s ease}
 .app{display:flex;height:100vh;position:relative;z-index:1}
-.sidebar{width:120px;flex-shrink:0;display:flex;flex-direction:column;padding:28px 8px 12px;background:var(--nm-surface);border-right:0.5px solid rgba(0,0,0,0.05)}
+.sidebar{width:104px;flex-shrink:0;display:flex;flex-direction:column;padding:24px 8px 12px;background:var(--nm-surface);border-right:0.5px solid rgba(0,0,0,0.05)}
 .sidebar-nav{flex:1;display:flex;flex-direction:column;gap:2px}
 .ic{width:20px;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0}
-.sb-btn{display:flex;align-items:center;gap:4px;padding:8px 12px;border-radius:var(--radius-xs);background:transparent;border:none;color:var(--text-secondary);font-size:13px;font-weight:500;font-family:inherit;cursor:pointer;transition:all 0.15s;text-align:left;width:100%;position:relative}
+.sb-btn{display:flex;align-items:center;gap:4px;padding:8px 10px;border-radius:var(--radius-xs);background:transparent;border:none;color:var(--text-secondary);font-size:13px;font-weight:500;font-family:inherit;cursor:pointer;transition:all 0.15s;text-align:left;width:100%;position:relative}
 .sb-btn:hover{color:var(--text);background:var(--glass-accent)}
 .sb-btn.active{color:var(--accent);background:var(--nm-surface);font-weight:600;box-shadow:3px 3px 8px rgba(174,174,178,.3),-3px -3px 8px rgba(255,255,255,.8)}
 .sb-div{height:0.5px;background:rgba(0,0,0,0.06);margin:6px 12px}
 .sb-group{display:flex;flex-direction:column}
-.sb-top{justify-content:space-between}
+.sb-top{justify-content:flex-start}
 .sb-arrow{font-size:10px;color:var(--text-tertiary);transition:transform .2s}
 .sb-group.open .sb-arrow{transform:rotate(180deg)}
 .sb-subs{display:none;flex-direction:column;gap:1px;padding-left:14px}
@@ -36,14 +36,20 @@ html.locked #dateDisplay{font-size:24px!important;transition:font-size 0.5s ease
 .sb-sub:hover{color:var(--text-secondary);background:var(--glass-accent)}
 .sb-sub.active{color:var(--accent);font-weight:600;background:var(--glass-accent)}
 .content{flex:1;display:flex;justify-content:center;overflow-y:auto;min-width:0}
-.ci{width:100%;max-width:768px;display:flex;flex-direction:column;padding:32px 28px 20px}
-.cat-panel{display:none;column-count:2;column-gap:10px;padding:4px 0}
+.ci{width:100%;max-width:1040px;display:flex;flex-direction:column;padding:32px 28px 20px}
+.cat-panel{display:none;column-count:3;column-gap:10px;padding:4px 0}
 .cat-panel.active{display:block}
 .cat-panel > *{break-inside:avoid;margin-bottom:10px}
 .sal-card{container-type:inline-size}
 .clock-bar{text-align:center;padding:0 20px 12px}
 .cat-panel .empty{column-span:all;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;padding:36px 0;color:var(--text-tertiary);font-size:13px}
 .cat-panel .add-hint{font-size:11px;color:var(--text-tertiary)}
+.sub-filter{display:flex;gap:6px;flex-wrap:wrap;padding:2px 4px 14px}
+.sub-filter:empty{display:none}
+.sf-chip{padding:5px 12px;border-radius:var(--radius-xs);font-size:12px;font-weight:500;color:var(--text-tertiary);cursor:pointer;background:transparent;border:none;font-family:inherit;transition:all .15s}
+.sf-chip:hover{color:var(--text-secondary);background:var(--glass-accent)}
+.sf-chip.active{color:var(--accent);background:var(--nm-surface);box-shadow:var(--nm-out-sm);font-weight:600}
+html.locked .sub-filter{display:none}
 .widget-card{background:var(--nm-surface);backdrop-filter:none;-webkit-backdrop-filter:none;border:none;border-radius:var(--radius);padding:16px;box-shadow:var(--nm-out);transition:all 0.2s}
 .widget-card:hover{border:none;background:var(--nm-surface);box-shadow:var(--nm-out-h)}
 .widget-card.clickable{cursor:pointer}
@@ -581,6 +587,7 @@ html.locked .clock-bar{padding:0}
   </nav>
   <main class="content"><div class="ci">
     <div class="clock-bar" id="clockBar"><div id="wg-clock" class="wg-clock"><span style="font-size:100px;font-weight:600;letter-spacing:6px;color:white;line-height:1;cursor:pointer" id="timeDisplay">--:--</span><div style="font-size:20px;color:white;margin-top:10px;letter-spacing:2px" id="dateDisplay"></div></div></div>
+    <div class="sub-filter" id="subFilter"></div>
     <div class="cat-panel active" id="panel"></div>
   </div></main>
 </div>

@@ -20,6 +20,7 @@ import { initAihot, renderAihotCard } from './widgets/aihot';
 import { initFund, renderFundCard } from './widgets/fund';
 import { initWeather, renderWeatherCard } from './widgets/weather';
 import { HOT_WIDGETS, renderHotCard, initHotCard } from './widgets/hot';
+import { CAT_TREE, ALL_WIDGETS, TopCat, WID } from './config';
 
 const SM = 'moyu_merit',
   SS = 'moyu_schedule',
@@ -62,135 +63,7 @@ interface SalStt {
   monthlyIncome: number;
   payDay: number;
 }
-interface SubCat {
-  id: string;
-  name: string;
-}
-interface TopCat {
-  id: string;
-  name: string;
-  icon: string;
-  subs: SubCat[];
-}
-function svg(p: string) {
-  return `<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${p}</svg>`;
-}
-const ICONS: Record<string, string> = {
-  life: svg(
-    '<circle cx="12" cy="12" r="4"/><path d="M12 3v2M12 19v2M5.6 5.6l1.4 1.4M17 17l1.4 1.4M3 12h2M19 12h2M5.6 18.4l1.4-1.4M17 7l1.4-1.4"/>',
-  ),
-  news: svg(
-    '<path d="M18 8a6 6 0 1 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/>',
-  ),
-  fun: svg(
-    '<path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/>',
-  ),
-  work: svg(
-    '<rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/>',
-  ),
-  study: svg(
-    '<path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>',
-  ),
-  finance: svg('<path d="M3 17l6-6 4 4 8-8"/><path d="M21 7v6h-6"/>'),
-  tools: svg(
-    '<path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/>',
-  ),
-};
-const CAT_TREE: TopCat[] = [
-  {
-    id: 'life',
-    name: '生活',
-    icon: ICONS.life,
-    subs: [{ id: 'daily', name: '日常' }],
-  },
-  {
-    id: 'news',
-    name: '资讯',
-    icon: ICONS.news,
-    subs: [
-      { id: 'hot', name: '热搜' },
-      { id: 'news', name: '资讯' },
-    ],
-  },
-  {
-    id: 'fun',
-    name: '娱乐',
-    icon: ICONS.fun,
-    subs: [
-      { id: 'media', name: '影音' },
-      { id: 'joke', name: '趣味' },
-      { id: 'game', name: '游戏' },
-    ],
-  },
-  {
-    id: 'work',
-    name: '工作',
-    icon: ICONS.work,
-    subs: [{ id: 'salary', name: '薪资' }],
-  },
-  {
-    id: 'study',
-    name: '学习',
-    icon: ICONS.study,
-    subs: [
-      { id: 'wiki', name: '百科' },
-      { id: 'read', name: '读书' },
-    ],
-  },
-  {
-    id: 'finance',
-    name: '理财',
-    icon: ICONS.finance,
-    subs: [{ id: 'market', name: '行情' }],
-  },
-  {
-    id: 'tools',
-    name: '工具',
-    icon: ICONS.tools,
-    subs: [
-      { id: 'calc', name: '计算' },
-      { id: 'nav', name: '导航' },
-    ],
-  },
-];
-interface WID {
-  id: string;
-  name: string;
-  desc: string;
-  cat: string;
-  sub: string;
-}
-const ALL_WIDGETS: WID[] = [
-  { id: 'weather', name: '天气', desc: '实时天气', cat: 'life', sub: 'daily' },
-  { id: 'holiday', name: '节假日倒计时', desc: '距下次放假', cat: 'life', sub: 'daily' },
-  { id: 'calendar', name: '日历', desc: '月历+农历', cat: 'life', sub: 'daily' },
-  { id: 'hot_weibo', name: '微博热搜', desc: '微博实时热搜', cat: 'news', sub: 'hot' },
-  { id: 'hot_bilibili', name: 'B站热搜', desc: 'B站实时热搜', cat: 'news', sub: 'hot' },
-  { id: 'hot_baidu', name: '百度热搜', desc: '百度实时热搜', cat: 'news', sub: 'hot' },
-  { id: 'juejin', name: '掘金热榜', desc: '掘金热门文章', cat: 'news', sub: 'news' },
-  { id: 'zhihu', name: '知乎日报', desc: '每日精选', cat: 'news', sub: 'news' },
-  { id: 'sina_flash', name: '7x24快讯', desc: '财经实时快讯', cat: 'news', sub: 'news' },
-  { id: 'aihot', name: 'AI资讯', desc: 'AI 圈 24h 精选', cat: 'news', sub: 'news' },
-  { id: 'quote', name: '语录', desc: '随机摸鱼语录', cat: 'fun', sub: 'joke' },
-  { id: 'fish', name: '功德', desc: '敲木鱼计数器', cat: 'fun', sub: 'joke' },
-  { id: 'tv', name: '视频', desc: '视频网站', cat: 'fun', sub: 'media' },
-  { id: 'music', name: '音乐', desc: '音乐播放器', cat: 'fun', sub: 'media' },
-  { id: 'weread', name: '微信读书', desc: '我的书架', cat: 'study', sub: 'read' },
-  { id: 'readdata', name: '阅读统计', desc: '本月阅读数据', cat: 'study', sub: 'read' },
-  { id: 'recommend', name: '为你推荐', desc: '个性化推荐', cat: 'study', sub: 'read' },
-  { id: 'notes', name: '我的笔记', desc: '笔记与划线', cat: 'study', sub: 'read' },
-  { id: 'review', name: '书评', desc: '最近在读书评', cat: 'study', sub: 'read' },
-  { id: 'search', name: '搜书', desc: '搜索书城', cat: 'study', sub: 'read' },
-  { id: 'salary', name: '薪资跳动', desc: '实时薪资计数器', cat: 'work', sub: 'salary' },
-  { id: 'gold', name: '金价', desc: '实时黄金价格', cat: 'finance', sub: 'market' },
-  { id: 'fund', name: '基金', desc: '实时基金估值', cat: 'finance', sub: 'market' },
-  { id: 'currency', name: '汇率换算', desc: '实时汇率换算', cat: 'finance', sub: 'market' },
-  { id: 'links', name: '网址', desc: '常用快捷网址', cat: 'tools', sub: 'nav' },
-  { id: 'bookmarks', name: '书签同步', desc: '浏览器书签栏', cat: 'tools', sub: 'nav' },
-  { id: 'tax', name: '个税计算器', desc: '月薪到手税后', cat: 'tools', sub: 'calc' },
-  { id: 'mortgage', name: '房贷计算器', desc: '等额本息/本金', cat: 'tools', sub: 'calc' },
-  { id: 'bmi', name: 'BMI 计算器', desc: '身体质量指数', cat: 'tools', sub: 'calc' },
-];
+// 类型、图标、分类树、组件元数据统一从 ./config 导入（消除与 config.ts 的双份维护）
 type WData = { subs: Record<string, string[]> };
 function subKey(cat: string, sub: string) {
   return cat + '.' + sub;
@@ -255,7 +128,7 @@ const WDPM = 21.75;
 const nmContent = document.querySelector('.content') as HTMLElement;
 const NM_ENTER_DUR = 500;
 let curCat = CAT_TREE[0].id;
-let curSub = CAT_TREE[0].subs[0].id;
+let curSub = 'all';
 let nmEnterStart = 0;
 let nmLag = 0;
 let nmLastTop = nmContent.scrollTop;
@@ -309,57 +182,67 @@ nmContent.addEventListener(
   },
   { passive: true },
 );
+function nonEmptySubs(top: TopCat) {
+  return top.subs.filter((s) => ALL_WIDGETS.some((w) => w.cat === top.id && w.sub === s.id));
+}
 function renderSidebar() {
   const nav = document.getElementById('sidebarNav')!;
   nav.innerHTML = CAT_TREE.map(
     (top) =>
-      `<div class="sb-group" data-top="${top.id}"><button class="sb-btn sb-top" data-top="${top.id}"><span class="ic">${top.icon}</span>${top.name}<span class="sb-arrow">▾</span></button><div class="sb-subs">${top.subs
-        .map(
-          (s) =>
-            `<button class="sb-btn sb-sub" data-cat="${top.id}" data-sub="${s.id}">${s.name}</button>`,
-        )
-        .join('')}</div></div>`,
+      `<button class="sb-btn sb-top" data-cat="${top.id}"><span class="ic">${top.icon}</span>${top.name}</button>`,
   ).join('');
   nav.querySelectorAll('.sb-top').forEach((b) =>
-    b.addEventListener('click', function (this: HTMLElement) {
-      const g = this.closest('.sb-group') as HTMLElement;
-      const wasOpen = g.classList.contains('open');
-      nav.querySelectorAll('.sb-group').forEach((x) => x.classList.remove('open'));
-      if (!wasOpen) g.classList.add('open');
-    }),
-  );
-  nav.querySelectorAll('.sb-sub').forEach((b) =>
-    b.addEventListener('click', () => {
-      const el = b as HTMLElement;
-      showSub(el.dataset.cat!, el.dataset.sub!);
-    }),
+    b.addEventListener('click', () => showCat((b as HTMLElement).dataset.cat!)),
   );
 }
-function highlightSub() {
+function highlightCat() {
   const nav = document.getElementById('sidebarNav')!;
-  nav.querySelectorAll('.sb-sub').forEach((b) => {
-    const el = b as HTMLElement;
-    el.classList.toggle('active', el.dataset.cat === curCat && el.dataset.sub === curSub);
+  nav.querySelectorAll('.sb-top').forEach((b) => {
+    (b as HTMLElement).classList.toggle('active', (b as HTMLElement).dataset.cat === curCat);
   });
-  const g = nav.querySelector(`.sb-group[data-top="${curCat}"]`);
-  if (g && !g.classList.contains('open')) {
-    nav.querySelectorAll('.sb-group').forEach((x) => x.classList.remove('open'));
-    (g as HTMLElement).classList.add('open');
+}
+function renderSubFilter() {
+  const f = document.getElementById('subFilter')!;
+  const top = CAT_TREE.find((t) => t.id === curCat);
+  const subs = top ? nonEmptySubs(top) : [];
+  if (subs.length <= 1) {
+    f.innerHTML = '';
+    return;
   }
+  const chip = (id: string, name: string) =>
+    `<button class="sf-chip${id === curSub ? ' active' : ''}" data-sub="${id}">${name}</button>`;
+  f.innerHTML = chip('all', '全部') + subs.map((s) => chip(s.id, s.name)).join('');
+  f.querySelectorAll('.sf-chip').forEach((b) =>
+    b.addEventListener('click', () => {
+      curSub = (b as HTMLElement).dataset.sub!;
+      renderSubFilter();
+      renderPanel();
+    }),
+  );
 }
 
 let rendered: Record<string, boolean> = {},
   salStt: SalStt = { monthlyIncome: 10000, payDay: 10 };
-async function showSub(cat: string, sub: string) {
-  curCat = cat;
-  curSub = sub;
+async function renderPanel() {
   const d = await getWD();
-  const ids = d.subs[subKey(cat, sub)] || [];
+  const top = CAT_TREE.find((t) => t.id === curCat);
+  const subs = top ? nonEmptySubs(top) : [];
+  const subIds =
+    curSub === 'all'
+      ? subs.map((s) => s.id)
+      : subs.some((s) => s.id === curSub)
+        ? [curSub]
+        : [];
+  const ids: string[] = [];
+  for (const sid of subIds) {
+    for (const id of d.subs[subKey(curCat, sid)] || []) {
+      if (!ids.includes(id)) ids.push(id);
+    }
+  }
   const panel = document.getElementById('panel')!;
   rendered = {};
   if (!ids.length) {
     panel.innerHTML = `<div class="empty"><div>暂无组件</div><div class="add-hint">左侧点击 组件库</div></div>`;
-    highlightSub();
     nmTrigger();
     return;
   }
@@ -371,8 +254,14 @@ async function showSub(cat: string, sub: string) {
   }
   panel.innerHTML = h;
   for (const id of ids) initW(id);
-  highlightSub();
   nmTrigger();
+}
+async function showCat(cat: string) {
+  curCat = cat;
+  curSub = 'all';
+  highlightCat();
+  renderSubFilter();
+  await renderPanel();
 }
 function getCard(w: WID): string {
   if (w.id === 'quote')
@@ -645,9 +534,13 @@ wm.addEventListener('click', (e) => {
 });
 async function renderWmList(cat: string, sub: string) {
   const d = await getWD();
-  const wid = ALL_WIDGETS.filter((w) => w.cat === cat && w.sub === sub);
-  const k = subKey(cat, sub);
-  const onIds = d.subs[k] || [];
+  const top = CAT_TREE.find((t) => t.id === cat);
+  const subs = top ? nonEmptySubs(top) : [];
+  const wid = ALL_WIDGETS.filter((w) => {
+    if (w.cat !== cat) return false;
+    if (sub === 'all') return subs.some((s) => s.id === w.sub);
+    return w.sub === sub;
+  });
   if (!wid.length) {
     document.getElementById('widgetList')!.innerHTML =
       '<div style="font-size:12px;color:var(--text-tertiary);text-align:center;padding:20px 0">该分类暂无可用组件</div>';
@@ -655,8 +548,8 @@ async function renderWmList(cat: string, sub: string) {
   }
   let h = '';
   wid.forEach((w) => {
-    const on = onIds.includes(w.id);
-    h += `<div class="wg-item"><div><div class="wg-name">${w.name}</div><div class="wg-desc">${w.desc}</div></div><button class="wg-toggle ${on ? 'on' : 'off'}" data-id="${w.id}" data-cat="${cat}" data-sub="${sub}"></button></div>`;
+    const on = (d.subs[subKey(w.cat, w.sub)] || []).includes(w.id);
+    h += `<div class="wg-item"><div><div class="wg-name">${w.name}</div><div class="wg-desc">${w.desc}</div></div><button class="wg-toggle ${on ? 'on' : 'off'}" data-id="${w.id}" data-cat="${w.cat}" data-sub="${w.sub}"></button></div>`;
   });
   document.getElementById('widgetList')!.innerHTML = h;
   document
@@ -665,10 +558,10 @@ async function renderWmList(cat: string, sub: string) {
     .forEach((b) =>
       b.addEventListener('click', async function (this: HTMLElement) {
         const id = this.dataset.id!,
-          cat = this.dataset.cat!,
-          sub = this.dataset.sub!;
+          wcat = this.dataset.cat!,
+          wsub = this.dataset.sub!;
         const d = await getWD();
-        const k = subKey(cat, sub);
+        const k = subKey(wcat, wsub);
         const arr = d.subs[k] || [];
         if (this.classList.contains('on')) {
           this.classList.replace('on', 'off');
@@ -678,8 +571,8 @@ async function renderWmList(cat: string, sub: string) {
           d.subs[k] = [...arr, id];
         }
         await setWD(d);
-        showSub(cat, sub);
-        renderWmList(cat, sub);
+        showCat(wmCat);
+        renderWmList(wmCat, wmSub);
       }),
     );
 }
@@ -694,8 +587,7 @@ function renderWmSidebar() {
   sb.querySelectorAll('.wm-cat').forEach((b) =>
     b.addEventListener('click', () => {
       wmCat = (b as HTMLElement).dataset.cat!;
-      const top = CAT_TREE.find((t) => t.id === wmCat);
-      wmSub = top?.subs[0]?.id ?? '';
+      wmSub = 'all';
       renderWmSidebar();
       renderWmTabs();
       renderWmList(wmCat, wmSub);
@@ -705,17 +597,15 @@ function renderWmSidebar() {
 function renderWmTabs() {
   const tabs = document.getElementById('wmTabs')!;
   const top = CAT_TREE.find((t) => t.id === wmCat);
-  const subs = top?.subs ?? [];
+  const subs = top ? nonEmptySubs(top) : [];
   if (subs.length <= 1) {
     tabs.style.display = 'none';
     return;
   }
   tabs.style.display = '';
-  tabs.innerHTML = subs
-    .map(
-      (s) => `<button class="wm-tab${s.id === wmSub ? ' active' : ''}" data-sub="${s.id}">${s.name}</button>`,
-    )
-    .join('');
+  const chip = (id: string, name: string) =>
+    `<button class="wm-tab${id === wmSub ? ' active' : ''}" data-sub="${id}">${name}</button>`;
+  tabs.innerHTML = chip('all', '全部') + subs.map((s) => chip(s.id, s.name)).join('');
   tabs.querySelectorAll('.wm-tab').forEach((b) =>
     b.addEventListener('click', () => {
       wmSub = (b as HTMLElement).dataset.sub!;
@@ -2012,7 +1902,7 @@ async function init() {
   await loadM();
   await loadSal();
   renderSidebar();
-  await showSub(curCat, curSub);
+  await showCat(curCat);
   setInterval(() => {
     updT();
     tickSalary();
