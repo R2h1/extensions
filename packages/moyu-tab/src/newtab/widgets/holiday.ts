@@ -47,17 +47,14 @@ function fmtHolTime(ts: number): string {
   const d = new Date(ts);
   return pad(d.getHours()) + ':' + pad(d.getMinutes());
 }
-function renderHolWeekend() {
-  const daysEl = document.getElementById('holidayWeekDays');
-  const dateEl = document.getElementById('holidayWeekDate');
-  if (!daysEl || !dateEl) return;
+/** 周末行：本地计算距周六天数，格式与假期行一致，作为列表首行。 */
+function weekendRow(): string {
   const n = new Date();
   const daysToSat = (6 - n.getDay() + 7) % 7;
   const sat = new Date(n.getFullYear(), n.getMonth(), n.getDate() + daysToSat);
-  const wd = ['日', '一', '二', '三', '四', '五', '六'][sat.getDay()];
-  daysEl.textContent = String(daysToSat);
-  dateEl.textContent =
-    daysToSat === 0 ? `今天 周${wd}` : `${sat.getMonth() + 1}月${sat.getDate()}日 周${wd}`;
+  const ymd = `${sat.getFullYear()}-${pad(sat.getMonth() + 1)}-${pad(sat.getDate())}`;
+  const leftTxt = daysToSat === 0 ? '今天' : `${daysToSat} 天`;
+  return `<div class="hol-row"><span class="hol-name">周末</span><span class="hol-date">${fmtHolDate(ymd)}</span><span class="hol-days">${leftTxt}</span></div>`;
 }
 function renderHolList(error: boolean) {
   const list = document.getElementById('holidayList');
@@ -65,18 +62,23 @@ function renderHolList(error: boolean) {
   if (!list) return;
   const cache = loadHolCache();
   const items = (cache?.list ?? []).filter((b) => holDaysLeft(b.date) >= 0).slice(0, 3);
+  const rows = [
+    weekendRow(),
+    ...items.map((b) => {
+      const left = holDaysLeft(b.date);
+      const leftTxt = left === 0 ? '今天' : `${left} 天`;
+      return `<div class="hol-row"><span class="hol-name">${esc(b.name)}</span><span class="hol-date">${fmtHolDate(b.date)}</span><span class="hol-days">${leftTxt}</span></div>`;
+    }),
+  ];
   if (!items.length) {
-    list.innerHTML = `<div class="hot-empty">${error ? '⚠ 获取失败 · 点击重试' : '加载中…'}</div>`;
+    rows.push(`<div class="hot-empty">${error ? '⚠ 获取失败 · 点击重试' : '假期加载中…'}</div>`);
+    list.innerHTML = rows.join('');
     list.onclick = error ? () => refreshHoliday() : null;
     if (upd) upd.textContent = error ? '⚠ 失败' : '';
     return;
   }
   list.onclick = null;
-  list.innerHTML = items.map((b) => {
-    const left = holDaysLeft(b.date);
-    const leftTxt = left === 0 ? '今天' : `${left} 天`;
-    return `<div class="hol-row"><span class="hol-name">${esc(b.name)}</span><span class="hol-date">${fmtHolDate(b.date)}</span><span class="hol-days">${leftTxt}</span></div>`;
-  }).join('');
+  list.innerHTML = rows.join('');
   if (upd) upd.textContent = cache ? fmtHolTime(cache.ts) : '';
 }
 async function refreshHoliday() {
@@ -110,7 +112,6 @@ function onHolVis() {
   if (holNeedsFetch()) refreshHoliday();
 }
 export async function initHoliday() {
-  renderHolWeekend();
   renderHolList(false);
   document.getElementById('holidayRefresh')?.addEventListener('click', refreshHoliday);
   if (holInited) return;

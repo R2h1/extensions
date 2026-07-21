@@ -366,12 +366,6 @@ function getCard(w: WID): string {
       </div>
       <div class="cal-week"><span>一</span><span>二</span><span>三</span><span>四</span><span>五</span><span class="cal-wkend">六</span><span class="cal-wkend">日</span></div>
       <div class="cal-grid" id="calGrid"></div>
-      <div class="cal-wkstat">
-        <span class="cal-wk-label">距周末</span>
-        <span class="cal-wk-num" id="holidayWeekDays">--</span>
-        <span class="cal-wk-unit">天</span>
-        <span class="cal-wk-date" id="holidayWeekDate">--</span>
-      </div>
       <div class="cal-hol">
         <div class="hol-list-head"><span>接下来的假期</span><span class="cal-head-meta"><span class="holiday-upd" id="holidayUpd">加载中…</span><button class="holiday-refresh" id="holidayRefresh" title="刷新">↻</button></span></div>
         <div class="hol-list" id="holidayList"><div class="hot-empty">加载中…</div></div>
