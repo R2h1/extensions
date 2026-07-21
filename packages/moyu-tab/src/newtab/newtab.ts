@@ -145,7 +145,7 @@ function nmUpdate() {
   const panel = document.getElementById('panel');
   let entering = false;
   if (panel) {
-    const cards = Array.from(panel.children) as HTMLElement[];
+    const cards = Array.from(panel.querySelectorAll('.widget-card')) as HTMLElement[];
     cards.forEach((el, idx) => {
       const elapsed = now - nmEnterStart - idx * 70;
       let enter = 0;
@@ -223,6 +223,51 @@ function renderSubFilter() {
 
 let rendered: Record<string, boolean> = {},
   salStt: SalStt = { monthlyIncome: 10000, payDay: 10 };
+let masonCols = 0;
+function computeCols(panel: HTMLElement) {
+  const gap = 10;
+  const minCard = 300;
+  const w = panel.clientWidth;
+  const n = Math.floor((w + gap) / (minCard + gap));
+  return Math.max(1, Math.min(4, n));
+}
+function masonryLayout(panel: HTMLElement, cards: HTMLElement[]) {
+  const n = computeCols(panel);
+  panel.innerHTML = '';
+  const cols: HTMLElement[] = [];
+  for (let i = 0; i < n; i++) {
+    const c = document.createElement('div');
+    c.className = 'mason-col';
+    panel.appendChild(c);
+    cols.push(c);
+  }
+  for (const card of cards) {
+    let min = cols[0];
+    let minH = cols[0].offsetHeight;
+    for (let i = 1; i < cols.length; i++) {
+      const h = cols[i].offsetHeight;
+      if (h < minH) {
+        minH = h;
+        min = cols[i];
+      }
+    }
+    min.appendChild(card);
+  }
+  masonCols = n;
+}
+function masonryRelayout() {
+  const panel = document.getElementById('panel');
+  if (!panel) return;
+  const cards = Array.from(panel.querySelectorAll('.widget-card')) as HTMLElement[];
+  if (!cards.length) return;
+  if (computeCols(panel) === masonCols) return;
+  masonryLayout(panel, cards);
+}
+let masonResizeTimer = 0;
+window.addEventListener('resize', () => {
+  clearTimeout(masonResizeTimer);
+  masonResizeTimer = setTimeout(masonryRelayout, 150);
+});
 async function renderPanel() {
   const d = await getWD();
   const top = CAT_TREE.find((t) => t.id === curCat);
@@ -246,13 +291,19 @@ async function renderPanel() {
     nmTrigger();
     return;
   }
-  let h = '';
+  const tmp = document.createElement('div');
   for (const id of ids) {
     const w = ALL_WIDGETS.find((x) => x.id === id);
     if (!w) continue;
-    h += getCard(w);
+    tmp.insertAdjacentHTML('beforeend', getCard(w));
   }
-  panel.innerHTML = h;
+  const cards = Array.from(tmp.children) as HTMLElement[];
+  if (!cards.length) {
+    panel.innerHTML = `<div class="empty"><div>暂无组件</div><div class="add-hint">左侧点击 组件库</div></div>`;
+    nmTrigger();
+    return;
+  }
+  masonryLayout(panel, cards);
   for (const id of ids) initW(id);
   nmTrigger();
 }
