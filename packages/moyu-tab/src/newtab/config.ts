@@ -113,8 +113,6 @@ export const ALL_WIDGETS: WID[] = [
   { id: 'zhihu', name: '知乎日报', desc: '每日精选', cat: 'news', sub: 'news' },
   { id: 'sina_flash', name: '7x24快讯', desc: '财经实时快讯', cat: 'news', sub: 'news' },
   { id: 'aihot', name: 'AI资讯', desc: 'AI 圈 24h 精选', cat: 'news', sub: 'news' },
-  { id: 'quote', name: '语录', desc: '随机摸鱼语录', cat: 'fun', sub: 'joke' },
-  { id: 'fish', name: '功德', desc: '敲木鱼计数器', cat: 'fun', sub: 'joke' },
   { id: 'tv', name: '视频', desc: '视频网站', cat: 'fun', sub: 'media' },
   { id: 'music', name: '音乐', desc: '音乐播放器', cat: 'fun', sub: 'media' },
   { id: 'weread', name: '微信读书', desc: '我的书架', cat: 'study', sub: 'read' },

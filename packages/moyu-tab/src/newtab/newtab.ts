@@ -22,9 +22,7 @@ import { initWeather, renderWeatherCard } from './widgets/weather';
 import { HOT_WIDGETS, renderHotCard, initHotCard } from './widgets/hot';
 import { CAT_TREE, ALL_WIDGETS, TopCat, WID } from './config';
 
-const SM = 'moyu_merit',
-  SS = 'moyu_schedule',
-  SQ = 'moyu_quotes',
+const SS = 'moyu_schedule',
   SW = 'moyu_widgets',
   SL = 'moyu_links',
   SR = 'moyu_salary';
@@ -50,11 +48,6 @@ const DS: Sch = {
   endMinute: 0,
   workDays: [1, 2, 3, 4, 5],
 };
-interface QD {
-  builtIn: string[];
-  custom: string[];
-  enabledIndices: number[];
-}
 interface Lk {
   name: string;
   url: string;
@@ -315,14 +308,6 @@ async function showCat(cat: string) {
   await renderPanel();
 }
 function getCard(w: WID): string {
-  if (w.id === 'quote')
-    return `<div class="widget-card quote-card">
-      <div class="quote-head">
-        <div class="quote-title">❝ 摸鱼语录</div>
-        <div class="quote-hint">点击换</div>
-      </div>
-      <div class="quote-text" id="quoteText">加载中...</div>
-    </div>`;
   if (w.id === 'salary')
     return `<div class="widget-card sal-card"><div class="sal-grid">
       <div class="sal-left">
@@ -357,15 +342,6 @@ function getCard(w: WID): string {
     </div></div>`;
   if (w.id === 'gold') return renderGoldCard();
   if (w.id === 'fund') return renderFundCard();
-  if (w.id === 'fish')
-    return `<div class="widget-card fish-card">
-      <div class="fish-head">
-        <div class="fish-title">✿ 功德</div>
-        <div class="fish-merit" id="fishMerit">0</div>
-      </div>
-      <button class="fish-btn" id="fishBtn" title="敲一下">◒</button>
-      <div class="fish-hint">点一下 · 积功德</div>
-    </div>`;
   if (w.id === 'links')
     return `<div class="widget-card links-card">
       <div class="links-head"><div class="links-title">⊕ 快捷网址</div></div>
@@ -436,12 +412,6 @@ async function initW(id: string) {
   if (rendered[id]) return;
   rendered[id] = true;
   switch (id) {
-    case 'fish':
-      initFish();
-      break;
-    case 'quote':
-      initQuote();
-      break;
     case 'salary':
       initSalary();
       break;
@@ -691,7 +661,6 @@ document.querySelectorAll('#smSidebar .msb').forEach((b) =>
     document.querySelectorAll('#smSidebar .msb').forEach((x) => x.classList.remove('active'));
     this.classList.add('active');
     if (this.dataset.s === 'time') renderSetTime();
-    else if (this.dataset.s === 'quote') renderSetQuote();
     else renderSetSalary();
   }),
 );
@@ -755,54 +724,6 @@ async function renderSetTime() {
     document.getElementById('sStatus')!.textContent = '已保存';
     document.getElementById('sStatus')!.style.display = 'block';
     setTimeout(() => (document.getElementById('sStatus')!.style.display = 'none'), 2500);
-  });
-}
-async function renderSetQuote() {
-  const d = await loadQD();
-  const en = new Set(d.enabledIndices);
-  let h = '';
-  d.builtIn.forEach((q, i) => {
-    h += `<div class="qi"><span class="i">#${i + 1}</span><span class="t">${esc(q)}</span><span class="a"><button class="tq" data-i="${i}" data-e="${en.has(i) ? '0' : '1'}">${en.has(i) ? '隐藏' : '显示'}</button></span></div>`;
-  });
-  d.custom.forEach((q, i) => {
-    h += `<div class="qi"><span class="i">C${i + 1}</span><span class="t">${esc(q)}</span><span class="a"><button class="dq" data-i="${i}">删除</button></span></div>`;
-  });
-  if (!d.custom.length)
-    h +=
-      '<div style="font-size:11px;color:var(--text-tertiary);text-align:center;padding:10px 0">暂无自定义语录</div>';
-  h += `<div class="aqr"><input id="sNewQ" placeholder="新语录"/><button id="sAddQ">添加</button></div><div id="sQStat" style="text-align:center;font-size:11px;padding:4px;display:none;color:var(--accent)"></div>`;
-  document.getElementById('settingsBody')!.innerHTML = h;
-  document.querySelectorAll('.tq').forEach((b) =>
-    b.addEventListener('click', async () => {
-      const i = Number((b as HTMLElement).dataset.i),
-        e = (b as HTMLElement).dataset.e === '1';
-      const d = await loadQD();
-      if (e) d.enabledIndices.push(i);
-      else d.enabledIndices = d.enabledIndices.filter((x) => x !== i);
-      await saveQD(d);
-      renderSetQuote();
-    }),
-  );
-  document.querySelectorAll('.dq').forEach((b) =>
-    b.addEventListener('click', async () => {
-      const i = Number((b as HTMLElement).dataset.i);
-      const d = await loadQD();
-      d.custom.splice(i, 1);
-      await saveQD(d);
-      renderSetQuote();
-    }),
-  );
-  document.getElementById('sAddQ')!.addEventListener('click', async () => {
-    const t = (document.getElementById('sNewQ') as HTMLInputElement).value.trim();
-    if (!t) return;
-    const d = await loadQD();
-    d.custom.push(t);
-    await saveQD(d);
-    (document.getElementById('sNewQ') as HTMLInputElement).value = '';
-    renderSetQuote();
-    document.getElementById('sQStat')!.textContent = '已添加';
-    document.getElementById('sQStat')!.style.display = 'block';
-    setTimeout(() => (document.getElementById('sQStat')!.style.display = 'none'), 2000);
   });
 }
 async function renderSetSalary() {
@@ -1164,122 +1085,10 @@ function updT() {
   }
 }
 
-let cQ = '';
-const BI = [
-  '摸鱼是一种态度',
-  '上班不摸鱼回家睡不香',
-  '工作总会做完的不急这一时',
-  '摸鱼五分钟精神两小时',
-  '不是在摸鱼在给大脑充电',
-  '生活不止眼前的KPI还有摸鱼和远方',
-  '高效的摸鱼是一门艺术',
-  '你今天摸鱼了吗',
-  '工作是为了更好的摸鱼',
-  '不急不躁慢慢来反正也做不完',
-  '真正的自由是心在摸鱼',
-  '摸鱼是成年人的课间休息',
-  '不想工作就摸摸鱼',
-  '人生苦短及时摸鱼',
-  '摸鱼不是懒是战略性休整',
-  '摸鱼使我快乐',
-  '适度摸鱼益脑过度摸鱼伤身',
-];
-function gQD(): QD {
-  return { builtIn: BI, custom: [], enabledIndices: BI.map((_, i) => i) };
-}
-async function loadQD(): Promise<QD> {
-  const r = await chrome.storage.sync.get(SQ);
-  const d = r[SQ] as QD | undefined;
-  if (d && Array.isArray(d.builtIn) && d.builtIn.length) return d;
-  const def = gQD();
-  await chrome.storage.sync.set({ [SQ]: def });
-  return def;
-}
-async function saveQD(d: QD) {
-  await chrome.storage.sync.set({ [SQ]: d });
-}
-function aQ(d: QD) {
-  const e: string[] = [];
-  for (const i of d.enabledIndices) if (i >= 0 && i < d.builtIn.length) e.push(d.builtIn[i]);
-  return [...e, ...d.custom].filter(Boolean);
-}
-function initQuote() {
-  const qt = document.getElementById('quoteText');
-  if (!qt) return;
-  const card = qt.closest('.quote-card') as HTMLElement | null;
-  (card || qt).addEventListener('click', async () => {
-    const d = await loadQD();
-    sRQ(d);
-  });
-  loadQD().then((d) => sRQ(d));
-}
-function sRQ(d: QD) {
-  const qt = document.getElementById('quoteText');
-  if (!qt) return;
-  const all = aQ(d);
-  if (!all.length) {
-    qt.textContent = '暂无';
-    return;
-  }
-  let n = '';
-  do {
-    n = all[Math.floor(Math.random() * all.length)];
-  } while (n === cQ && all.length > 1);
-  cQ = n;
-  qt.textContent = cQ;
-}
 function esc(s: string) {
   const d = document.createElement('div');
   d.textContent = s;
   return d.innerHTML;
-}
-
-let merit = 0;
-async function loadM() {
-  const r = await chrome.storage.local.get(SM);
-  merit = r[SM] ?? 0;
-}
-async function saveM() {
-  await chrome.storage.local.set({ [SM]: merit });
-}
-let aCtx: AudioContext | null = null;
-function playF() {
-  if (!aCtx) aCtx = new AudioContext();
-  const bs = aCtx.sampleRate * 0.03,
-    noise = aCtx.createBufferSource(),
-    nb = aCtx.createBuffer(1, bs, aCtx.sampleRate),
-    d = nb.getChannelData(0);
-  for (let i = 0; i < bs; i++) d[i] = (Math.random() * 2 - 1) * (1 - i / bs);
-  noise.buffer = nb;
-  const o = aCtx.createOscillator(),
-    g = aCtx.createGain();
-  o.type = 'sine';
-  o.frequency.value = 380;
-  g.gain.setValueAtTime(0.3, aCtx.currentTime);
-  g.gain.exponentialRampToValueAtTime(0.001, aCtx.currentTime + 0.15);
-  o.connect(g);
-  const ng = aCtx.createGain();
-  ng.gain.setValueAtTime(0.08, aCtx.currentTime);
-  ng.gain.exponentialRampToValueAtTime(0.001, aCtx.currentTime + 0.05);
-  noise.connect(ng);
-  g.connect(aCtx.destination);
-  ng.connect(aCtx.destination);
-  o.start(aCtx.currentTime);
-  o.stop(aCtx.currentTime + 0.15);
-  noise.start(aCtx.currentTime);
-  noise.stop(aCtx.currentTime + 0.03);
-}
-async function initFish() {
-  await loadM();
-  const meritEl = document.getElementById('fishMerit');
-  if (meritEl) meritEl.textContent = String(merit);
-  document.getElementById('fishBtn')?.addEventListener('click', async () => {
-    merit++;
-    const el = document.getElementById('fishMerit');
-    if (el) el.textContent = String(merit);
-    await saveM();
-    playF();
-  });
 }
 
 async function loadSal() {
@@ -1950,7 +1759,6 @@ async function init() {
   loadWallpaper();
   initClock();
   await loadSch();
-  await loadM();
   await loadSal();
   renderSidebar();
   await showCat(curCat);

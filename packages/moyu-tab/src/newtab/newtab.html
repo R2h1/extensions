@@ -92,15 +92,6 @@ html.locked .clock-bar{padding:0}
 .dc span{font-size:11px;color:var(--text-tertiary)}
 .dc.active{border-color:var(--accent);background:var(--glass-accent)}
 .dc.active span{color:var(--accent);font-weight:600}
-.qi{display:flex;align-items:flex-start;gap:6px;padding:6px 0;border-bottom:0.5px solid rgba(0,0,0,0.04);font-size:11px}
-.qi .i{color:var(--text-tertiary);font-size:10px;flex-shrink:0;min-width:18px;text-align:right}
-.qi .t{flex:1;color:var(--text-secondary)}
-.qi .a button{background:none;border:0.5px solid var(--glass-border);color:var(--text-tertiary);padding:2px 7px;border-radius:5px;cursor:pointer;font-size:10px;font-family:inherit}
-.qi .a button:hover{border-color:var(--accent);color:var(--accent)}
-.aqr{display:flex;gap:6px;margin-top:8px}
-.aqr input{flex:1;padding:7px 10px;font-size:12px;border:none;border-radius:var(--radius-xs);background:var(--nm-surface);color:var(--text);outline:none;font-family:inherit;box-shadow:var(--nm-in)}
-.aqr button{padding:7px 12px;font-size:12px;border:0.5px solid var(--glass-border);border-radius:var(--radius-xs);background:transparent;color:var(--text-secondary);cursor:pointer;font-family:inherit}
-.aqr button:hover{border-color:var(--accent);color:var(--accent)}
 .links-card{padding:12px 14px}
 .links-head{margin-bottom:6px}
 .links-title{font-size:13px;font-weight:600;color:var(--text-secondary);letter-spacing:.5px}
@@ -116,13 +107,6 @@ html.locked .clock-bar{padding:0}
 .links-add input{flex:1;min-width:0;padding:7px 10px;font-size:12px;border:none;border-radius:var(--radius-xs);background:var(--nm-surface);color:var(--text);outline:none;font-family:inherit;box-shadow:var(--nm-in)}
 .links-add button{padding:7px 12px;font-size:12px;border:none;border-radius:var(--radius-xs);background:var(--glass-accent);color:var(--accent);cursor:pointer;font-family:inherit;font-weight:600}
 .ctx-menu{display:none;position:fixed;z-index:200;background:var(--nm-surface);backdrop-filter:none;-webkit-backdrop-filter:none;border-radius:10px;box-shadow:var(--nm-out);padding:4px;min-width:140px}
-.fish-card{padding:12px 14px;text-align:center}
-.fish-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:4px}
-.fish-title{font-size:13px;font-weight:600;color:var(--text-secondary);letter-spacing:.5px}
-.fish-merit{font-size:22px;font-weight:700;color:var(--accent);font-variant-numeric:tabular-nums;font-family:'Courier New',ui-monospace,monospace}
-.fish-btn{width:84px;height:84px;border-radius:50%;border:none;background:var(--nm-surface);box-shadow:var(--nm-out);color:var(--accent);font-size:32px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:transform .08s,box-shadow .15s;margin:4px auto 2px;font-family:inherit}
-.fish-btn:active{transform:scale(.92);box-shadow:var(--nm-in)}
-.fish-hint{font-size:11px;color:var(--text-tertiary)}
 .ctx-menu.open{display:block}
 .ctx-menu button{display:block;width:100%;padding:8px 14px;font-size:12px;font-family:inherit;border:none;background:transparent;color:var(--text);cursor:pointer;text-align:left;border-radius:6px;transition:all 0.1s}
 .ctx-menu button:hover{background:var(--glass-accent);color:var(--accent)}
@@ -169,11 +153,6 @@ html.locked .clock-bar{padding:0}
 /* 金价 / 基金 卡片（各占半宽） */
 .gold-card{padding:12px 14px}
 .fund-card{padding:12px 14px}
-.quote-card{padding:18px 18px 16px;display:flex;flex-direction:column}
-.quote-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
-.quote-title{font-size:14px;font-weight:600;color:var(--text-secondary);letter-spacing:.5px;display:flex;align-items:center;gap:6px}
-.quote-hint{font-size:10px;color:var(--text-tertiary)}
-.quote-text{flex:1;display:flex;align-items:center;justify-content:center;text-align:center;font-size:15px;line-height:1.7;color:var(--text);cursor:pointer;padding:4px 0;word-break:break-word}
 /* 基金列表（行情卡片内） */
 .fund-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px}
 .fund-title{font-size:14px;font-weight:600;color:var(--text-secondary);letter-spacing:.5px;display:flex;align-items:center;gap:6px}
@@ -593,7 +572,7 @@ html.locked .clock-bar{padding:0}
 </div>
 <div class="ctx-menu" id="ctxMenu"><button id="ctxWidgets">组件库</button><button id="ctxWallpaper">更换壁纸</button></div>
 <div class="mo" id="widgetModal"><div class="ms"><div class="mh"><span class="mt">组件库</span><button class="mc" id="wmClose">x</button></div><div class="modal-split"><div class="wm-sidebar" id="wmSidebar"></div><div class="modal-content"><div class="wm-tabs" id="wmTabs"></div><div id="widgetList"></div></div></div></div></div>
-<div class="mo" id="settingsModal"><div class="ms"><div class="mh"><span class="mt">设置</span><button class="mc" id="smClose">x</button></div><div class="modal-split"><div class="modal-sidebar" id="smSidebar"><button class="msb active" data-s="time">时间</button><button class="msb" data-s="quote">语录</button><button class="msb" data-s="salary">发薪日</button></div><div class="modal-content" id="settingsBody"></div></div></div></div>
+<div class="mo" id="settingsModal"><div class="ms"><div class="mh"><span class="mt">设置</span><button class="mc" id="smClose">x</button></div><div class="modal-split"><div class="modal-sidebar" id="smSidebar"><button class="msb active" data-s="time">时间</button><button class="msb" data-s="salary">发薪日</button></div><div class="modal-content" id="settingsBody"></div></div></div></div>
 <div class="mo" id="wallpaperModal"><div class="ms" style="max-width:600px"><div class="mh"><span class="mt">更换壁纸</span><button class="mc" id="wpClose">x</button></div><div class="modal-content" id="wpBody" style="padding:16px 20px 20px"></div></div></div>
 <script src="newtab.js"></script>
 </body>
