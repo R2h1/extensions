@@ -1,7 +1,7 @@
 import APlayer from 'aplayer';
 import 'aplayer/dist/APlayer.min.css';
 import { initGold, renderGoldCard } from './widgets/gold';
-import { initHoliday, renderHolidayCard } from './widgets/holiday';
+import { initHoliday } from './widgets/holiday';
 import { initJuejin, renderJuejinCard } from './widgets/juejin';
 import { initZhihu, renderZhihuCard } from './widgets/zhihu';
 import { initWeread, renderWereadCard } from './widgets/weread';
@@ -353,7 +353,6 @@ function getCard(w: WID): string {
       </div>
     </div>`;
   if (w.id === 'weather') return renderWeatherCard();
-  if (w.id === 'holiday') return renderHolidayCard();
   if (w.id === 'calendar')
     return `<div class="widget-card cal-card">
       <div class="cal-head">
@@ -365,8 +364,24 @@ function getCard(w: WID): string {
         <button class="cal-nav" id="calNext">›</button>
         <button class="cal-today" id="calToday" title="回到今日">今</button>
       </div>
+      <div class="cal-weekbar">
+        <div class="cal-weekend">
+          <span class="cal-weekend-label">距周末</span>
+          <span class="cal-weekend-num" id="holidayWeekDays">--</span>
+          <span class="cal-weekend-unit">天</span>
+          <span class="cal-weekend-date" id="holidayWeekDate">--</span>
+        </div>
+        <div class="cal-head-meta">
+          <span class="holiday-upd" id="holidayUpd">加载中…</span>
+          <button class="holiday-refresh" id="holidayRefresh" title="刷新">↻</button>
+        </div>
+      </div>
       <div class="cal-week"><span>一</span><span>二</span><span>三</span><span>四</span><span>五</span><span>六</span><span>日</span></div>
       <div class="cal-grid" id="calGrid"></div>
+      <div class="cal-hol">
+        <div class="hol-list-head">接下来的假期</div>
+        <div class="hol-list" id="holidayList"><div class="hot-empty">加载中…</div></div>
+      </div>
     </div>`;
   if (w.id === 'tv')
     return `<div class="widget-card tv-card">
@@ -426,9 +441,6 @@ async function initW(id: string) {
       break;
     case 'weather':
       initWeather();
-      break;
-    case 'holiday':
-      initHoliday();
       break;
     case 'calendar':
       initCalendar();
@@ -1696,6 +1708,7 @@ function initCalendar() {
     calDocCloseBound = true;
     document.addEventListener('click', closeAllDropdowns);
   }
+  initHoliday();
 }
 
 // ── 音乐（APlayer + Meting API）──

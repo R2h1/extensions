@@ -1,4 +1,4 @@
-/** 节假日倒计时卡片：timor.tech SW 代理，周末本地计算，每日一拉 */
+/** 节假日倒计时：融入日历卡。timor.tech SW 代理，周末本地计算，每日一拉 */
 import { esc, pad, isSameDay, todayMidnight, ymdMidnight } from '../utils';
 
 const HOL_KEY = 'moyu_holiday_cache';
@@ -14,24 +14,6 @@ interface HolCache {
 }
 let holLoading = false;
 let holInited = false;
-
-export function renderHolidayCard(): string {
-  return `<div class="widget-card holiday-card">
-      <div class="holiday-head">
-        <div class="holiday-title">🎉 节假日倒计时</div>
-        <div class="holiday-meta">
-          <span class="holiday-upd" id="holidayUpd">加载中…</span>
-          <button class="holiday-refresh" id="holidayRefresh" title="刷新">↻</button>
-        </div>
-      </div>
-      <div class="hol-week">
-        <div class="hol-week-main"><span class="hol-week-label">距周末</span><span class="hol-week-days" id="holidayWeekDays">--</span><span class="hol-week-unit">天</span></div>
-        <div class="hol-week-date" id="holidayWeekDate">--</div>
-      </div>
-      <div class="hol-list-head">接下来的假期</div>
-      <div class="hol-list" id="holidayList"><div class="hot-empty">加载中…</div></div>
-    </div>`;
-}
 
 function loadHolCache(): HolCache | null {
   try {
@@ -82,7 +64,7 @@ function renderHolList(error: boolean) {
   const upd = document.getElementById('holidayUpd');
   if (!list) return;
   const cache = loadHolCache();
-  const items = (cache?.list ?? []).filter((b) => holDaysLeft(b.date) >= 0).slice(0, 6);
+  const items = (cache?.list ?? []).filter((b) => holDaysLeft(b.date) >= 0).slice(0, 3);
   if (!items.length) {
     list.innerHTML = `<div class="hot-empty">${error ? '⚠ 获取失败 · 点击重试' : '加载中…'}</div>`;
     list.onclick = error ? () => refreshHoliday() : null;
