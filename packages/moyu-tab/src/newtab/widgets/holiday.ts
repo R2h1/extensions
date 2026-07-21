@@ -79,7 +79,7 @@ function renderHolList(error: boolean) {
   }
   list.onclick = null;
   list.innerHTML = rows.join('');
-  if (upd) upd.textContent = cache ? fmtHolTime(cache.ts) : '';
+  if (upd) upd.textContent = cache ? `于 ${fmtHolTime(cache.ts)} 更新` : '';
 }
 async function refreshHoliday() {
   if (holLoading) return;
