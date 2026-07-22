@@ -24,7 +24,6 @@ import { CAT_TREE, ALL_WIDGETS, TopCat, WID } from './config';
 
 const SS = 'moyu_schedule',
   SW = 'moyu_widgets',
-  SL = 'moyu_links',
   SR = 'moyu_salary';
 interface Sch {
   startHour: number;
@@ -48,10 +47,6 @@ const DS: Sch = {
   endMinute: 0,
   workDays: [1, 2, 3, 4, 5],
 };
-interface Lk {
-  name: string;
-  url: string;
-}
 interface SalStt {
   monthlyIncome: number;
   payDay: number;
@@ -101,13 +96,6 @@ async function getWD(): Promise<WData> {
 }
 async function setWD(d: WData) {
   await chrome.storage.sync.set({ [SW]: { subs: d.subs } });
-}
-async function getLinks(): Promise<Lk[]> {
-  const r = await chrome.storage.sync.get(SL);
-  return (r[SL] as Lk[]) ?? [];
-}
-async function setLinks(ls: Lk[]) {
-  await chrome.storage.sync.set({ [SL]: ls });
 }
 async function getSal(): Promise<SalStt> {
   const r = await chrome.storage.sync.get(SR);
@@ -342,16 +330,6 @@ function getCard(w: WID): string {
     </div></div>`;
   if (w.id === 'gold') return renderGoldCard();
   if (w.id === 'fund') return renderFundCard();
-  if (w.id === 'links')
-    return `<div class="widget-card links-card">
-      <div class="links-head"><div class="links-title">⊕ 快捷网址</div></div>
-      <div class="links-list" id="linksList"><div class="links-empty">加载中…</div></div>
-      <div class="links-add">
-        <input id="lnkName" placeholder="名称" />
-        <input id="lnkUrl" placeholder="https://..." />
-        <button id="lnkAdd">+</button>
-      </div>
-    </div>`;
   if (w.id === 'weather') return renderWeatherCard();
   if (w.id === 'calendar')
     return `<div class="widget-card cal-card">
@@ -424,9 +402,6 @@ async function initW(id: string) {
     case 'fund':
       initFund();
       break;
-    case 'links':
-      initLinks();
-      break;
     case 'weather':
       initWeather();
       break;
@@ -498,54 +473,6 @@ async function initW(id: string) {
 
 document.getElementById('addWidgetBtn')!.addEventListener('click', () => openWidgetModal(true));
 document.getElementById('settingsBtn')!.addEventListener('click', openSettings);
-
-// ── 快捷网址卡片 ──
-async function renderLinksCard() {
-  const ls = await getLinks();
-  const list = document.getElementById('linksList');
-  if (!list) return;
-  if (!ls.length) {
-    list.innerHTML = `<div class="links-empty">暂无链接 · 下方添加</div>`;
-    return;
-  }
-  list.innerHTML = ls
-    .map(
-      (l, i) =>
-        `<div class="links-row"><a href="${l.url}" target="_blank" rel="noopener" class="links-name">${esc(l.name)}</a><button class="links-del" data-i="${i}" title="删除">x</button></div>`,
-    )
-    .join('');
-  list.querySelectorAll('.links-del').forEach((b) =>
-    b.addEventListener('click', async () => {
-      const i = Number((b as HTMLElement).dataset.i);
-      const ls = await getLinks();
-      ls.splice(i, 1);
-      await setLinks(ls);
-      renderLinksCard();
-    }),
-  );
-}
-async function addLink() {
-  const nameEl = document.getElementById('lnkName') as HTMLInputElement | null;
-  const urlEl = document.getElementById('lnkUrl') as HTMLInputElement | null;
-  if (!nameEl || !urlEl) return;
-  const n = nameEl.value.trim();
-  let u = urlEl.value.trim();
-  if (!n || !u) return;
-  if (!/^https?:\/\//i.test(u)) u = 'https://' + u;
-  const ls = await getLinks();
-  ls.push({ name: n, url: u });
-  await setLinks(ls);
-  nameEl.value = '';
-  urlEl.value = '';
-  renderLinksCard();
-}
-async function initLinks() {
-  await renderLinksCard();
-  document.getElementById('lnkAdd')?.addEventListener('click', addLink);
-  document.getElementById('lnkUrl')?.addEventListener('keydown', (e) => {
-    if ((e as KeyboardEvent).key === 'Enter') addLink();
-  });
-}
 
 // ── Widget Modal ──
 const wm = document.getElementById('widgetModal')!;
@@ -1083,12 +1010,6 @@ function updT() {
     const ln = l.ld > 0 ? ' · 农历' + l.cM + '月' + l.cD : '';
     dd.textContent = `${n.getFullYear()}.${pad(n.getMonth() + 1)}.${pad(n.getDate())} 周${['日', '一', '二', '三', '四', '五', '六'][n.getDay()]} ${ampm}${ln}`;
   }
-}
-
-function esc(s: string) {
-  const d = document.createElement('div');
-  d.textContent = s;
-  return d.innerHTML;
 }
 
 async function loadSal() {

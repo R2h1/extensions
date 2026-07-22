@@ -6,6 +6,7 @@ export function renderWeatherCard(): string {
         <div class="weather-title">☂ 实时天气</div>
         <div class="weather-meta">
           <span class="weather-upd" id="weatherUpd">加载中…</span>
+          <button class="weather-refresh" id="weatherLocate" title="定位当前城市">📍</button>
           <button class="weather-refresh" id="weatherRefresh" title="刷新">↻</button>
         </div>
       </div>
@@ -249,14 +250,72 @@ function onWeatherVis() {
   const c = loadWCache();
   if (wCity && (!c || Date.now() - c.ts > 600000)) refreshWeather();
 }
+/** 浏览器定位 -> 反向地理编码取城市名，失败/拒绝/超时返回 null。坐标仅本地持有，分别发给 open-meteo 与 BigDataCloud。 */
+function locateCity(): Promise<WCity | null> {
+  return new Promise((resolve) => {
+    if (!('geolocation' in navigator)) return resolve(null);
+    let done = false;
+    const finish = (v: WCity | null) => {
+      if (!done) {
+        done = true;
+        resolve(v);
+      }
+    };
+    const to = setTimeout(() => finish(null), 8000);
+    navigator.geolocation.getCurrentPosition(
+      async (pos) => {
+        clearTimeout(to);
+        const { latitude, longitude } = pos.coords;
+        const name = await revGeoName(latitude, longitude);
+        finish({ name: name || '我的位置', lat: latitude, lon: longitude });
+      },
+      () => {
+        clearTimeout(to);
+        finish(null);
+      },
+      { timeout: 8000, maximumAge: 600000 },
+    );
+  });
+}
+async function revGeoName(lat: number, lon: number): Promise<string> {
+  const url = `https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${lat}&longitude=${lon}&localityLanguage=zh`;
+  const ctrl = new AbortController();
+  const to = setTimeout(() => ctrl.abort(), 8000);
+  try {
+    const res = await fetch(url, { signal: ctrl.signal });
+    if (!res.ok) return '';
+    const j = await res.json();
+    return String(j?.city || j?.locality || j?.principalSubdivision || '');
+  } catch {
+    return '';
+  } finally {
+    clearTimeout(to);
+  }
+}
+async function locateAndApply() {
+  const btn = document.getElementById('weatherLocate');
+  btn?.classList.add('spin');
+  const c = await locateCity();
+  btn?.classList.remove('spin');
+  if (!c) {
+    const upd = document.getElementById('weatherUpd');
+    if (upd) upd.textContent = '⚠ 定位失败 · 点📍重试';
+    return;
+  }
+  wCity = c;
+  await setWCity(c);
+  refreshWeather();
+}
 export async function initWeather() {
   wCity = await getWCity();
+  renderWeather(loadWCache(), false);
   if (!wCity) {
-    wCity = await geocodeCity('北京');
+    // 无已存城市：尝试定位，失败退回北京；定位期间先展示缓存，避免界面卡住
+    wCity = (await locateCity()) ?? (await geocodeCity('北京'));
     if (wCity) await setWCity(wCity);
   }
-  renderWeather(loadWCache(), false);
   document.getElementById('weatherRefresh')?.addEventListener('click', refreshWeather);
+  document.getElementById('weatherLocate')?.addEventListener('click', locateAndApply);
   const wrapEl = document.getElementById('weatherCityWrap');
   const inputEl = document.getElementById('weatherCityInput') as HTMLInputElement | null;
   wrapEl?.addEventListener('click', () => {
