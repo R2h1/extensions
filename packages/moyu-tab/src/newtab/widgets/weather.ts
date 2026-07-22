@@ -6,7 +6,7 @@ export function renderWeatherCard(): string {
         <div class="weather-title">☂ 实时天气</div>
         <div class="weather-meta">
           <span class="weather-upd" id="weatherUpd">加载中…</span>
-          <button class="weather-refresh" id="weatherLocate" title="定位当前城市">📍</button>
+          <button class="weather-refresh" id="weatherLocate" title="定位当前城市"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="2" fill="currentColor" stroke="none"/><line x1="12" y1="2" x2="12" y2="6"/><line x1="12" y1="18" x2="12" y2="22"/><line x1="2" y1="12" x2="6" y2="12"/><line x1="18" y1="12" x2="22" y2="12"/></svg></button>
           <button class="weather-refresh" id="weatherRefresh" title="刷新">↻</button>
         </div>
       </div>
