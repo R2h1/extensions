@@ -527,6 +527,21 @@ html.locked .clock-bar{padding:0}
 #widgetList{max-height:168px;overflow-y:auto}
 #widgetList::-webkit-scrollbar{width:5px}
 #widgetList::-webkit-scrollbar-thumb{background:rgba(0,0,0,0.12);border-radius:3px}
+/* 顶部搜索框 */
+.search-bar{display:flex;align-items:center;max-width:560px;margin:0 auto 18px;background:var(--nm-surface);border-radius:var(--radius);box-shadow:var(--nm-in);padding:4px 4px 4px 2px;position:relative}
+.sb-engine{position:relative}
+.sb-engine-btn{display:flex;align-items:center;gap:4px;padding:8px 12px;border:none;background:transparent;color:var(--text-secondary);font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;white-space:nowrap}
+.sb-engine-btn:hover{color:var(--accent)}
+.sb-engine-arrow{font-size:9px;color:var(--text-tertiary)}
+.sb-engine-list{display:none;position:absolute;top:calc(100% + 6px);left:0;z-index:60;min-width:120px;background:var(--nm-surface);border-radius:var(--radius-sm);box-shadow:0 6px 18px rgba(0,0,0,0.12),var(--nm-out);border:0.5px solid var(--glass-border-h);padding:4px}
+.sb-engine.open .sb-engine-list{display:block}
+.sb-engine-opt{padding:7px 10px;font-size:12px;color:var(--text-secondary);border-radius:5px;cursor:pointer;white-space:nowrap}
+.sb-engine-opt:hover{background:var(--glass-accent);color:var(--accent)}
+.sb-engine-opt.active{color:var(--accent);font-weight:700}
+.sb-input{flex:1;min-width:0;border:none;background:transparent;outline:none;font-size:14px;color:var(--text);font-family:inherit;padding:8px 8px}
+.sb-input::placeholder{color:var(--text-tertiary)}
+.sb-go{width:34px;height:34px;flex-shrink:0;border:none;border-radius:50%;background:var(--glass-accent);color:var(--accent);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s}
+.sb-go:hover{background:var(--accent);color:#fff}
 </style>
 <script src="boot.js"></script>
 </head>
@@ -540,6 +555,14 @@ html.locked .clock-bar{padding:0}
   </nav>
   <main class="content"><div class="ci">
     <div class="clock-bar" id="clockBar"><div id="wg-clock" class="wg-clock"><span style="font-size:80px;font-weight:600;letter-spacing:6px;color:white;line-height:1;cursor:pointer" id="timeDisplay">--:--</span><div style="font-size:16px;color:white;margin-top:10px;letter-spacing:2px" id="dateDisplay"></div></div></div>
+    <div class="search-bar" id="searchBar">
+      <div class="sb-engine" id="sbEngine">
+        <button class="sb-engine-btn" id="sbEngineBtn" type="button"><span id="sbEngineName">百度</span><span class="sb-engine-arrow">▾</span></button>
+        <div class="sb-engine-list" id="sbEngineList"></div>
+      </div>
+      <input class="sb-input" id="sbInput" type="text" placeholder="输入关键词搜索…" autocomplete="off" />
+      <button class="sb-go" id="sbGo" title="搜索"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></button>
+    </div>
     <div class="sub-filter" id="subFilter"></div>
     <div class="cat-panel active" id="panel"></div>
   </div></main>
