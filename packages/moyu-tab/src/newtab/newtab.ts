@@ -1,6 +1,6 @@
 import APlayer from 'aplayer';
 import 'aplayer/dist/APlayer.min.css';
-import { initGold, renderGoldCard } from './widgets/gold';
+import { initGold, renderGoldSection, refreshGold } from './widgets/gold';
 import { initHoliday } from './widgets/holiday';
 import { initJuejin, renderJuejinCard } from './widgets/juejin';
 import { initZhihu, renderZhihuCard } from './widgets/zhihu';
@@ -17,7 +17,7 @@ import { initBmi, renderBmiCard } from './widgets/bmi';
 import { initCurrency, renderCurrencyCard } from './widgets/currency';
 import { initBookmarks, renderBookmarksCard } from './widgets/bookmarks';
 import { initAihot, renderAihotCard } from './widgets/aihot';
-import { initFund, renderFundCard } from './widgets/fund';
+import { initFund, renderFundSection, refreshFund } from './widgets/fund';
 import { initWeather, renderWeatherCard } from './widgets/weather';
 import { HOT_WIDGETS, renderHotCard, initHotCard } from './widgets/hot';
 import { CAT_TREE, ALL_WIDGETS, TopCat, WID } from './config';
@@ -328,8 +328,16 @@ function getCard(w: WID): string {
         <div class="sal-payday" id="salPayDay"></div>
       </div>
     </div></div>`;
-  if (w.id === 'gold') return renderGoldCard();
-  if (w.id === 'fund') return renderFundCard();
+  if (w.id === 'market')
+    return `<div class="widget-card market-card">
+      <div class="market-head">
+        <div class="market-title">◆ 行情</div>
+        <button class="market-refresh" id="marketRefresh" title="刷新">↻</button>
+      </div>
+      ${renderGoldSection()}
+      <div class="market-divider"></div>
+      ${renderFundSection()}
+    </div>`;
   if (w.id === 'weather') return renderWeatherCard();
   if (w.id === 'calendar')
     return `<div class="widget-card cal-card">
@@ -389,6 +397,20 @@ function getCard(w: WID): string {
   if (HOT_WIDGETS[w.id]) return renderHotCard(w);
   return `<div class="widget-card clickable" data-widget="${w.id}"><div class="widget-entry"><span>${w.desc}</span><span class="arrow">→</span></div></div>`;
 }
+async function refreshMarket() {
+  const btn = document.getElementById('marketRefresh');
+  btn?.classList.add('spin');
+  try {
+    await Promise.all([refreshGold(), refreshFund()]);
+  } finally {
+    btn?.classList.remove('spin');
+  }
+}
+async function initMarket() {
+  initGold();
+  await initFund();
+  document.getElementById('marketRefresh')?.addEventListener('click', refreshMarket);
+}
 async function initW(id: string) {
   if (rendered[id]) return;
   rendered[id] = true;
@@ -396,11 +418,8 @@ async function initW(id: string) {
     case 'salary':
       initSalary();
       break;
-    case 'gold':
-      initGold();
-      break;
-    case 'fund':
-      initFund();
+    case 'market':
+      initMarket();
       break;
     case 'weather':
       initWeather();

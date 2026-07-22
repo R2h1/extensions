@@ -1,19 +1,14 @@
 import { esc, pad } from '../utils';
 
-export function renderFundCard(): string {
-  return `<div class="widget-card fund-card">
-      <div class="fund-head">
-        <div class="fund-title">❖ 基金估值</div>
-        <div class="fund-meta">
-          <span class="fund-upd" id="fundUpd"></span>
-          <button class="fund-refresh" id="fundRefresh" title="刷新">↻</button>
-        </div>
-      </div>
-      <div class="fund-list" id="fundList"><div class="fund-empty">加载中…</div></div>
-      <div class="fund-add">
-        <input id="fundInput" placeholder="基金代码，如 001186" />
-        <button id="fundAdd">+</button>
-      </div>
+export function renderFundSection(): string {
+  return `<div class="fund-head">
+      <div class="fund-title">❖ 基金估值</div>
+      <span class="fund-upd" id="fundUpd"></span>
+    </div>
+    <div class="fund-list" id="fundList"><div class="fund-empty">加载中…</div></div>
+    <div class="fund-add">
+      <input id="fundInput" placeholder="基金代码，如 001186" />
+      <button id="fundAdd">+</button>
     </div>`;
 }
 const SF = 'moyu_funds';
@@ -132,13 +127,11 @@ async function fetchFunds(codes: string[]): Promise<Record<string, Omit<FundData
   if (!res?.success || !res.data) throw new Error('fetch failed');
   return res.data;
 }
-async function refreshFund() {
+export async function refreshFund() {
   if (fundLoading) return;
   if (!document.getElementById('fundList')) return;
   if (!fundCodes.length) return;
-  const btn = document.getElementById('fundRefresh');
   fundLoading = true;
-  btn?.classList.add('spin');
   try {
     const data = await fetchFunds(fundCodes);
     const cache = loadFundCache();
@@ -158,7 +151,6 @@ async function refreshFund() {
     renderFundList(true);
   } finally {
     fundLoading = false;
-    btn?.classList.remove('spin');
   }
 }
 async function addFund() {
@@ -181,7 +173,6 @@ async function addFund() {
   refreshFund();
 }
 function bindFundControls() {
-  document.getElementById('fundRefresh')?.addEventListener('click', refreshFund);
   document.getElementById('fundAdd')?.addEventListener('click', addFund);
   document.getElementById('fundInput')?.addEventListener('keydown', (e) => {
     if ((e as KeyboardEvent).key === 'Enter') addFund();

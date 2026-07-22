@@ -16,23 +16,15 @@ interface GoldCache {
 let goldInited = false;
 let goldLoading = false;
 
-export function renderGoldCard(): string {
-  return `<div class="widget-card gold-card">
-      <div class="gold-head">
-        <div class="gold-title">◆ 实时金价</div>
-        <div class="gold-meta">
-          <span class="gold-upd" id="goldUpd">加载中…</span>
-          <button class="gold-refresh" id="goldRefresh" title="刷新">↻</button>
-        </div>
-      </div>
-      <div class="gold-main">
-        <span class="gold-amount" id="goldGram">¥--</span>
-        <span class="gold-unit">元/克</span>
-      </div>
-      <div class="gold-sub">
-        <div class="gold-sub-i"><span>美元/盎司</span><span id="goldUsd">$--</span></div>
-        <div class="gold-delta flat" id="goldDelta">实时</div>
-      </div>
+export function renderGoldSection(): string {
+  return `<div class="gold-main">
+      <span class="gold-amount" id="goldGram">¥--</span>
+      <span class="gold-unit">元/克</span>
+    </div>
+    <div class="gold-sub">
+      <div class="gold-sub-i"><span>美元/盎司</span><span id="goldUsd">$--</span></div>
+      <div class="gold-delta flat" id="goldDelta">实时</div>
+      <span class="gold-upd" id="goldUpd">加载中…</span>
     </div>`;
 }
 
@@ -100,12 +92,10 @@ async function fetchGold(): Promise<{ cny: GoldPrice; usd: GoldPrice }> {
   if (!res?.success || !res.data) throw new Error(res?.error || 'fetch failed');
   return res.data;
 }
-async function refreshGold() {
+export async function refreshGold() {
   if (goldLoading) return;
   if (!document.getElementById('goldGram')) return;
-  const btn = document.getElementById('goldRefresh');
   goldLoading = true;
-  btn?.classList.add('spin');
   try {
     const prev = loadGoldCache();
     const r = await fetchGold();
@@ -121,7 +111,6 @@ async function refreshGold() {
     renderGold(loadGoldCache(), true);
   } finally {
     goldLoading = false;
-    btn?.classList.remove('spin');
   }
 }
 function onGoldVis() {
@@ -131,7 +120,6 @@ function onGoldVis() {
 }
 export function initGold() {
   renderGold(loadGoldCache(), false);
-  document.getElementById('goldRefresh')?.addEventListener('click', refreshGold);
   if (goldInited) return;
   goldInited = true;
   refreshGold();
