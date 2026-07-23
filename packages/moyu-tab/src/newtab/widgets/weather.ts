@@ -1,33 +1,5 @@
 import { pad } from '../utils';
 
-export function renderWeatherCard(): string {
-  return `<div class="widget-card weather-card">
-      <div class="weather-head">
-        <div class="weather-title">☂ 实时天气</div>
-        <div class="weather-meta">
-          <span class="weather-upd" id="weatherUpd">加载中…</span>
-          <button class="weather-refresh" id="weatherLocate" title="定位当前城市"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="2" fill="currentColor" stroke="none"/><line x1="12" y1="2" x2="12" y2="6"/><line x1="12" y1="18" x2="12" y2="22"/><line x1="2" y1="12" x2="6" y2="12"/><line x1="18" y1="12" x2="22" y2="12"/></svg></button>
-          <button class="weather-refresh" id="weatherRefresh" title="刷新">↻</button>
-        </div>
-      </div>
-      <div class="weather-city" id="weatherCityWrap"><span id="weatherCity">--</span><input id="weatherCityInput" placeholder="输入城市" style="display:none"/></div>
-      <div class="weather-main">
-        <span class="weather-icon" id="weatherIcon">--</span>
-        <span class="weather-temp" id="weatherTemp">--°</span>
-      </div>
-      <div class="weather-desc" id="weatherDesc">--</div>
-      <div class="weather-sub">
-        <div class="weather-sub-i"><span>体感</span><span id="weatherFeel">--</span></div>
-        <div class="weather-sub-i"><span>湿度</span><span id="weatherHum">--</span></div>
-        <div class="weather-sub-i"><span>风速</span><span id="weatherWind">--</span></div>
-        <div class="weather-sub-i"><span>空气</span><span id="weatherAqi">--</span></div>
-      </div>
-      <div class="weather-daily" id="weatherDaily" style="display:none">
-        <div class="weather-daily-head">7天预报</div>
-        <div class="weather-daily-grid" id="weatherDailyGrid"></div>
-      </div>
-    </div>`;
-}
 const WC_KEY = 'moyu_weather_city';
 const WX_CACHE = 'moyu_weather_cache';
 interface WCity {

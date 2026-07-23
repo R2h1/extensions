@@ -34,9 +34,17 @@ html.locked .search-bar{position:fixed;top:calc(28% + 116px);left:50%;transform:
 html.locked .lock-btn{color:rgba(255,255,255,.85);background:rgba(255,255,255,.14);box-shadow:none}
 html.locked .lock-btn:hover{color:#fff;background:rgba(255,255,255,.24)}
 @media (max-width:980px){html:not(.locked) .hd-date{display:none}}
+.header-weather{display:flex;align-items:center;gap:6px;cursor:pointer;white-space:nowrap;padding:2px 8px;margin:-2px -8px;border-radius:8px;transition:background .15s}
+html:not(.locked) .header-weather:hover{background:var(--glass-accent)}
+.hw-icon{font-size:15px;line-height:1}
+.hw-temp{font-size:14px;font-weight:600;color:#3b3b3b;font-variant-numeric:tabular-nums;font-family:'Courier New',ui-monospace,monospace}
+.hw-desc{font-size:12px;color:#2a2a2c}
+.hw-city{font-size:12px;color:var(--text-tertiary)}
+html.locked .header-weather{display:none}
+@media (max-width:980px){html:not(.locked) .header-weather{display:none}}
 .app{display:flex;flex-direction:column;height:100vh;position:relative;z-index:1}
 .top-header{flex-shrink:0;width:100%;display:flex;flex-direction:column;align-items:center;gap:8px;padding:10px 16px;background:rgba(255,255,255,0.22);backdrop-filter:blur(4px) saturate(140%);-webkit-backdrop-filter:blur(8px) saturate(140%);box-shadow:0 2px 10px rgba(0,0,0,0.05);position:relative;z-index:6}
-.header-row{display:flex;align-items:center;width:calc(100% + 32px);margin:0 -16px;padding:0 100px;gap:12px}
+.header-row{display:flex;align-items:center;width:calc(100% + 32px);margin:0 -16px;padding:0 100px;gap:20px}
 .top-header .search-bar{margin:0;width:100%;max-width:580px}
 .app-body{flex:1;display:flex;min-height:0;position:relative;z-index:1}
 html.locked .top-header{background:transparent;box-shadow:none;backdrop-filter:none;-webkit-backdrop-filter:none}
@@ -295,6 +303,8 @@ html.locked .sub-filter{display:none}
 .cal-popover{display:none;position:fixed;z-index:80;width:300px}
 .cal-popover.open{display:block;animation:calpop .16s ease-out;transform-origin:top left}
 @keyframes calpop{from{opacity:0;transform:translateY(-6px) scale(.97)}to{opacity:1;transform:translateY(0) scale(1)}}
+.weather-popover{display:none;position:fixed;z-index:80;width:320px}
+.weather-popover.open{display:block;animation:calpop .16s ease-out;transform-origin:top left}
 /* 影音卡片 */
 .tv-card{padding:12px 14px}
 .tv-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
@@ -575,6 +585,12 @@ html.locked .sub-filter{display:none}
         <span class="hd-date" id="dateDisplay"></span>
         <span class="hd-time" id="timeDisplay">--:--:--</span>
       </div>
+      <div class="header-weather" id="headerWeather">
+        <span class="hw-city" id="weatherCity">--</span>
+        <span class="hw-icon" id="weatherIcon">--</span>
+        <span class="hw-temp" id="weatherTemp">--°</span>
+        <span class="hw-desc" id="weatherDesc">--</span>
+      </div>
       <button class="lock-btn" id="lockBtn" type="button" title="清屏"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="4" width="19" height="13" rx="2"/><line x1="9" y1="20.5" x2="15" y2="20.5"/><line x1="20" y1="3" x2="12.5" y2="10.5"/><path d="M12.5 10.5l-2.8 2.8"/><path d="M12.5 10.5l-1 4"/><path d="M12.5 10.5l-4 1"/></svg></button>
     </div>
     <div class="search-bar" id="searchBar">
@@ -619,6 +635,29 @@ html.locked .sub-filter{display:none}
     <div class="cal-hol">
       <div class="hol-list-head"><span>接下来的假期</span><span class="cal-head-meta"><span class="holiday-upd" id="holidayUpd">加载中…</span><button class="holiday-refresh" id="holidayRefresh" title="刷新">↻</button></span></div>
       <div class="hol-list" id="holidayList"><div class="hot-empty">加载中…</div></div>
+    </div>
+  </div>
+</div>
+<div class="weather-popover" id="weatherPopover">
+  <div class="widget-card weather-card">
+    <div class="weather-head">
+      <div class="weather-title">☂ 实时天气</div>
+      <div class="weather-meta">
+        <span class="weather-upd" id="weatherUpd">加载中…</span>
+        <button class="weather-refresh" id="weatherLocate" title="定位当前城市"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="2" fill="currentColor" stroke="none"/><line x1="12" y1="2" x2="12" y2="6"/><line x1="12" y1="18" x2="12" y2="22"/><line x1="2" y1="12" x2="6" y2="12"/><line x1="18" y1="12" x2="22" y2="12"/></svg></button>
+        <button class="weather-refresh" id="weatherRefresh" title="刷新">↻</button>
+      </div>
+    </div>
+    <div class="weather-city" id="weatherCityWrap"><span class="weather-city-edit">📍 切换城市</span><input id="weatherCityInput" placeholder="输入城市" style="display:none"/></div>
+    <div class="weather-sub">
+      <div class="weather-sub-i"><span>体感</span><span id="weatherFeel">--</span></div>
+      <div class="weather-sub-i"><span>湿度</span><span id="weatherHum">--</span></div>
+      <div class="weather-sub-i"><span>风速</span><span id="weatherWind">--</span></div>
+      <div class="weather-sub-i"><span>空气</span><span id="weatherAqi">--</span></div>
+    </div>
+    <div class="weather-daily" id="weatherDaily" style="display:none">
+      <div class="weather-daily-head">7天预报</div>
+      <div class="weather-daily-grid" id="weatherDailyGrid"></div>
     </div>
   </div>
 </div>

@@ -46,12 +46,6 @@ export const ICONS: Record<string, string> = {
 
 export const CAT_TREE: TopCat[] = [
   {
-    id: 'life',
-    name: '生活',
-    icon: ICONS.life,
-    subs: [{ id: 'daily', name: '日常' }],
-  },
-  {
     id: 'news',
     name: '资讯',
     icon: ICONS.news,
@@ -103,7 +97,6 @@ export const CAT_TREE: TopCat[] = [
 ];
 
 export const ALL_WIDGETS: WID[] = [
-  { id: 'weather', name: '天气', desc: '实时天气', cat: 'life', sub: 'daily' },
   { id: 'hot_weibo', name: '微博热搜', desc: '微博实时热搜', cat: 'news', sub: 'hot' },
   { id: 'hot_bilibili', name: 'B站热搜', desc: 'B站实时热搜', cat: 'news', sub: 'hot' },
   { id: 'hot_baidu', name: '百度热搜', desc: '百度实时热搜', cat: 'news', sub: 'hot' },

@@ -18,7 +18,7 @@ import { initCurrency, renderCurrencyCard } from './widgets/currency';
 import { initBookmarks, renderBookmarksCard } from './widgets/bookmarks';
 import { initAihot, renderAihotCard } from './widgets/aihot';
 import { initFund, renderFundSection, refreshFund } from './widgets/fund';
-import { initWeather, renderWeatherCard } from './widgets/weather';
+import { initWeather } from './widgets/weather';
 import { HOT_WIDGETS, renderHotCard, initHotCard } from './widgets/hot';
 import { CAT_TREE, ALL_WIDGETS, TopCat, WID } from './config';
 
@@ -338,7 +338,6 @@ function getCard(w: WID): string {
       <div class="market-divider"></div>
       ${renderFundSection()}
     </div>`;
-  if (w.id === 'weather') return renderWeatherCard();
   if (w.id === 'tv')
     return `<div class="widget-card tv-card">
       <div class="tv-head">
@@ -402,9 +401,6 @@ async function initW(id: string) {
       break;
     case 'market':
       initMarket();
-      break;
-    case 'weather':
-      initWeather();
       break;
     case 'music':
       initMusic();
@@ -1622,14 +1618,18 @@ function initCalendar() {
   initHoliday();
 }
 
-// ── 顶部日期点击 -> 日历浮层 ──
-function initCalendarPopover() {
-  initCalendar();
-  const dateEl = document.getElementById('dateDisplay');
-  const popEl = document.getElementById('calPopover');
-  if (!dateEl || !popEl) return;
+// ── 顶部 header 浮层（日历 / 天气，互斥展开）──
+function closeAllPopovers() {
+  document
+    .querySelectorAll('.cal-popover.open, .weather-popover.open')
+    .forEach((p) => p.classList.remove('open'));
+}
+function setupHeaderPopover(triggerId: string, popId: string, onClose?: () => void) {
+  const triggerEl = document.getElementById(triggerId);
+  const popEl = document.getElementById(popId);
+  if (!triggerEl || !popEl) return;
   const position = () => {
-    const r = dateEl.getBoundingClientRect();
+    const r = triggerEl.getBoundingClientRect();
     const w = popEl.offsetWidth;
     let left = r.left;
     if (left + w > window.innerWidth - 12) left = window.innerWidth - 12 - w;
@@ -1637,31 +1637,40 @@ function initCalendarPopover() {
     popEl.style.top = r.bottom + 8 + 'px';
     popEl.style.left = left + 'px';
   };
-  dateEl.addEventListener('click', (e) => {
+  triggerEl.addEventListener('click', (e) => {
     e.stopPropagation();
     const willOpen = !popEl.classList.contains('open');
-    closeAllDropdowns();
+    closeAllPopovers();
+    onClose?.();
     if (willOpen) {
       popEl.classList.add('open');
       position();
-    } else {
-      popEl.classList.remove('open');
     }
   });
   document.addEventListener('click', (e) => {
     if (!popEl.classList.contains('open')) return;
     const t = e.target as Node;
-    if (popEl.contains(t) || dateEl.contains(t)) return;
-    popEl.classList.remove('open');
-    closeAllDropdowns();
+    if (popEl.contains(t) || triggerEl.contains(t)) return;
+    closeAllPopovers();
+    onClose?.();
   });
   document.addEventListener('keydown', (e) => {
     if ((e as KeyboardEvent).key === 'Escape' && popEl.classList.contains('open')) {
-      popEl.classList.remove('open');
-      closeAllDropdowns();
+      closeAllPopovers();
+      onClose?.();
     }
   });
-  window.addEventListener('resize', () => popEl.classList.remove('open'));
+  window.addEventListener('resize', () => {
+    if (popEl.classList.contains('open')) closeAllPopovers();
+  });
+}
+function initCalendarPopover() {
+  initCalendar();
+  setupHeaderPopover('dateDisplay', 'calPopover', closeAllDropdowns);
+}
+function initWeatherPopover() {
+  initWeather();
+  setupHeaderPopover('headerWeather', 'weatherPopover');
 }
 
 // ── 音乐（APlayer + Meting API）──
@@ -1779,6 +1788,7 @@ async function init() {
   loadWallpaper();
   initClock();
   initCalendarPopover();
+  initWeatherPopover();
   initWebSearch();
   await loadSch();
   await loadSal();
