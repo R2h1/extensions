@@ -15,11 +15,11 @@ html.animated .sidebar{transition:opacity 0.4s ease,visibility 0.4s}
 html.locked .widget-card{opacity:0;visibility:hidden;transition:opacity 0.35s ease,visibility 0.35s}
 html.locked .entry-btn{opacity:0;visibility:hidden;transition:opacity 0.3s ease,visibility 0.3s}
 html.locked .entry-grid{opacity:0;visibility:hidden;transition:opacity 0.3s ease,visibility 0.3s}
-.header-date{position:absolute;left:16px;top:50%;transform:translateY(-50%);display:flex;align-items:baseline;gap:10px;z-index:1;pointer-events:none;white-space:nowrap}
-.hd-time{font-size:13px;font-weight:600;color:var(--text);font-variant-numeric:tabular-nums;font-family:'Courier New',ui-monospace,monospace}
-.hd-date{font-size:12px;color:var(--text-secondary)}
+.header-date{display:flex;align-items:baseline;gap:10px;pointer-events:none;white-space:nowrap}
+.hd-time{font-size:14px;font-weight:600;color:#2a2a2c;font-variant-numeric:tabular-nums;font-family:'Courier New',ui-monospace,monospace}
+.hd-date{font-size:12px;color:#2a2a2c}
 .hd-date .d-lunar{display:none}
-.lock-btn{position:absolute;right:16px;top:50%;transform:translateY(-50%);width:34px;height:34px;border:none;border-radius:50%;background:var(--nm-surface);box-shadow:var(--nm-out),0 2px 4px rgba(0,0,0,0.1);color:var(--text-secondary);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:color .15s,box-shadow .15s;font-family:inherit}
+.lock-btn{width:34px;height:34px;margin-left:auto;border:none;border-radius:50%;background:var(--nm-surface);box-shadow:var(--nm-out),0 2px 4px rgba(0,0,0,0.1);color:var(--text-secondary);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:color .15s,box-shadow .15s;font-family:inherit;flex-shrink:0}
 .lock-btn:hover{color:var(--accent)}
 .lock-btn:active{box-shadow:var(--nm-in-sm)}
 .lock-btn.on{color:var(--accent)}
@@ -34,10 +34,12 @@ html.locked .lock-btn{color:rgba(255,255,255,.85);background:rgba(255,255,255,.1
 html.locked .lock-btn:hover{color:#fff;background:rgba(255,255,255,.24)}
 @media (max-width:980px){html:not(.locked) .hd-date{display:none}}
 .app{display:flex;flex-direction:column;height:100vh;position:relative;z-index:1}
-.top-header{flex-shrink:0;width:100%;display:flex;justify-content:center;align-items:center;padding:12px 16px;background:var(--nm-surface);box-shadow:0 2px 10px rgba(0,0,0,0.05);position:relative;z-index:6}
+.top-header{flex-shrink:0;width:100%;display:flex;flex-direction:column;align-items:center;gap:8px;padding:10px 16px;background:rgba(255,255,255,0.22);backdrop-filter:blur(8px) saturate(140%);-webkit-backdrop-filter:blur(8px) saturate(140%);box-shadow:0 2px 10px rgba(0,0,0,0.05);position:relative;z-index:6}
+.header-row{display:flex;align-items:center;width:calc(100% + 32px);margin:0 -16px;padding:0 100px;gap:12px}
 .top-header .search-bar{margin:0;width:100%;max-width:580px}
 .app-body{flex:1;display:flex;min-height:0;position:relative;z-index:1}
-html.locked .top-header{background:transparent;box-shadow:none}
+html.locked .top-header{background:transparent;box-shadow:none;backdrop-filter:none;-webkit-backdrop-filter:none}
+html.locked .header-row{padding:0 16px}
 .sidebar{position:fixed;left:5%;top:15%;width:104px;z-index:5;display:flex;flex-direction:column;padding:16px 8px 14px;background:var(--nm-surface);border-radius:var(--radius);box-shadow:var(--nm-out)}
 .sidebar-nav{flex:1;display:flex;flex-direction:column;gap:2px}
 .ic{width:20px;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0}
@@ -62,9 +64,9 @@ html.locked .top-header{background:transparent;box-shadow:none}
 .sal-card{container-type:inline-size}
 .cat-panel .empty{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;padding:36px 0;color:var(--text-tertiary);font-size:13px}
 .cat-panel .add-hint{font-size:11px;color:var(--text-tertiary)}
-.sub-filter{display:flex;gap:2px;flex-wrap:wrap;padding:6px 8px;background:var(--nm-surface);border-radius:var(--radius-sm);margin-bottom:14px}
+.sub-filter{display:flex;gap:2px;flex-wrap:wrap;padding:2px 0;background:transparent;width:100%;max-width:580px}
 .sub-filter:empty{display:none}
-.sf-chip{padding:6px 12px;background:transparent;border:none;border-bottom:2px solid transparent;color:var(--text-tertiary);font-size:13px;font-weight:500;font-family:inherit;cursor:pointer;transition:all 0.15s}
+.sf-chip{padding:6px 12px;background:transparent;border:none;border-bottom:2px solid transparent;color:var(--text-secondary);font-size:13px;font-weight:500;font-family:inherit;cursor:pointer;transition:all 0.15s}
 .sf-chip:hover{color:var(--text)}
 .sf-chip.active{color:var(--accent);font-weight:600;border-bottom-color:var(--accent)}
 html.locked .sub-filter{display:none}
@@ -564,9 +566,12 @@ html.locked .sub-filter{display:none}
 <body>
 <div class="app">
   <header class="top-header">
-    <div class="header-date" id="headerDate">
-      <span class="hd-date" id="dateDisplay"></span>
-      <span class="hd-time" id="timeDisplay">--:--:--</span>
+    <div class="header-row">
+      <div class="header-date" id="headerDate">
+        <span class="hd-date" id="dateDisplay"></span>
+        <span class="hd-time" id="timeDisplay">--:--:--</span>
+      </div>
+      <button class="lock-btn" id="lockBtn" type="button" title="清屏"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="4" width="19" height="13" rx="2"/><line x1="9" y1="20.5" x2="15" y2="20.5"/><line x1="20" y1="3" x2="12.5" y2="10.5"/><path d="M12.5 10.5l-2.8 2.8"/><path d="M12.5 10.5l-1 4"/><path d="M12.5 10.5l-4 1"/></svg></button>
     </div>
     <div class="search-bar" id="searchBar">
       <div class="sb-engine" id="sbEngine">
@@ -576,7 +581,7 @@ html.locked .sub-filter{display:none}
       <input class="sb-input" id="sbInput" type="text" placeholder="输入关键词搜索…" autocomplete="off" />
       <button class="sb-go" id="sbGo" title="搜索"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></button>
     </div>
-    <button class="lock-btn" id="lockBtn" type="button" title="清屏"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="4" width="19" height="13" rx="2"/><line x1="9" y1="20.5" x2="15" y2="20.5"/><line x1="20" y1="3" x2="12.5" y2="10.5"/><path d="M12.5 10.5l-2.8 2.8"/><path d="M12.5 10.5l-1 4"/><path d="M12.5 10.5l-4 1"/></svg></button>
+    <div class="sub-filter" id="subFilter"></div>
   </header>
   <div class="app-body">
   <nav class="sidebar">
@@ -586,7 +591,6 @@ html.locked .sub-filter{display:none}
     <button class="sb-btn" id="settingsBtn"><span class="ic">⚙</span>设置</button>
   </nav>
   <main class="content"><div class="ci">
-    <div class="sub-filter" id="subFilter"></div>
     <div class="cat-panel active" id="panel"></div>
   </div></main>
   </div>
