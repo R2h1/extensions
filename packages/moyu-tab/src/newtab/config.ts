@@ -42,6 +42,7 @@ export const ICONS: Record<string, string> = {
   tools: svg(
     '<path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/>',
   ),
+  bookmark: svg('<path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/>'),
 };
 
 export const CAT_TREE: TopCat[] = [
@@ -89,10 +90,13 @@ export const CAT_TREE: TopCat[] = [
     id: 'tools',
     name: '工具',
     icon: ICONS.tools,
-    subs: [
-      { id: 'calc', name: '计算' },
-      { id: 'nav', name: '导航' },
-    ],
+    subs: [{ id: 'calc', name: '计算' }],
+  },
+  {
+    id: 'bookmark',
+    name: '书签',
+    icon: ICONS.bookmark,
+    subs: [{ id: 'nav', name: '导航' }],
   },
 ];
 
@@ -115,7 +119,7 @@ export const ALL_WIDGETS: WID[] = [
   { id: 'salary', name: '薪资跳动', desc: '实时薪资计数器', cat: 'work', sub: 'salary' },
   { id: 'market', name: '行情', desc: '金价+基金估值', cat: 'finance', sub: 'market' },
   { id: 'currency', name: '汇率换算', desc: '实时汇率换算', cat: 'finance', sub: 'market' },
-  { id: 'bookmarks', name: '书签同步', desc: '浏览器书签栏', cat: 'tools', sub: 'nav' },
+  { id: 'bookmarks', name: '书签同步', desc: '浏览器书签栏', cat: 'bookmark', sub: 'nav' },
   { id: 'tax', name: '个税计算器', desc: '月薪到手税后', cat: 'tools', sub: 'calc' },
   { id: 'mortgage', name: '房贷计算器', desc: '等额本息/本金', cat: 'tools', sub: 'calc' },
   { id: 'bmi', name: 'BMI 计算器', desc: '身体质量指数', cat: 'tools', sub: 'calc' },

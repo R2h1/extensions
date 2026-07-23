@@ -24,7 +24,8 @@ import { CAT_TREE, ALL_WIDGETS, TopCat, WID } from './config';
 
 const SS = 'moyu_schedule',
   SW = 'moyu_widgets',
-  SR = 'moyu_salary';
+  SR = 'moyu_salary',
+  WV = 2; // 组件存储结构版本：变更组件分类归属时 +1，触发按新 cat.sub 重组迁移
 interface Sch {
   startHour: number;
   startMinute: number;
@@ -59,10 +60,10 @@ function subKey(cat: string, sub: string) {
 async function getWD(): Promise<WData> {
   const r = await chrome.storage.sync.get(SW);
   const raw = r[SW] as
-    | { subs?: Record<string, string[]>; cats?: Record<string, string[]> }
+    | { subs?: Record<string, string[]>; cats?: Record<string, string[]>; v?: number }
     | undefined;
-  if (raw?.subs && !raw.cats) return { subs: raw.subs };
-  // 迁移：旧 cats（按一级）或首次，按组件新 cat.sub 重组
+  if (raw?.subs && !raw.cats && raw.v === WV) return { subs: raw.subs };
+  // 迁移：旧 cats（按一级）、版本不匹配或首次，按组件新 cat.sub 重组
   const subs: Record<string, string[]> = {};
   const feed = (id: string) => {
     if (id === 'clock') return;
@@ -91,11 +92,11 @@ async function getWD(): Promise<WData> {
     // 首次：默认开启所有现有组件
     ALL_WIDGETS.forEach((w) => feed(w.id));
   }
-  await chrome.storage.sync.set({ [SW]: { subs } });
+  await chrome.storage.sync.set({ [SW]: { subs, v: WV } });
   return { subs };
 }
 async function setWD(d: WData) {
-  await chrome.storage.sync.set({ [SW]: { subs: d.subs } });
+  await chrome.storage.sync.set({ [SW]: { subs: d.subs, v: WV } });
 }
 async function getSal(): Promise<SalStt> {
   const r = await chrome.storage.sync.get(SR);
