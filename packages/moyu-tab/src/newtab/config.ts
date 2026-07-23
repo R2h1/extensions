@@ -104,7 +104,6 @@ export const CAT_TREE: TopCat[] = [
 
 export const ALL_WIDGETS: WID[] = [
   { id: 'weather', name: '天气', desc: '实时天气', cat: 'life', sub: 'daily' },
-  { id: 'calendar', name: '日历', desc: '月历+农历+假期', cat: 'life', sub: 'daily' },
   { id: 'hot_weibo', name: '微博热搜', desc: '微博实时热搜', cat: 'news', sub: 'hot' },
   { id: 'hot_bilibili', name: 'B站热搜', desc: 'B站实时热搜', cat: 'news', sub: 'hot' },
   { id: 'hot_baidu', name: '百度热搜', desc: '百度实时热搜', cat: 'news', sub: 'hot' },

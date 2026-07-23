@@ -339,24 +339,6 @@ function getCard(w: WID): string {
       ${renderFundSection()}
     </div>`;
   if (w.id === 'weather') return renderWeatherCard();
-  if (w.id === 'calendar')
-    return `<div class="widget-card cal-card">
-      <div class="cal-head">
-        <button class="cal-nav" id="calPrev">‹</button>
-        <div class="cal-ym">
-          <div class="cal-dd" id="calYearDD"><button class="cal-dd-btn" type="button"><span class="cal-dd-val">年</span><span class="cal-dd-arrow">▾</span></button><div class="cal-dd-list" id="calYearList"></div></div>
-          <div class="cal-dd" id="calMonthDD"><button class="cal-dd-btn" type="button"><span class="cal-dd-val">月</span><span class="cal-dd-arrow">▾</span></button><div class="cal-dd-list" id="calMonthList"></div></div>
-        </div>
-        <button class="cal-nav" id="calNext">›</button>
-        <button class="cal-today" id="calToday" title="回到今日">今</button>
-      </div>
-      <div class="cal-week"><span>一</span><span>二</span><span>三</span><span>四</span><span>五</span><span class="cal-wkend">六</span><span class="cal-wkend">日</span></div>
-      <div class="cal-grid" id="calGrid"></div>
-      <div class="cal-hol">
-        <div class="hol-list-head"><span>接下来的假期</span><span class="cal-head-meta"><span class="holiday-upd" id="holidayUpd">加载中…</span><button class="holiday-refresh" id="holidayRefresh" title="刷新">↻</button></span></div>
-        <div class="hol-list" id="holidayList"><div class="hot-empty">加载中…</div></div>
-      </div>
-    </div>`;
   if (w.id === 'tv')
     return `<div class="widget-card tv-card">
       <div class="tv-head">
@@ -423,9 +405,6 @@ async function initW(id: string) {
       break;
     case 'weather':
       initWeather();
-      break;
-    case 'calendar':
-      initCalendar();
       break;
     case 'music':
       initMusic();
@@ -1643,6 +1622,48 @@ function initCalendar() {
   initHoliday();
 }
 
+// ── 顶部日期点击 -> 日历浮层 ──
+function initCalendarPopover() {
+  initCalendar();
+  const dateEl = document.getElementById('dateDisplay');
+  const popEl = document.getElementById('calPopover');
+  if (!dateEl || !popEl) return;
+  const position = () => {
+    const r = dateEl.getBoundingClientRect();
+    const w = popEl.offsetWidth;
+    let left = r.left;
+    if (left + w > window.innerWidth - 12) left = window.innerWidth - 12 - w;
+    if (left < 12) left = 12;
+    popEl.style.top = r.bottom + 8 + 'px';
+    popEl.style.left = left + 'px';
+  };
+  dateEl.addEventListener('click', (e) => {
+    e.stopPropagation();
+    const willOpen = !popEl.classList.contains('open');
+    closeAllDropdowns();
+    if (willOpen) {
+      popEl.classList.add('open');
+      position();
+    } else {
+      popEl.classList.remove('open');
+    }
+  });
+  document.addEventListener('click', (e) => {
+    if (!popEl.classList.contains('open')) return;
+    const t = e.target as Node;
+    if (popEl.contains(t) || dateEl.contains(t)) return;
+    popEl.classList.remove('open');
+    closeAllDropdowns();
+  });
+  document.addEventListener('keydown', (e) => {
+    if ((e as KeyboardEvent).key === 'Escape' && popEl.classList.contains('open')) {
+      popEl.classList.remove('open');
+      closeAllDropdowns();
+    }
+  });
+  window.addEventListener('resize', () => popEl.classList.remove('open'));
+}
+
 // ── 音乐（APlayer + Meting API）──
 const MUSIC_API = 'https://api.i-meto.com/meting/api?server=netease&type=playlist&id=3778678&r=';
 let musicAp: any = null;
@@ -1757,6 +1778,7 @@ async function init() {
   );
   loadWallpaper();
   initClock();
+  initCalendarPopover();
   initWebSearch();
   await loadSch();
   await loadSal();

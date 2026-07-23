@@ -17,7 +17,8 @@ html.locked .entry-btn{opacity:0;visibility:hidden;transition:opacity 0.3s ease,
 html.locked .entry-grid{opacity:0;visibility:hidden;transition:opacity 0.3s ease,visibility 0.3s}
 .header-date{display:flex;align-items:baseline;gap:10px;pointer-events:none;white-space:nowrap}
 .hd-time{font-size:14px;font-weight:600;color:#3b3b3b;font-variant-numeric:tabular-nums;font-family:'Courier New',ui-monospace,monospace}
-.hd-date{font-size:12px;color:#2a2a2c}
+.hd-date{font-size:12px;color:#2a2a2c;pointer-events:auto;cursor:pointer;border-radius:6px;padding:2px 6px;margin:-2px -6px;transition:background .15s,color .15s}
+html:not(.locked) .hd-date:hover{background:var(--glass-accent);color:var(--accent)}
 .hd-date .d-lunar{display:none}
 .lock-btn{width:34px;height:34px;margin-left:auto;border:none;border-radius:50%;background:var(--nm-surface);box-shadow:var(--nm-out),0 2px 4px rgba(0,0,0,0.1);color:var(--text-secondary);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:color .15s,box-shadow .15s;font-family:inherit;flex-shrink:0}
 .lock-btn:hover{color:var(--accent)}
@@ -290,6 +291,10 @@ html.locked .sub-filter{display:none}
 .cal-l{font-size:8px;color:var(--text-tertiary);margin-top:1px;line-height:1}
 .cal-cell.today{background:var(--glass-accent)}
 .cal-cell.today .cal-d{color:var(--accent);font-weight:700}
+/* 日历浮层（点击顶部日期展开） */
+.cal-popover{display:none;position:fixed;z-index:80;width:300px}
+.cal-popover.open{display:block;animation:calpop .16s ease-out;transform-origin:top left}
+@keyframes calpop{from{opacity:0;transform:translateY(-6px) scale(.97)}to{opacity:1;transform:translateY(0) scale(1)}}
 /* 影音卡片 */
 .tv-card{padding:12px 14px}
 .tv-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
@@ -598,6 +603,25 @@ html.locked .sub-filter{display:none}
 <div class="mo" id="widgetModal"><div class="ms"><div class="mh"><span class="mt">组件库</span><button class="mc" id="wmClose">x</button></div><div class="modal-split"><div class="wm-sidebar" id="wmSidebar"></div><div class="modal-content"><div class="wm-tabs" id="wmTabs"></div><div id="widgetList"></div></div></div></div></div>
 <div class="mo" id="settingsModal"><div class="ms"><div class="mh"><span class="mt">设置</span><button class="mc" id="smClose">x</button></div><div class="modal-split"><div class="modal-sidebar" id="smSidebar"><button class="msb active" data-s="time">时间</button><button class="msb" data-s="salary">发薪日</button></div><div class="modal-content" id="settingsBody"></div></div></div></div>
 <div class="mo" id="wallpaperModal"><div class="ms" style="max-width:600px"><div class="mh"><span class="mt">更换壁纸</span><button class="mc" id="wpClose">x</button></div><div class="modal-content" id="wpBody" style="padding:16px 20px 20px"></div></div></div>
+<div class="cal-popover" id="calPopover">
+  <div class="widget-card cal-card">
+    <div class="cal-head">
+      <button class="cal-nav" id="calPrev">‹</button>
+      <div class="cal-ym">
+        <div class="cal-dd" id="calYearDD"><button class="cal-dd-btn" type="button"><span class="cal-dd-val">年</span><span class="cal-dd-arrow">▾</span></button><div class="cal-dd-list" id="calYearList"></div></div>
+        <div class="cal-dd" id="calMonthDD"><button class="cal-dd-btn" type="button"><span class="cal-dd-val">月</span><span class="cal-dd-arrow">▾</span></button><div class="cal-dd-list" id="calMonthList"></div></div>
+      </div>
+      <button class="cal-nav" id="calNext">›</button>
+      <button class="cal-today" id="calToday" title="回到今日">今</button>
+    </div>
+    <div class="cal-week"><span>一</span><span>二</span><span>三</span><span>四</span><span>五</span><span class="cal-wkend">六</span><span class="cal-wkend">日</span></div>
+    <div class="cal-grid" id="calGrid"></div>
+    <div class="cal-hol">
+      <div class="hol-list-head"><span>接下来的假期</span><span class="cal-head-meta"><span class="holiday-upd" id="holidayUpd">加载中…</span><button class="holiday-refresh" id="holidayRefresh" title="刷新">↻</button></span></div>
+      <div class="hol-list" id="holidayList"><div class="hot-empty">加载中…</div></div>
+    </div>
+  </div>
+</div>
 <script src="newtab.js"></script>
 </body>
 </html>
