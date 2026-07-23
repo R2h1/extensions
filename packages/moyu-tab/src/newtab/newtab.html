@@ -15,15 +15,30 @@ html.animated .sidebar{transition:opacity 0.4s ease,visibility 0.4s}
 html.locked .widget-card{opacity:0;visibility:hidden;transition:opacity 0.35s ease,visibility 0.35s}
 html.locked .entry-btn{opacity:0;visibility:hidden;transition:opacity 0.3s ease,visibility 0.3s}
 html.locked .entry-grid{opacity:0;visibility:hidden;transition:opacity 0.3s ease,visibility 0.3s}
-#timeDisplay{transition:font-size 0.5s cubic-bezier(0.25,0.1,0.25,1)}
-html.locked #timeDisplay{font-size:100px!important}
-html.locked #dateDisplay{font-size:24px!important;transition:font-size 0.5s ease}
+.header-date{position:absolute;left:16px;top:50%;transform:translateY(-50%);display:flex;align-items:baseline;gap:10px;z-index:1;pointer-events:none;white-space:nowrap}
+.hd-time{font-size:13px;font-weight:600;color:var(--text);font-variant-numeric:tabular-nums;font-family:'Courier New',ui-monospace,monospace}
+.hd-date{font-size:12px;color:var(--text-secondary)}
+.hd-date .d-lunar{display:none}
+.lock-btn{position:absolute;right:16px;top:50%;transform:translateY(-50%);width:34px;height:34px;border:none;border-radius:50%;background:var(--nm-surface);box-shadow:var(--nm-out),0 2px 4px rgba(0,0,0,0.1);color:var(--text-secondary);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:color .15s,box-shadow .15s;font-family:inherit}
+.lock-btn:hover{color:var(--accent)}
+.lock-btn:active{box-shadow:var(--nm-in-sm)}
+.lock-btn.on{color:var(--accent)}
+@keyframes flyin{from{opacity:0;transform:translateX(-50%) translateY(-24px) scale(.96)}to{opacity:1;transform:translateX(-50%) translateY(0) scale(1)}}
+html.locked .header-date{position:fixed;top:28%;left:50%;transform:translateX(-50%);flex-direction:column;align-items:center;gap:10px;animation:flyin .5s ease-out}
+html.locked .hd-time{order:-1;font-size:64px;font-weight:600;color:#fff;letter-spacing:4px;line-height:1;text-shadow:0 2px 12px rgba(0,0,0,.25)}
+html.locked .hd-date{font-size:16px;color:rgba(255,255,255,.9);letter-spacing:1px;text-shadow:0 1px 8px rgba(0,0,0,.25)}
+html.locked .hd-date .d-lunar{display:inline}
+html.locked .hd-date .d-year{display:none}
+html.locked .search-bar{position:fixed;top:calc(28% + 116px);left:50%;transform:translateX(-50%);width:580px;max-width:90vw;animation:flyin .5s ease-out .08s backwards}
+html.locked .lock-btn{color:rgba(255,255,255,.85);background:rgba(255,255,255,.14);box-shadow:none}
+html.locked .lock-btn:hover{color:#fff;background:rgba(255,255,255,.24)}
+@media (max-width:980px){html:not(.locked) .hd-date{display:none}}
 .app{display:flex;flex-direction:column;height:100vh;position:relative;z-index:1}
 .top-header{flex-shrink:0;width:100%;display:flex;justify-content:center;align-items:center;padding:12px 16px;background:var(--nm-surface);box-shadow:0 2px 10px rgba(0,0,0,0.05);position:relative;z-index:6}
 .top-header .search-bar{margin:0;width:100%;max-width:580px}
 .app-body{flex:1;display:flex;min-height:0;position:relative;z-index:1}
 html.locked .top-header{background:transparent;box-shadow:none}
-.sidebar{width:104px;flex-shrink:0;display:flex;flex-direction:column;padding:24px 8px 12px;background:var(--nm-surface);border-right:0.5px solid rgba(0,0,0,0.05)}
+.sidebar{position:fixed;left:5%;top:15%;width:104px;z-index:5;display:flex;flex-direction:column;padding:16px 8px 14px;background:var(--nm-surface);border-radius:var(--radius);box-shadow:var(--nm-out)}
 .sidebar-nav{flex:1;display:flex;flex-direction:column;gap:2px}
 .ic{width:20px;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0}
 .sb-btn{display:flex;align-items:center;gap:4px;padding:8px 10px;border-radius:var(--radius-xs);background:transparent;border:none;color:var(--text-secondary);font-size:13px;font-weight:500;font-family:inherit;cursor:pointer;transition:all 0.15s;text-align:left;width:100%;position:relative}
@@ -39,13 +54,12 @@ html.locked .top-header{background:transparent;box-shadow:none}
 .sb-sub{font-size:12px;padding:6px 12px;color:var(--text-tertiary)}
 .sb-sub:hover{color:var(--text-secondary);background:var(--glass-accent)}
 .sb-sub.active{color:var(--accent);font-weight:600;background:var(--glass-accent)}
-.content{flex:1;display:flex;justify-content:center;overflow-y:auto;min-width:0}
+.content{flex:1;display:flex;justify-content:center;overflow-y:auto;min-width:0;padding-left:132px}
 .ci{width:100%;max-width:1040px;display:flex;flex-direction:column;padding:32px 28px 20px}
 .cat-panel{display:none;padding:4px 0}
 .cat-panel.active{display:flex;gap:10px;align-items:flex-start}
 .mason-col{flex:1 1 0;min-width:0;display:flex;flex-direction:column;gap:10px}
 .sal-card{container-type:inline-size}
-.clock-bar{text-align:center;padding:0 20px 12px}
 .cat-panel .empty{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;padding:36px 0;color:var(--text-tertiary);font-size:13px}
 .cat-panel .add-hint{font-size:11px;color:var(--text-tertiary)}
 .sub-filter{display:flex;gap:2px;flex-wrap:wrap;padding:6px 8px;background:var(--nm-surface);border-radius:var(--radius-sm);margin-bottom:14px}
@@ -61,8 +75,6 @@ html.locked .sub-filter{display:none}
 .widget-title{font-size:10px;font-weight:600;color:var(--text-tertiary);letter-spacing:2px;margin-bottom:8px}
 .widget-entry{display:flex;align-items:center;gap:6px;font-size:13px;color:var(--text-secondary);font-weight:500}
 .widget-entry .arrow{font-size:18px;color:var(--text-tertiary);margin-left:auto}
-html.locked #wg-clock{position:fixed;top:30%;left:38%}
-html.locked .clock-bar{padding:0}
 /* modal */
 .mo{display:none;position:fixed;inset:0;z-index:100;background:rgba(0,0,0,0.18);backdrop-filter:none;-webkit-backdrop-filter:none;align-items:center;justify-content:center;padding:24px}
 .mo.open{display:flex}
@@ -552,6 +564,10 @@ html.locked .clock-bar{padding:0}
 <body>
 <div class="app">
   <header class="top-header">
+    <div class="header-date" id="headerDate">
+      <span class="hd-date" id="dateDisplay"></span>
+      <span class="hd-time" id="timeDisplay">--:--:--</span>
+    </div>
     <div class="search-bar" id="searchBar">
       <div class="sb-engine" id="sbEngine">
         <button class="sb-engine-btn" id="sbEngineBtn" type="button"><span id="sbEngineName">百度</span><span class="sb-engine-arrow">▾</span></button>
@@ -560,6 +576,7 @@ html.locked .clock-bar{padding:0}
       <input class="sb-input" id="sbInput" type="text" placeholder="输入关键词搜索…" autocomplete="off" />
       <button class="sb-go" id="sbGo" title="搜索"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></button>
     </div>
+    <button class="lock-btn" id="lockBtn" type="button" title="清屏"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="4" width="19" height="13" rx="2"/><line x1="9" y1="20.5" x2="15" y2="20.5"/><line x1="20" y1="3" x2="12.5" y2="10.5"/><path d="M12.5 10.5l-2.8 2.8"/><path d="M12.5 10.5l-1 4"/><path d="M12.5 10.5l-4 1"/></svg></button>
   </header>
   <div class="app-body">
   <nav class="sidebar">
@@ -569,7 +586,6 @@ html.locked .clock-bar{padding:0}
     <button class="sb-btn" id="settingsBtn"><span class="ic">⚙</span>设置</button>
   </nav>
   <main class="content"><div class="ci">
-    <div class="clock-bar" id="clockBar"><div id="wg-clock" class="wg-clock"><span style="font-size:80px;font-weight:600;letter-spacing:6px;color:white;line-height:1;cursor:pointer" id="timeDisplay">--:--</span><div style="font-size:16px;color:white;margin-top:10px;letter-spacing:2px" id="dateDisplay"></div></div></div>
     <div class="sub-filter" id="subFilter"></div>
     <div class="cat-panel active" id="panel"></div>
   </div></main>

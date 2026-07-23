@@ -707,10 +707,14 @@ function pad(n: number) {
 }
 function initClock() {
   const app = document.documentElement;
-  document.getElementById('timeDisplay')!.addEventListener('click', () => {
+  const lockBtn = document.getElementById('lockBtn');
+  const toggleLock = () => {
     const l = app.classList.toggle('locked');
     localStorage.setItem('moyu_locked', l ? '1' : '0');
-  });
+    lockBtn?.classList.toggle('on', l);
+  };
+  lockBtn?.addEventListener('click', toggleLock);
+  if (app.classList.contains('locked')) lockBtn?.classList.add('on');
   updT();
 }
 
@@ -1018,16 +1022,15 @@ function getLunar(
   };
 }
 function updT() {
-  const n = new Date(),
-    h = n.getHours(),
-    ampm = h < 12 ? '上午' : '下午';
+  const n = new Date();
   const td = document.getElementById('timeDisplay');
-  if (td) td.textContent = `${pad(h)}:${pad(n.getMinutes())}:${pad(n.getSeconds())}`;
+  if (td) td.textContent = `${pad(n.getHours())}:${pad(n.getMinutes())}:${pad(n.getSeconds())}`;
   const dd = document.getElementById('dateDisplay');
   if (dd) {
     const l = getLunar(n.getFullYear(), n.getMonth() + 1, n.getDate());
-    const ln = l.ld > 0 ? ' · 农历' + l.cM + '月' + l.cD : '';
-    dd.textContent = `${n.getFullYear()}.${pad(n.getMonth() + 1)}.${pad(n.getDate())} 周${['日', '一', '二', '三', '四', '五', '六'][n.getDay()]} ${ampm}${ln}`;
+    const wk = '日一二三四五六'[n.getDay()];
+    const lunar = l.ld > 0 ? ` <span class="d-lunar">农历${l.cM}月${l.cD}</span>` : '';
+    dd.innerHTML = `<span class="d-year">${n.getFullYear()}年</span><span class="d-md">${pad(n.getMonth() + 1)}月${pad(n.getDate())}日</span> <span class="d-week">星期${wk}</span>${lunar}`;
   }
 }
 
