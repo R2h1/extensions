@@ -288,15 +288,7 @@ export async function initWeather() {
   }
   document.getElementById('weatherRefresh')?.addEventListener('click', refreshWeather);
   document.getElementById('weatherLocate')?.addEventListener('click', locateAndApply);
-  const wrapEl = document.getElementById('weatherCityWrap');
   const inputEl = document.getElementById('weatherCityInput') as HTMLInputElement | null;
-  wrapEl?.addEventListener('click', () => {
-    if (inputEl && inputEl.style.display === 'none') {
-      inputEl.style.display = 'block';
-      inputEl.value = '';
-      inputEl.focus();
-    }
-  });
   inputEl?.addEventListener('keydown', async (e) => {
     if ((e as KeyboardEvent).key !== 'Enter') return;
     const name = inputEl.value.trim();
@@ -309,12 +301,8 @@ export async function initWeather() {
     }
     wCity = c;
     await setWCity(c);
-    inputEl.style.display = 'none';
+    inputEl.value = '';
     refreshWeather();
-  });
-  inputEl?.addEventListener('blur', () => {
-    inputEl.style.display = 'none';
-    inputEl.classList.remove('err');
   });
   if (wInited) return;
   wInited = true;
