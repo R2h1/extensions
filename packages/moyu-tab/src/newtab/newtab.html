@@ -33,7 +33,6 @@ html.locked .hd-date .d-year{display:none}
 html.locked .search-bar{position:fixed;top:calc(28% + 116px);left:50%;transform:translateX(-50%);width:580px;max-width:90vw;animation:flyin .5s ease-out .08s backwards}
 html.locked .lock-btn{color:rgba(255,255,255,.85);background:rgba(255,255,255,.14);box-shadow:none}
 html.locked .lock-btn:hover{color:#fff;background:rgba(255,255,255,.24)}
-@media (max-width:980px){html:not(.locked) .hd-date{display:none}}
 .header-weather{display:flex;align-items:center;gap:6px;cursor:pointer;white-space:nowrap;padding:2px 8px;margin:-2px -8px;border-radius:8px;transition:background .15s}
 html:not(.locked) .header-weather:hover{background:var(--glass-accent)}
 .hw-icon{font-size:15px;line-height:1}
@@ -41,7 +40,6 @@ html:not(.locked) .header-weather:hover{background:var(--glass-accent)}
 .hw-desc{font-size:12px;color:#2a2a2c}
 .hw-city{font-size:12px;color:var(--text-secondary)}
 html.locked .header-weather{display:none}
-@media (max-width:980px){html:not(.locked) .header-weather{display:none}}
 .app{display:flex;flex-direction:column;height:100vh;position:relative;z-index:1}
 .top-header{flex-shrink:0;width:100%;display:flex;flex-direction:column;align-items:center;gap:8px;padding:10px 16px;background:rgba(255,255,255,0.22);backdrop-filter:blur(4px) saturate(140%);-webkit-backdrop-filter:blur(8px) saturate(140%);box-shadow:0 2px 10px rgba(0,0,0,0.05);position:relative;z-index:6}
 .header-row{display:flex;align-items:center;width:calc(100% + 32px);margin:0 -16px;padding:0 100px;gap:20px}
