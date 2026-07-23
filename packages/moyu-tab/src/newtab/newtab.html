@@ -219,9 +219,10 @@ html.locked .sub-filter{display:none}
 .weather-refresh:hover{color:var(--accent)}
 .weather-refresh:active{box-shadow:var(--nm-in-sm)}
 .weather-refresh.spin{color:var(--accent);animation:goldspin 1s linear infinite}
-.weather-city-input{width:100%;font-size:12px;padding:7px 10px;border:none;border-radius:var(--radius-xs);background:var(--nm-surface);color:var(--text);outline:none;font-family:inherit;box-shadow:var(--nm-in);margin:2px 0 8px}
-.weather-city-input:focus{box-shadow:var(--nm-in),0 0 0 1.5px var(--accent)}
-.weather-city-input.err{box-shadow:var(--nm-in),0 0 0 1.5px #ef4444}
+.weather-city-input{flex:1;min-width:0;margin:0;padding:4px 8px;font-size:14px;font-weight:600;color:var(--text);border:none;border-radius:6px;background:transparent;outline:none;font-family:inherit;box-shadow:none;cursor:pointer;transition:background .15s,box-shadow .15s}
+.weather-city-input:hover{background:var(--glass-accent)}
+.weather-city-input:focus{background:var(--nm-surface);box-shadow:var(--nm-in),0 0 0 1.5px var(--accent);cursor:text}
+.weather-city-input.err{box-shadow:0 0 0 1.5px #ef4444}
 .weather-main{display:flex;align-items:center;gap:10px;margin:4px 0 2px}
 .weather-icon{font-size:34px;line-height:1}
 .weather-temp{font-size:38px;font-weight:700;color:var(--text);letter-spacing:-1px;font-variant-numeric:tabular-nums;font-family:'Courier New',ui-monospace,monospace}
@@ -640,14 +641,13 @@ html.locked .sub-filter{display:none}
 <div class="weather-popover" id="weatherPopover">
   <div class="widget-card weather-card">
     <div class="weather-head">
-      <div class="weather-title">☂ 实时天气</div>
+      <input class="weather-city-input" id="weatherCityInput" placeholder="城市名"/>
       <div class="weather-meta">
         <span class="weather-upd" id="weatherUpd">加载中…</span>
         <button class="weather-refresh" id="weatherLocate" title="定位当前城市"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="2" fill="currentColor" stroke="none"/><line x1="12" y1="2" x2="12" y2="6"/><line x1="12" y1="18" x2="12" y2="22"/><line x1="2" y1="12" x2="6" y2="12"/><line x1="18" y1="12" x2="22" y2="12"/></svg></button>
         <button class="weather-refresh" id="weatherRefresh" title="刷新">↻</button>
       </div>
     </div>
-    <input class="weather-city-input" id="weatherCityInput" placeholder="输入城市名，回车切换"/>
     <div class="weather-sub">
       <div class="weather-sub-i"><span>体感</span><span id="weatherFeel">--</span></div>
       <div class="weather-sub-i"><span>湿度</span><span id="weatherHum">--</span></div>

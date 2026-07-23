@@ -103,6 +103,7 @@ function dailyWeekday(i: number): string {
 }
 function renderWeather(c: WCache | null, error: boolean) {
   const cityEl = document.getElementById('weatherCity');
+  const cityInputEl = document.getElementById('weatherCityInput') as HTMLInputElement | null;
   const iconEl = document.getElementById('weatherIcon');
   const tempEl = document.getElementById('weatherTemp');
   const descEl = document.getElementById('weatherDesc');
@@ -116,6 +117,7 @@ function renderWeather(c: WCache | null, error: boolean) {
   }
   const wmo = WMO[c.code] || { t: '未知', e: '🌡️' };
   if (cityEl) cityEl.textContent = c.city;
+  if (cityInputEl && document.activeElement !== cityInputEl) cityInputEl.value = c.city;
   if (iconEl) iconEl.textContent = wmo.e;
   if (tempEl) tempEl.textContent = Math.round(c.temp) + '°';
   if (descEl) descEl.textContent = wmo.t;
@@ -289,6 +291,7 @@ export async function initWeather() {
   document.getElementById('weatherRefresh')?.addEventListener('click', refreshWeather);
   document.getElementById('weatherLocate')?.addEventListener('click', locateAndApply);
   const inputEl = document.getElementById('weatherCityInput') as HTMLInputElement | null;
+  inputEl?.addEventListener('focus', () => inputEl.select());
   inputEl?.addEventListener('keydown', async (e) => {
     if ((e as KeyboardEvent).key !== 'Enter') return;
     const name = inputEl.value.trim();
@@ -301,7 +304,8 @@ export async function initWeather() {
     }
     wCity = c;
     await setWCity(c);
-    inputEl.value = '';
+    inputEl.value = c.name;
+    inputEl.blur();
     refreshWeather();
   });
   if (wInited) return;
