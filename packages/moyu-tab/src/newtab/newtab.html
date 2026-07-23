@@ -52,12 +52,12 @@ html.locked .header-row{padding:0 16px}
 .sidebar{position:fixed;left:5%;top:22%;width:80px;z-index:5;display:flex;flex-direction:column;padding:16px 8px 14px;background:var(--nm-surface);border-radius:var(--radius);box-shadow:var(--nm-out)}
 .sidebar-nav{flex:1;display:flex;flex-direction:column;gap:2px}
 .ic{width:20px;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0}
-.sb-btn{display:flex;align-items:center;gap:4px;padding:8px 10px;border-radius:var(--radius-xs);background:transparent;border:none;color:var(--text-secondary);font-size:13px;font-weight:500;font-family:inherit;cursor:pointer;transition:all 0.15s;text-align:left;width:100%;position:relative}
+.sb-btn{display:flex;flex-direction:column;align-items:center;gap:4px;padding:8px 10px;border-radius:var(--radius-xs);background:transparent;border:none;color:var(--text-secondary);font-size:13px;font-weight:500;font-family:inherit;cursor:pointer;transition:all 0.15s;text-align:left;width:100%;position:relative}
 .sb-btn:hover{color:var(--text);background:var(--glass-accent)}
 .sb-btn.active{color:var(--accent);background:var(--nm-surface);font-weight:600;box-shadow:3px 3px 8px rgba(174,174,178,.3),-3px -3px 8px rgba(255,255,255,.8)}
 .sb-div{height:0.5px;background:rgba(0,0,0,0.06);margin:6px 12px}
 .sb-group{display:flex;flex-direction:column}
-.sb-top{justify-content:flex-start;display: flex;flex-direction: column;}
+.sb-top{justify-content:flex-start;}
 .sb-arrow{font-size:10px;color:var(--text-tertiary);transition:transform .2s}
 .sb-group.open .sb-arrow{transform:rotate(180deg)}
 .sb-subs{display:none;flex-direction:column;gap:1px;padding-left:14px}
@@ -605,9 +605,10 @@ html.locked .sub-filter{display:none}
   </header>
   <div class="app-body">
   <nav class="sidebar">
+    <button class="sb-btn" id="addWidgetBtn"><span class="ic">+</span>添加</button>
+    <div class="sb-div"></div>
     <div class="sidebar-nav" id="sidebarNav"></div>
     <div class="sb-div"></div>
-    <button class="sb-btn" id="addWidgetBtn"><span class="ic">+</span>组件库</button>
     <button class="sb-btn" id="settingsBtn"><span class="ic">⚙</span>设置</button>
   </nav>
   <main class="content"><div class="ci">
