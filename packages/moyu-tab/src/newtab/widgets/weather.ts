@@ -153,6 +153,9 @@ function renderWeather(c: WCache | null, error: boolean) {
     }
   }
 }
+function cleanCityName(name: string): string {
+  return name.replace(/市$/, '');
+}
 async function geocodeCity(name: string): Promise<WCity | null> {
   const url = `https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(name)}&count=1&language=zh`;
   const ctrl = new AbortController();
@@ -163,7 +166,7 @@ async function geocodeCity(name: string): Promise<WCity | null> {
     const j = await res.json();
     const r = j?.results?.[0];
     if (!r) return null;
-    return { name: String(r.name), lat: r.latitude, lon: r.longitude };
+    return { name: cleanCityName(String(r.name)), lat: r.latitude, lon: r.longitude };
   } catch {
     return null;
   } finally {
@@ -259,7 +262,7 @@ async function revGeoName(lat: number, lon: number): Promise<string> {
     const res = await fetch(url, { signal: ctrl.signal });
     if (!res.ok) return '';
     const j = await res.json();
-    return String(j?.city || j?.locality || j?.principalSubdivision || '');
+    return cleanCityName(String(j?.city || j?.locality || j?.principalSubdivision || ''));
   } catch {
     return '';
   } finally {
