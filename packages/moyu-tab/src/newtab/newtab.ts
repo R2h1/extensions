@@ -1005,7 +1005,7 @@ function updT() {
   if (dd) {
     const l = getLunar(n.getFullYear(), n.getMonth() + 1, n.getDate());
     const wk = '日一二三四五六'[n.getDay()];
-    const lunar = l.ld > 0 ? ` <span class="d-lunar">农历${l.cM}月${l.cD}</span>` : '';
+    const lunar = l.ld > 0 ? ` <span class="d-lunar">${l.cM}月${l.cD}</span>` : '';
     dd.innerHTML = `<span class="d-year">${n.getFullYear()}年</span><span class="d-md">${pad(n.getMonth() + 1)}月${pad(n.getDate())}日</span> <span class="d-week">星期${wk}</span>${lunar}`;
   }
 }
