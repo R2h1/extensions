@@ -1,17 +1,6 @@
-import { esc, pad } from '../utils';
+/** 7x24快讯：新浪财经实时快讯（合并进资讯卡，Tab 之一） */
+import { esc } from '../utils';
 
-export function renderSinaFlashCard(): string {
-  return `<div class="widget-card sina-card">
-      <div class="sina-head">
-        <div class="sina-title">⚡ 7x24快讯</div>
-        <div class="sina-meta">
-          <span class="sina-upd" id="sinaUpd">加载中…</span>
-          <button class="sina-refresh" id="sinaRefresh" title="刷新">↻</button>
-        </div>
-      </div>
-      <div class="sina-list" id="sinaList"><div class="hot-empty">加载中…</div></div>
-    </div>`;
-}
 const SF_KEY = 'moyu_sina_flash_cache';
 interface SFItem {
   text: string;
@@ -34,19 +23,13 @@ function saveSF(c: { items: SFItem[]; ts: number }) {
     localStorage.setItem(SF_KEY, JSON.stringify(c));
   } catch {}
 }
-function fmtSFTime(ts: number) {
-  const d = new Date(ts);
-  return pad(d.getHours()) + ':' + pad(d.getMinutes());
-}
 function renderSF(error: boolean) {
   const list = document.getElementById('sinaList');
-  const upd = document.getElementById('sinaUpd');
   if (!list) return;
   const c = loadSF();
   if (!c || !c.items.length) {
     list.innerHTML = `<div class="hot-empty">${error ? '⚠ 获取失败 · 点击重试' : '加载中…'}</div>`;
     list.onclick = error ? () => refreshSF() : null;
-    if (upd) upd.textContent = error ? '⚠ 失败' : '';
     return;
   }
   list.onclick = null;
@@ -54,14 +37,11 @@ function renderSF(error: boolean) {
     .slice(0, 15)
     .map((it) => `<div class="sina-row"><span class="sina-time">${esc(it.time)}</span><span class="sina-text">${esc(it.text)}</span></div>`)
     .join('');
-  if (upd) upd.textContent = fmtSFTime(c.ts);
 }
-async function refreshSF() {
+export async function refreshSF() {
   if (sfLoading) return;
   if (!document.getElementById('sinaList')) return;
-  const btn = document.getElementById('sinaRefresh');
   sfLoading = true;
-  btn?.classList.add('spin');
   try {
     const res = (await chrome.runtime.sendMessage({ type: 'SINA_FLASH_FETCH' })) as
       | { success: boolean; data?: SFItem[]; error?: string }
@@ -77,7 +57,6 @@ async function refreshSF() {
     renderSF(true);
   } finally {
     sfLoading = false;
-    btn?.classList.remove('spin');
   }
 }
 function onSFVis() {
@@ -86,11 +65,9 @@ function onSFVis() {
 }
 export async function initSinaFlash() {
   renderSF(false);
-  document.getElementById('sinaRefresh')?.addEventListener('click', refreshSF);
   if (sfInited) return;
   sfInited = true;
   refreshSF();
   setInterval(refreshSF, 300000);
   document.addEventListener('visibilitychange', onSFVis);
 }
-

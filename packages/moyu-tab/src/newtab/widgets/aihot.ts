@@ -1,5 +1,5 @@
-/** AI资讯：AI HOT 公开 API 过去 24h 精选，分页列表 + 刷新，localStorage 缓存 */
-import { esc, pad } from '../utils';
+/** AI资讯：AI HOT 公开 API 过去 24h 精选，分页列表（合并进资讯卡，Tab 之一） */
+import { esc, escAttr, pad } from '../utils';
 
 const AH_KEY = 'moyu_aihot_cache';
 const PAGE_SIZE = 10;
@@ -30,20 +30,6 @@ const CAT_LABEL: Record<string, string> = {
   tip: '技巧',
 };
 
-export function renderAihotCard(): string {
-  return `<div class="widget-card aihot-card">
-      <div class="aihot-head">
-        <div class="aihot-title">🤖 AI资讯</div>
-        <div class="aihot-meta">
-          <span class="aihot-upd" id="aihotUpd"></span>
-          <button class="aihot-swap" id="aihotSwap" title="换一换">换一换 <i id="aihotPage">1/1</i></button>
-          <button class="aihot-refresh" id="aihotRefresh" title="刷新">↻</button>
-        </div>
-      </div>
-      <div class="aihot-list" id="aihotList"><div class="aihot-empty">加载中…</div></div>
-    </div>`;
-}
-
 function loadAH(): { items: AHItem[]; ts: number } | null {
   try {
     const r = localStorage.getItem(AH_KEY);
@@ -56,11 +42,6 @@ function saveAH(c: { items: AHItem[]; ts: number }) {
   try {
     localStorage.setItem(AH_KEY, JSON.stringify(c));
   } catch {}
-}
-
-/** attr 安全转义：esc 不处理引号，属性值需额外把 " 转义 */
-function escAttr(s: string): string {
-  return esc(s).replace(/"/g, '&quot;');
 }
 
 function fmtAHTime(iso: string): string {
@@ -77,25 +58,18 @@ function fmtAHTime(iso: string): string {
   return sameDay ? hh + ':' + mm : pad(d.getMonth() + 1) + '-' + pad(d.getDate()) + ' ' + hh + ':' + mm;
 }
 
-function fmtAHUpd(ts: number): string {
-  const d = new Date(ts);
-  return pad(d.getHours()) + ':' + pad(d.getMinutes());
-}
-
 function pageCount(items: AHItem[]): number {
   return Math.min(MAX_PAGES, Math.ceil(items.length / PAGE_SIZE) || 1);
 }
 
 function renderAH(error: boolean) {
   const list = document.getElementById('aihotList');
-  const upd = document.getElementById('aihotUpd');
-  const pageEl = document.getElementById('aihotPage');
+  const pageEl = document.getElementById('newsPage');
   if (!list) return;
   const c = loadAH();
   if (!c || !c.items.length) {
     list.innerHTML = `<div class="aihot-empty">${error ? '⚠ 获取失败 · 点击重试' : '加载中…'}</div>`;
     list.onclick = error ? () => refreshAH() : null;
-    if (upd) upd.textContent = error ? '⚠ 失败' : '';
     if (pageEl) pageEl.textContent = '1/1';
     return;
   }
@@ -119,10 +93,9 @@ function renderAH(error: boolean) {
     })
     .join('');
   if (pageEl) pageEl.textContent = page + 1 + '/' + total;
-  if (upd) upd.textContent = (error ? '⚠ ' : '') + fmtAHUpd(c.ts) + ' 更新';
 }
 
-function swapAHPage() {
+export function swapAHPage() {
   const c = loadAH();
   if (!c || !c.items.length) return;
   const total = pageCount(c.items);
@@ -130,12 +103,10 @@ function swapAHPage() {
   renderAH(false);
 }
 
-async function refreshAH() {
+export async function refreshAH() {
   if (ahLoading) return;
   if (!document.getElementById('aihotList')) return;
-  const btn = document.getElementById('aihotRefresh');
   ahLoading = true;
-  btn?.classList.add('spin');
   try {
     const res = (await chrome.runtime.sendMessage({ type: 'AIHOT_FETCH' })) as
       | { success: boolean; data?: { items: AHItem[]; ts: number }; error?: string }
@@ -152,7 +123,6 @@ async function refreshAH() {
     renderAH(true);
   } finally {
     ahLoading = false;
-    btn?.classList.remove('spin');
   }
 }
 
@@ -163,8 +133,6 @@ function onAHVis() {
 
 export async function initAihot() {
   renderAH(false);
-  document.getElementById('aihotRefresh')?.addEventListener('click', refreshAH);
-  document.getElementById('aihotSwap')?.addEventListener('click', swapAHPage);
   if (ahInited) return;
   ahInited = true;
   refreshAH();

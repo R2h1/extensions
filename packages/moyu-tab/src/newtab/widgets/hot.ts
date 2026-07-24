@@ -133,7 +133,7 @@ function ensureHotInit(platform: string) {
 function switchHot(platform: string) {
   if (platform === hotActive) return;
   hotActive = platform;
-  document.querySelectorAll('.hot-tab').forEach((t) =>
+  document.querySelectorAll('.hot-tab[data-platform]').forEach((t) =>
     t.classList.toggle('active', (t as HTMLElement).dataset.platform === platform),
   );
   renderHotList(platform, false);
@@ -143,7 +143,7 @@ export async function initHotCard() {
   document.getElementById('hotSwap')?.addEventListener('click', swapHotPage);
   document.getElementById('hotRefresh')?.addEventListener('click', refreshActive);
   document
-    .querySelectorAll('.hot-tab')
+    .querySelectorAll('.hot-tab[data-platform]')
     .forEach((t) =>
       t.addEventListener('click', () => switchHot((t as HTMLElement).dataset.platform!)),
     );

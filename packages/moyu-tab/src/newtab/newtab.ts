@@ -2,29 +2,27 @@ import APlayer from 'aplayer';
 import 'aplayer/dist/APlayer.min.css';
 import { initGold, renderGoldSection, refreshGold } from './widgets/gold';
 import { initHoliday } from './widgets/holiday';
-import { initZhihu, renderZhihuCard } from './widgets/zhihu';
 import { initWeread, renderWereadCard } from './widgets/weread';
 import { initReaddata, renderReaddataCard } from './widgets/readdata';
 import { initRecommend, renderRecommendCard } from './widgets/recommend';
 import { initNotes, renderNotesCard } from './widgets/notes';
 import { initReview, renderReviewCard } from './widgets/review';
 import { initSearch, renderSearchCard } from './widgets/search';
-import { initSinaFlash, renderSinaFlashCard } from './widgets/sina-flash';
 import { initTax, renderTaxCard } from './widgets/tax';
 import { initMortgage, renderMortgageCard } from './widgets/mortgage';
 import { initBmi, renderBmiCard } from './widgets/bmi';
 import { initCurrency, renderCurrencyCard } from './widgets/currency';
 import { initBookmarks, renderBookmarksCard } from './widgets/bookmarks';
-import { initAihot, renderAihotCard } from './widgets/aihot';
 import { initFund, renderFundSection, refreshFund } from './widgets/fund';
 import { initWeather } from './widgets/weather';
 import { renderHotCard, initHotCard } from './widgets/hot';
+import { renderNewsCard, initNewsCard } from './widgets/news';
 import { CAT_TREE, ALL_WIDGETS, TopCat, WID } from './config';
 
 const SS = 'moyu_schedule',
   SW = 'moyu_widgets',
   SR = 'moyu_salary',
-  WV = 3; // 组件存储结构版本：变更组件分类归属时 +1，触发按新 cat.sub 重组迁移
+  WV = 4; // 组件存储结构版本：变更组件分类归属时 +1，触发按新 cat.sub 重组迁移
 interface Sch {
   startHour: number;
   startMinute: number;
@@ -355,21 +353,19 @@ function getCard(w: WID): string {
       </div>
       <div class="music-player" id="musicPlayer"></div>
     </div>`;
-  if (w.id === 'zhihu') return renderZhihuCard();
   if (w.id === 'weread') return renderWereadCard();
   if (w.id === 'readdata') return renderReaddataCard();
   if (w.id === 'recommend') return renderRecommendCard();
   if (w.id === 'notes') return renderNotesCard();
   if (w.id === 'review') return renderReviewCard();
   if (w.id === 'search') return renderSearchCard();
-  if (w.id === 'sina_flash') return renderSinaFlashCard();
-  if (w.id === 'aihot') return renderAihotCard();
   if (w.id === 'tax') return renderTaxCard();
   if (w.id === 'mortgage') return renderMortgageCard();
   if (w.id === 'bmi') return renderBmiCard();
   if (w.id === 'currency') return renderCurrencyCard();
   if (w.id === 'bookmarks') return renderBookmarksCard();
   if (w.id === 'hot') return renderHotCard();
+  if (w.id === 'news') return renderNewsCard();
   return `<div class="widget-card clickable" data-widget="${w.id}"><div class="widget-entry"><span>${w.desc}</span><span class="arrow">→</span></div></div>`;
 }
 async function refreshMarket() {
@@ -405,8 +401,8 @@ async function initW(id: string) {
     case 'hot':
       initHotCard();
       break;
-    case 'zhihu':
-      initZhihu();
+    case 'news':
+      initNewsCard();
       break;
     case 'weread':
       initWeread();
@@ -425,12 +421,6 @@ async function initW(id: string) {
       break;
     case 'search':
       initSearch();
-      break;
-    case 'sina_flash':
-      initSinaFlash();
-      break;
-    case 'aihot':
-      initAihot();
       break;
     case 'tax':
       initTax();

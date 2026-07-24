@@ -347,6 +347,13 @@ html.locked .sub-filter{display:none}
 .hot-row:hover .hot-title{color:var(--accent)}
 .hot-tag{font-style:normal;font-size:9px;color:var(--accent);border:0.5px solid var(--accent);padding:0 3px;border-radius:3px;flex-shrink:0;line-height:1.4}
 .hot-num{font-size:10px;color:var(--text-tertiary);flex-shrink:0;font-variant-numeric:tabular-nums;font-family:'Courier New',ui-monospace,monospace}
+/* 资讯卡片（AI/知乎/7x24 合并，Tab 切换） */
+.news-card{padding:12px 14px}
+.news-card .hot-swap{padding:3px 6px}
+.news-pane{display:none;flex-direction:column;max-height:340px;overflow-y:auto}
+.news-pane.active{display:flex}
+.news-pane::-webkit-scrollbar{width:5px}
+.news-pane::-webkit-scrollbar-thumb{background:rgba(0,0,0,0.12);border-radius:3px}
 /* 微信读书卡片 */
 .weread-body{display:flex;flex-direction:column}
 .weread-total{font-size:10px;color:var(--text-tertiary);margin-bottom:6px}
