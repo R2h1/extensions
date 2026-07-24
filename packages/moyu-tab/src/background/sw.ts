@@ -263,7 +263,7 @@ async function fetchBaiduHot(): Promise<HotItem[]> {
   const arr = (j?.data?.cards?.[0]?.content?.[0]?.content ?? []) as any[];
   return arr.slice(0, 30).map((r) => ({
     title: String(r.word || ''),
-    hot: '',
+    hot: r.hotScore ? String(r.hotScore) : '',
     url: String(r.url || `https://www.baidu.com/s?wd=${encodeURIComponent(r.word || '')}`),
     tag: r.isTop ? '置顶' : '',
   }));

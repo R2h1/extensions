@@ -2,7 +2,6 @@ import APlayer from 'aplayer';
 import 'aplayer/dist/APlayer.min.css';
 import { initGold, renderGoldSection, refreshGold } from './widgets/gold';
 import { initHoliday } from './widgets/holiday';
-import { initJuejin, renderJuejinCard } from './widgets/juejin';
 import { initZhihu, renderZhihuCard } from './widgets/zhihu';
 import { initWeread, renderWereadCard } from './widgets/weread';
 import { initReaddata, renderReaddataCard } from './widgets/readdata';
@@ -19,13 +18,13 @@ import { initBookmarks, renderBookmarksCard } from './widgets/bookmarks';
 import { initAihot, renderAihotCard } from './widgets/aihot';
 import { initFund, renderFundSection, refreshFund } from './widgets/fund';
 import { initWeather } from './widgets/weather';
-import { HOT_WIDGETS, renderHotCard, initHotCard } from './widgets/hot';
+import { renderHotCard, initHotCard } from './widgets/hot';
 import { CAT_TREE, ALL_WIDGETS, TopCat, WID } from './config';
 
 const SS = 'moyu_schedule',
   SW = 'moyu_widgets',
   SR = 'moyu_salary',
-  WV = 2; // 组件存储结构版本：变更组件分类归属时 +1，触发按新 cat.sub 重组迁移
+  WV = 3; // 组件存储结构版本：变更组件分类归属时 +1，触发按新 cat.sub 重组迁移
 interface Sch {
   startHour: number;
   startMinute: number;
@@ -67,11 +66,6 @@ async function getWD(): Promise<WData> {
   const subs: Record<string, string[]> = {};
   const feed = (id: string) => {
     if (id === 'clock') return;
-    if (id === 'hot') {
-      // 旧单个 hot 拆为三平台卡片
-      ['hot_weibo', 'hot_bilibili', 'hot_baidu'].forEach((hid) => feed(hid));
-      return;
-    }
     const w = ALL_WIDGETS.find((x) => x.id === id);
     if (!w) return;
     const k = subKey(w.cat, w.sub);
@@ -361,7 +355,6 @@ function getCard(w: WID): string {
       </div>
       <div class="music-player" id="musicPlayer"></div>
     </div>`;
-  if (w.id === 'juejin') return renderJuejinCard();
   if (w.id === 'zhihu') return renderZhihuCard();
   if (w.id === 'weread') return renderWereadCard();
   if (w.id === 'readdata') return renderReaddataCard();
@@ -376,7 +369,7 @@ function getCard(w: WID): string {
   if (w.id === 'bmi') return renderBmiCard();
   if (w.id === 'currency') return renderCurrencyCard();
   if (w.id === 'bookmarks') return renderBookmarksCard();
-  if (HOT_WIDGETS[w.id]) return renderHotCard(w);
+  if (w.id === 'hot') return renderHotCard();
   return `<div class="widget-card clickable" data-widget="${w.id}"><div class="widget-entry"><span>${w.desc}</span><span class="arrow">→</span></div></div>`;
 }
 async function refreshMarket() {
@@ -409,17 +402,8 @@ async function initW(id: string) {
     case 'tv':
       initTv();
       break;
-    case 'hot_weibo':
-      initHotCard('weibo');
-      break;
-    case 'hot_bilibili':
-      initHotCard('bilibili');
-      break;
-    case 'hot_baidu':
-      initHotCard('baidu');
-      break;
-    case 'juejin':
-      initJuejin();
+    case 'hot':
+      initHotCard();
       break;
     case 'zhihu':
       initZhihu();

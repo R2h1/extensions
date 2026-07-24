@@ -101,10 +101,7 @@ export const CAT_TREE: TopCat[] = [
 ];
 
 export const ALL_WIDGETS: WID[] = [
-  { id: 'hot_weibo', name: '微博热搜', desc: '微博实时热搜', cat: 'news', sub: 'hot' },
-  { id: 'hot_bilibili', name: 'B站热搜', desc: 'B站实时热搜', cat: 'news', sub: 'hot' },
-  { id: 'hot_baidu', name: '百度热搜', desc: '百度实时热搜', cat: 'news', sub: 'hot' },
-  { id: 'juejin', name: '掘金热榜', desc: '掘金热门文章', cat: 'news', sub: 'news' },
+  { id: 'hot', name: '热搜', desc: '微博/B站/百度/掘金热榜', cat: 'news', sub: 'hot' },
   { id: 'zhihu', name: '知乎日报', desc: '每日精选', cat: 'news', sub: 'news' },
   { id: 'sina_flash', name: '7x24快讯', desc: '财经实时快讯', cat: 'news', sub: 'news' },
   { id: 'aihot', name: 'AI资讯', desc: 'AI 圈 24h 精选', cat: 'news', sub: 'news' },

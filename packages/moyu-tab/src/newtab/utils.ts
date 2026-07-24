@@ -6,6 +6,11 @@ export function esc(s: string): string {
   return d.innerHTML;
 }
 
+/** 属性值转义：在 esc 基础上额外转义 "，安全用于 title="..." 等 双引号属性 */
+export function escAttr(s: string): string {
+  return esc(s).replace(/"/g, '&quot;');
+}
+
 export function pad(n: number): string {
   return String(n).padStart(2, '0');
 }
