@@ -7,7 +7,7 @@
 <link rel="stylesheet" href="newtab.css"/>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
-:root{--glass:rgba(255,255,255,0.6);--glass-hover:rgba(255,255,255,0.75);--glass-border:rgba(0,0,0,0.04);--glass-border-h:rgba(0,0,0,0.08);--glass-accent:rgba(217,119,6,0.08);--shadow-sm:0 0.5px 1.5px rgba(0,0,0,0.04);--shadow-md:0 4px 12px rgba(0,0,0,0.05);--nm-surface:#efeff1;--nm-out:3px 3px 7px rgba(174,174,178,.12),-3px -3px 7px rgba(255,255,255,.6);--nm-out-h:4px 4px 9px rgba(174,174,178,.16),-4px -4px 9px rgba(255,255,255,.65);--nm-out-sm:2px 2px 5px rgba(174,174,178,.12),-2px -2px 5px rgba(255,255,255,.6);--nm-out-lg:6px 6px 16px rgba(174,174,178,.18),-6px -6px 16px rgba(255,255,255,.65);--nm-in:inset 3px 3px 6px rgba(174,174,178,.2),inset -3px -3px 6px rgba(255,255,255,.7);--nm-in-sm:inset 3px 3px 5px rgba(174,174,178,.25),inset -3px -3px 5px rgba(255,255,255,.65);--text:#1d1d1f;--text-secondary:#86868b;--text-tertiary:#aeaeb2;--accent:#d97706;--radius:14px;--radius-sm:9px;--radius-xs:7px}
+:root{--glass:rgba(255,255,255,0.6);--glass-hover:rgba(255,255,255,0.75);--glass-border:rgba(0,0,0,0.04);--glass-border-h:rgba(0,0,0,0.08);--glass-accent:rgba(217,119,6,0.08);--shadow-sm:0 0.5px 1.5px rgba(0,0,0,0.04);--shadow-md:0 4px 12px rgba(0,0,0,0.05);--card-shadow:0 2px 6px rgba(0,0,0,0.09),0 10px 24px rgba(0,0,0,0.06);--card-shadow-h:0 4px 12px rgba(0,0,0,0.11),0 16px 36px rgba(0,0,0,0.07);--nm-surface:#efeff1;--nm-out:3px 3px 7px rgba(174,174,178,.12),-3px -3px 7px rgba(255,255,255,.6);--nm-out-h:4px 4px 9px rgba(174,174,178,.16),-4px -4px 9px rgba(255,255,255,.65);--nm-out-sm:2px 2px 5px rgba(174,174,178,.12),-2px -2px 5px rgba(255,255,255,.6);--nm-out-lg:6px 6px 16px rgba(174,174,178,.18),-6px -6px 16px rgba(255,255,255,.65);--nm-in:inset 3px 3px 6px rgba(174,174,178,.2),inset -3px -3px 6px rgba(255,255,255,.7);--nm-in-sm:inset 3px 3px 5px rgba(174,174,178,.25),inset -3px -3px 5px rgba(255,255,255,.65);--text:#1d1d1f;--text-secondary:#86868b;--text-tertiary:#aeaeb2;--accent:#d97706;--radius:14px;--radius-sm:9px;--radius-xs:7px}
 html,body{height:100%;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Noto Sans SC',sans-serif;background:#f2f2f4;color:var(--text);background-size:cover;background-position:center;background-attachment:fixed;transition:background-image 0.5s ease}
 .sidebar{opacity:0;visibility:hidden}
 html:not(.locked) .sidebar{opacity:1;visibility:visible}
@@ -76,10 +76,10 @@ html.locked .header-row{padding:0 16px}
 .sf-chip:hover{color:var(--text)}
 .sf-chip.active{color:var(--accent);font-weight:600;border-bottom-color:var(--accent)}
 html.locked .sub-filter{display:none}
-.widget-card{background:var(--nm-surface);backdrop-filter:none;-webkit-backdrop-filter:none;border:none;border-radius:var(--radius);padding:16px;box-shadow:var(--nm-out);transition:all 0.2s}
-.widget-card:hover{border:none;background:var(--nm-surface);box-shadow:var(--nm-out-h)}
+.widget-card{background:var(--nm-surface);backdrop-filter:none;-webkit-backdrop-filter:none;border:none;border-radius:var(--radius);padding:16px;box-shadow:var(--card-shadow);transition:all 0.2s}
+.widget-card:hover{border:none;background:var(--nm-surface);box-shadow:var(--card-shadow-h)}
 .widget-card.clickable{cursor:pointer}
-.widget-card.clickable:hover{border:none;box-shadow:var(--nm-out-h),0 0 0 1px var(--glass-accent)}
+.widget-card.clickable:hover{border:none;box-shadow:var(--card-shadow-h),0 0 0 1px var(--glass-accent)}
 .widget-title{font-size:10px;font-weight:600;color:var(--text-tertiary);letter-spacing:2px;margin-bottom:8px}
 .widget-entry{display:flex;align-items:center;gap:6px;font-size:13px;color:var(--text-secondary);font-weight:500}
 .widget-entry .arrow{font-size:18px;color:var(--text-tertiary);margin-left:auto}
@@ -303,7 +303,7 @@ html.locked .sub-filter{display:none}
 .weather-popover{display:none;position:fixed;z-index:80;width:320px}
 .weather-popover.open{display:block;animation:calpop .16s ease-out;transform-origin:top left}
 .sal-popover{display:none;position:fixed;z-index:80;width:300px;max-height:calc(100vh - 88px);overflow-y:auto}
-.sal-popover.open{display:block;animation:calpop .16s ease-out;transform-origin:top left}
+.sal-popover.open{display:block;border-radius:var(--radius);animation:calpop .16s ease-out;transform-origin:top left}
 /* 影音卡片 */
 .tv-card{padding:12px 14px}
 .tv-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
