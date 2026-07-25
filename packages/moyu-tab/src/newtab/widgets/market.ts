@@ -24,9 +24,9 @@ export function renderMarketCard(): string {
   return `<div class="widget-card market-card">
       <div class="market-head">
         <div class="market-title">◆ 行情</div>
+        <div class="market-tabs" id="marketTabs"></div>
         <button class="market-refresh" id="marketRefresh" title="刷新">↻</button>
       </div>
-      <div class="market-tabs" id="marketTabs"></div>
       <div class="market-body" id="marketBody"></div>
     </div>`;
 }

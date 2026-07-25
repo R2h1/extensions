@@ -19,6 +19,7 @@ const STOCK_CODES: { code: string; name: string }[] = [
   { code: 'sz399001', name: '深证成指' },
   { code: 'sz399006', name: '创业板指' },
   { code: 'sh000300', name: '沪深300' },
+  { code: 'sh000016', name: '上证50' },
   { code: 'sh000688', name: '科创50' },
 ];
 const GLOBAL_CODES: { code: string; name: string }[] = [

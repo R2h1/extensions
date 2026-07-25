@@ -161,21 +161,23 @@ html.locked .sub-filter{display:none}
 .sal-payday{text-align:center;font-size:9px;color:var(--text-tertiary);margin-top:4px;border-top:.5px solid rgba(0,0,0,.04);padding-top:4px}
 /* 行情卡片（Tab：A股/行业/全球/黄金/自选） */
 .market-card{padding:12px 14px}
-.market-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
-.market-title{font-size:14px;font-weight:600;color:var(--text-secondary);letter-spacing:.5px;display:flex;align-items:center;gap:6px}
-.market-refresh{width:26px;height:26px;border-radius:50%;border:none;background:var(--nm-surface);box-shadow:var(--nm-out),0 2px 4px rgba(0,0,0,0.1);color:var(--text-tertiary);cursor:pointer;font-size:13px;display:flex;align-items:center;justify-content:center;transition:color .15s,box-shadow .15s;font-family:inherit}
+.market-head{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.market-title{flex-shrink:0;font-size:14px;font-weight:600;color:var(--text-secondary);letter-spacing:.5px;display:flex;align-items:center;gap:6px}
+.market-refresh{flex-shrink:0;width:26px;height:26px;border-radius:50%;border:none;background:var(--nm-surface);box-shadow:var(--nm-out),0 2px 4px rgba(0,0,0,0.1);color:var(--text-tertiary);cursor:pointer;font-size:13px;display:flex;align-items:center;justify-content:center;transition:color .15s,box-shadow .15s;font-family:inherit}
 .market-refresh:hover{color:var(--accent)}
 .market-refresh:active{box-shadow:var(--nm-in-sm)}
 .market-refresh.spin{color:var(--accent);animation:goldspin 1s linear infinite}
 @keyframes goldspin{to{transform:rotate(360deg)}}
-.market-tabs{display:flex;gap:4px;margin-bottom:10px;overflow-x:auto;scrollbar-width:none}
+.market-tabs{flex:1;min-width:0;display:flex;gap:4px;overflow-x:auto;scrollbar-width:none}
 .market-tabs::-webkit-scrollbar{display:none}
 .market-tab{flex-shrink:0;padding:4px 10px;font-size:12px;border:none;border-radius:var(--radius-xs);background:var(--nm-surface);box-shadow:var(--nm-out);color:var(--text-tertiary);cursor:pointer;font-family:inherit;transition:color .15s,background .15s}
 .market-tab:hover{color:var(--text-secondary)}
 .market-tab.active{background:var(--glass-accent);color:var(--accent);font-weight:600}
 .market-body{min-height:80px}
-/* 小卡片网格（红涨绿跌） */
-.mkt-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(96px,1fr));gap:8px}
+/* 小卡片网格（红涨绿跌，每行 6 个） */
+.mkt-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:8px}
+@media (max-width:600px){.mkt-grid{grid-template-columns:repeat(4,1fr)}}
+@media (max-width:480px){.mkt-grid{grid-template-columns:repeat(3,1fr)}}
 .mkt-empty{grid-column:1/-1;font-size:12px;color:var(--text-tertiary);text-align:center;padding:14px 0}
 .mkt-tile{position:relative;padding:8px;border-radius:var(--radius-xs);background:var(--nm-surface);box-shadow:var(--nm-out);display:flex;flex-direction:column;gap:2px;overflow:hidden}
 .mkt-tile.up{background:rgba(239,68,68,.10)}
