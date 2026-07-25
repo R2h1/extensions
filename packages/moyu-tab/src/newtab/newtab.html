@@ -48,7 +48,7 @@ html.locked .header-weather{display:none}
 .app-body{flex:1;display:flex;min-height:0;position:relative;z-index:1}
 html.locked .top-header{background:transparent;box-shadow:none;backdrop-filter:none;-webkit-backdrop-filter:none}
 html.locked .header-row{padding:0 16px}
-.sidebar{position:fixed;left:5%;top:22%;width:58px;z-index:5;display:flex;flex-direction:column;padding:16px 8px 14px;background:var(--nm-surface);border-radius:var(--radius);box-shadow:var(--nm-out)}
+.sidebar{position:fixed;left:150px;top:180px;width:58px;z-index:5;display:flex;flex-direction:column;padding:16px 8px 14px;background:var(--nm-surface);border-radius:var(--radius);box-shadow:var(--nm-out)}
 .sidebar-nav{flex:1;display:flex;flex-direction:column;gap:2px}
 .ic{width:20px;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0}
 .sb-btn{display:flex;flex-direction:column;align-items:center;gap:2px;padding:6px 8px;border-radius:var(--radius-xs);background:transparent;border:none;color:var(--text-secondary);font-size:13px;font-weight:500;font-family:inherit;cursor:pointer;transition:all 0.15s;text-align:left;width:100%;position:relative}
@@ -129,7 +129,7 @@ html.locked .sub-filter{display:none}
 .wp-btn-ghost:hover{border-color:var(--accent);color:var(--accent);filter:none}
 .wp-hint{font-size:11px;color:var(--text-tertiary);text-align:center;margin-top:10px}
 /* 薪资跳动 · 弹出卡片 */
-.sal-card{padding:12px}
+.sal-card{padding:12px;max-height:calc(100vh - 88px);overflow-y:auto}
 .sal-grid{display:grid;grid-template-columns:1fr;gap:8px}
 .sal-top{display:flex;justify-content:space-between;align-items:flex-start;gap:10px}
 .sal-left{min-width:0}
@@ -302,7 +302,7 @@ html.locked .sub-filter{display:none}
 @keyframes calpop{from{opacity:0;transform:translateY(-6px) scale(.97)}to{opacity:1;transform:translateY(0) scale(1)}}
 .weather-popover{display:none;position:fixed;z-index:80;width:320px}
 .weather-popover.open{display:block;animation:calpop .16s ease-out;transform-origin:top left}
-.sal-popover{display:none;position:fixed;z-index:80;width:300px;max-height:calc(100vh - 88px);overflow-y:auto}
+.sal-popover{display:none;position:fixed;z-index:80;width:300px}
 .sal-popover.open{display:block;border-radius:var(--radius);animation:calpop .16s ease-out;transform-origin:top left}
 /* 影音卡片 */
 .tv-card{padding:12px 14px}
