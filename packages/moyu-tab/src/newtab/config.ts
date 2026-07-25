@@ -88,6 +88,5 @@ export const ALL_WIDGETS: WID[] = [
   { id: 'review', name: '书评', desc: '最近在读书评', cat: 'study', sub: 'read' },
   { id: 'search', name: '搜书', desc: '搜索书城', cat: 'study', sub: 'read' },
   { id: 'market', name: '行情', desc: '金价+基金估值', cat: 'finance', sub: 'market' },
-  { id: 'currency', name: '汇率换算', desc: '实时汇率换算', cat: 'finance', sub: 'market' },
   { id: 'bookmarks', name: '书签同步', desc: '浏览器书签栏', cat: 'bookmark', sub: 'nav' },
 ];

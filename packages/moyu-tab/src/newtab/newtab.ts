@@ -62,12 +62,22 @@ const TOOLKIT: {
     render: renderBmiCard,
     init: initBmi,
   },
+  {
+    id: 'currency',
+    title: '汇率换算',
+    desc: '实时汇率换算',
+    icon: tkSvg(
+      '<path d="M8 3 4 7l4 4"/><path d="M4 7h16"/><path d="m16 21 4-4-4-4"/><path d="M20 17H4"/>',
+    ),
+    render: renderCurrencyCard,
+    init: initCurrency,
+  },
 ];
 
 const SS = 'moyu_schedule',
   SW = 'moyu_widgets',
   SR = 'moyu_salary',
-  WV = 7; // 组件存储结构版本：变更组件分类归属时 +1，触发按新 cat.sub 重组迁移
+  WV = 8; // 组件存储结构版本：变更组件分类归属时 +1，触发按新 cat.sub 重组迁移
 interface Sch {
   startHour: number;
   startMinute: number;
@@ -261,7 +271,6 @@ function getCard(w: WID): string {
   if (w.id === 'notes') return renderNotesCard();
   if (w.id === 'review') return renderReviewCard();
   if (w.id === 'search') return renderSearchCard();
-  if (w.id === 'currency') return renderCurrencyCard();
   if (w.id === 'bookmarks') return renderBookmarksCard();
   if (w.id === 'hot') return renderHotCard();
   if (w.id === 'news') return renderNewsCard();
@@ -322,9 +331,6 @@ async function initW(id: string) {
     case 'search':
       initSearch();
       break;
-    case 'currency':
-      initCurrency();
-      break;
     case 'bookmarks':
       initBookmarks();
       break;
@@ -343,6 +349,14 @@ document.getElementById('gotoToolkitBtn')!.addEventListener('click', () => {
     void (card as HTMLElement).offsetWidth; // 重新触发动画
     card.classList.add('tk-locate');
   }
+});
+document.getElementById('gotoHotBtn')!.addEventListener('click', () => {
+  const card = document.querySelector('.hot-card');
+  if (!card) return;
+  card.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  card.classList.remove('locate');
+  void (card as HTMLElement).offsetWidth; // 重新触发动画
+  card.classList.add('locate');
 });
 
 // ── Widget Modal ──
