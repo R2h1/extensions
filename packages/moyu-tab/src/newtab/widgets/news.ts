@@ -12,9 +12,9 @@ interface NewsSource {
   hasSwap: boolean; // 是否有「换一换」分页
 }
 const NEWS_SOURCES: NewsSource[] = [
-  { id: 'aihot', name: 'AI资讯', pane: 'aihotList', init: initAihot, refresh: refreshAH, hasSwap: true },
-  { id: 'zhihu', name: '知乎', pane: 'zhihuList', init: initZhihu, refresh: refreshZH, hasSwap: false },
-  { id: 'sina', name: '7x24', pane: 'sinaList', init: initSinaFlash, refresh: refreshSF, hasSwap: false },
+  { id: 'aihot', name: 'AI精选', pane: 'aihotList', init: initAihot, refresh: refreshAH, hasSwap: true },
+  { id: 'zhihu', name: '知乎日报', pane: 'zhihuList', init: initZhihu, refresh: refreshZH, hasSwap: false },
+  { id: 'sina', name: '财经快讯', pane: 'sinaList', init: initSinaFlash, refresh: refreshSF, hasSwap: false },
 ];
 
 let newsActive = NEWS_SOURCES[0].id;

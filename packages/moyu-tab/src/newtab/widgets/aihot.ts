@@ -1,4 +1,4 @@
-/** AI资讯：AI HOT 公开 API 过去 24h 精选，分页列表（合并进资讯卡，Tab 之一） */
+/** AI精选：AI HOT 公开 API 过去 24h 精选，分页列表（合并进资讯卡，Tab 之一） */
 import { esc, escAttr, pad } from '../utils';
 
 const AH_KEY = 'moyu_aihot_cache';
