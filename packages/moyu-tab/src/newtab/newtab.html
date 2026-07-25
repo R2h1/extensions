@@ -64,7 +64,7 @@ html.locked .header-row{padding:0 16px}
 .sb-sub{font-size:12px;padding:6px 12px;color:var(--text-tertiary)}
 .sb-sub:hover{color:var(--text-secondary);background:var(--glass-accent)}
 .sb-sub.active{color:var(--accent);font-weight:600;background:var(--glass-accent)}
-.content{flex:1;display:flex;justify-content:flex-start;overflow-y:auto;min-width:0;padding-left:328px;padding-bottom:70px}
+.content{flex:1;display:flex;justify-content:flex-start;overflow-y:auto;min-width:0;padding-left:18%;padding-bottom:70px}
 .ci{width:100%;max-width:1040px;display:flex;flex-direction:column;padding:32px 28px 20px}
 .panel-cols{display:flex;gap:14px;align-items:flex-start}
 .feed-col{flex:3;display:flex;flex-direction:column;gap:14px;min-width:0}
@@ -445,13 +445,13 @@ html.locked .sub-filter{display:none}
 .calc-form{display:flex;flex-direction:column;gap:6px}
 .calc-field{display:flex;flex-direction:column;gap:3px}
 .calc-field span{font-size:11px;color:var(--text-tertiary)}
-.calc-field input{padding:7px 10px;font-size:12px;border:none;border-radius:var(--radius-xs);background:var(--nm-surface);color:var(--text);outline:none;font-family:inherit;box-shadow:var(--nm-in);width:100%}
-.calc-field input:focus{box-shadow:var(--nm-in),0 0 0 1.5px var(--accent)}
+.calc-field input{padding:7px 10px;font-size:12px;border:0.5px solid var(--glass-border-h);border-radius:var(--radius-xs);background:var(--nm-surface);color:var(--text);outline:none;font-family:inherit;width:100%;transition:border-color .15s,box-shadow .15s}
+.calc-field input:focus{border-color:var(--accent);box-shadow:0 0 0 1.5px var(--accent)}
 .calc-row2{display:grid;grid-template-columns:1fr 1fr;gap:6px}
-.calc-toggle{display:flex;background:var(--nm-surface);border-radius:var(--radius-xs);padding:2px;box-shadow:var(--nm-in-sm);gap:2px}
+.calc-toggle{display:flex;background:var(--nm-surface);border-radius:var(--radius-xs);padding:2px;border:0.5px solid var(--glass-border-h);gap:2px}
 .calc-tb{flex:1;text-align:center;padding:6px 0;border-radius:5px;font-size:11px;font-weight:500;color:var(--text-tertiary);cursor:pointer;transition:all .15s;user-select:none}
 .calc-tb.active{background:var(--nm-surface);color:var(--accent);box-shadow:var(--nm-out-sm);font-weight:600}
-.calc-result{margin-top:10px;background:var(--nm-surface);border-radius:var(--radius-sm);padding:10px 12px;}
+.calc-result{background:var(--nm-surface);border-radius:var(--radius-sm);padding:10px 12px;}
 .calc-rows{display:flex;flex-direction:column;gap:5px}
 .calc-row{display:flex;align-items:center;justify-content:space-between;font-size:12px;color:var(--text-secondary)}
 .calc-row span:first-child{color:var(--text-tertiary);font-size:11px}
@@ -459,7 +459,7 @@ html.locked .sub-filter{display:none}
 .calc-val{font-variant-numeric:tabular-nums;font-family:'Courier New',ui-monospace,monospace;font-weight:600}
 .calc-val.tax{color:#ef4444}
 .calc-val.after{color:var(--accent)}
-.bmi-main{display:flex;align-items:baseline;gap:10px;margin-bottom:8px}
+.bmi-main{display:flex;align-items:baseline;gap:10px}
 .bmi-val{font-size:34px;font-weight:700;font-variant-numeric:tabular-nums;font-family:'Courier New',ui-monospace,monospace;letter-spacing:-1px;line-height:1}
 .bmi-tag{font-size:12px;font-weight:600;padding:2px 10px;border-radius:10px}
 .bmi-val.up,.bmi-tag.up{color:#10b981}
@@ -468,7 +468,38 @@ html.locked .sub-filter{display:none}
 .bmi-tag.warn{background:var(--glass-accent)}
 .bmi-val.down,.bmi-tag.down{color:#ef4444}
 .bmi-tag.down{background:rgba(239,68,68,.12)}
+.bmi-val.thin,.bmi-tag.thin{color:#3b82f6}
+.bmi-tag.thin{background:rgba(59,130,246,.12)}
 .bmi-range{margin-top:4px}
+.bmi-card .calc-result{min-height:88px;display:flex;flex-direction:column;justify-content:center}
+/* BMI 分级标准 + 关于 BMI */
+.bmi-std{border-top:0.5px solid var(--glass-border);padding-top:10px}
+.bmi-std-title{font-size:11px;color:var(--text-tertiary);margin-bottom:6px;letter-spacing:.3px}
+.bmi-std-table{display:flex;gap:6px}
+.bmi-std-row{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;padding:8px 4px;border-radius:var(--radius-xs);border:1px solid transparent;background:var(--nm-surface);transition:all .15s;min-width:0}
+.bmi-std-label{font-size:12px;font-weight:600}
+.bmi-std-range{font-size:11px;color:var(--text-secondary);font-variant-numeric:tabular-nums;font-family:'Courier New',ui-monospace,monospace;white-space:nowrap}
+.bmi-std-row[data-cat="thin"]{background:rgba(59,130,246,.10);border-color:rgba(59,130,246,.28)}
+.bmi-std-row[data-cat="thin"] .bmi-std-label{color:#3b82f6}
+.bmi-std-row[data-cat="normal"]{background:rgba(16,185,129,.10);border-color:rgba(16,185,129,.28)}
+.bmi-std-row[data-cat="normal"] .bmi-std-label{color:#10b981}
+.bmi-std-row[data-cat="over"]{background:rgba(217,119,6,.10);border-color:rgba(217,119,6,.28)}
+.bmi-std-row[data-cat="over"] .bmi-std-label{color:var(--accent)}
+.bmi-std-row[data-cat="obese"]{background:rgba(239,68,68,.10);border-color:rgba(239,68,68,.28)}
+.bmi-std-row[data-cat="obese"] .bmi-std-label{color:#ef4444}
+.bmi-std-row.active[data-cat="thin"]{background:rgba(59,130,246,.22);border-color:#3b82f6}
+.bmi-std-row.active[data-cat="normal"]{background:rgba(16,185,129,.22);border-color:#10b981}
+.bmi-std-row.active[data-cat="over"]{background:rgba(217,119,6,.22);border-color:var(--accent)}
+.bmi-std-row.active[data-cat="obese"]{background:rgba(239,68,68,.22);border-color:#ef4444}
+.bmi-std-row.active .bmi-std-range{color:var(--text);font-weight:600}
+.bmi-about{margin-top:12px;border-top:0.5px solid var(--glass-border);padding-top:10px}
+.bmi-about-title{font-size:11px;color:var(--text-tertiary);margin-bottom:8px;letter-spacing:.3px}
+.bmi-about-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.bmi-about-item{display:flex;flex-direction:column;gap:4px;padding:10px 12px;border-radius:var(--radius-xs);background:var(--nm-surface);box-shadow:var(--nm-out-sm)}
+.bmi-about-head{display:flex;align-items:center;gap:6px}
+.bmi-about-num{width:18px;height:18px;border-radius:50%;background:var(--glass-accent);color:var(--accent);font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.bmi-about-h{font-size:12px;font-weight:600;color:var(--text)}
+.bmi-about-t{font-size:11px;color:var(--text-tertiary);line-height:1.5}
 /* 汇率换算卡片 */
 .currency-card{padding:12px 14px}
 .cur-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
@@ -615,6 +646,31 @@ html.locked .sub-filter{display:none}
 .vm-close{width:28px;height:28px;border-radius:50%;border:none;background:var(--nm-surface);box-shadow:var(--nm-out),0 2px 4px rgba(0,0,0,0.1);color:var(--text-tertiary);cursor:pointer;font-size:13px;display:flex;align-items:center;justify-content:center;font-family:inherit}
 .vm-close:hover{color:var(--accent)}
 .vm-frame{width:100%;height:min(70vh,560px);border:none;background:#000}
+/* 实用工具入口卡片 + 弹窗 */
+.toolkit-row{margin-bottom:14px}
+.toolkit-card{padding:14px 16px}
+.toolkit-title{font-size:14px;font-weight:600;color:var(--text-secondary);letter-spacing:.5px;display:flex;align-items:center;gap:6px;margin-bottom:10px}
+.toolkit-title svg{width:16px;height:16px}
+.toolkit-grid{display:flex;gap:10px;flex-wrap:wrap}
+.toolkit-tile{flex:0 0 calc(25% - 7.5px);display:flex;flex-direction:column;gap:4px;padding:10px 12px;border:0.5px solid var(--glass-border);border-radius:var(--radius-sm);background:rgba(255,255,255,0.4);font-family:inherit;cursor:pointer;transition:all .15s;text-align:left;min-width:0}
+.toolkit-tile:hover{border-color:var(--accent);background:var(--glass-accent)}
+.toolkit-tile:active{box-shadow:var(--nm-in-sm)}
+.toolkit-tile .tk-head{display:flex;align-items:center;gap:6px;min-width:0}
+.toolkit-tile .tk-ico{display:flex;align-items:center;justify-content:center;color:var(--text-tertiary);flex-shrink:0}
+.toolkit-tile .tk-ico svg{width:18px;height:18px}
+.toolkit-tile:hover .tk-ico{color:var(--accent)}
+.toolkit-tile .tk-name{font-size:13px;font-weight:600;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.toolkit-tile:hover .tk-name{color:var(--accent)}
+.toolkit-tile .tk-desc{font-size:11px;color:var(--text-tertiary);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#toolkitModal{background:rgba(0,0,0,0.5);backdrop-filter:blur(2px);-webkit-backdrop-filter:blur(2px)}
+#toolkitModal .mh{padding:10px 14px;border-bottom:0.5px solid var(--glass-border);background:rgba(0,0,0,0.04)}
+#toolkitModal .mh .mc{width:28px;height:28px;border-radius:50%;border:none;background:var(--nm-surface);box-shadow:var(--nm-out),0 2px 4px rgba(0,0,0,0.1);color:var(--text-tertiary);font-size:13px}
+#toolkitModal .mh .mc:hover{color:var(--accent)}
+#tkContent .widget-card{background:transparent;box-shadow:none;padding:0}
+#tkContent .calc-head{display:none}
+@keyframes tklocate{0%,30%{box-shadow:0 0 0 2px var(--accent),var(--card-shadow-h)}100%{box-shadow:var(--card-shadow)}}
+.toolkit-card.tk-locate{animation:tklocate .9s ease-out}
+
 </style>
 <script src="boot.js"></script>
 </head>
@@ -646,11 +702,12 @@ html.locked .sub-filter{display:none}
   <div class="app-body">
   <nav class="sidebar">
     <button class="sb-btn" id="addWidgetBtn"><span class="ic">+</span>添加</button>
+    <button class="sb-btn" id="gotoToolkitBtn"><span class="ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg></span>工具</button>
     <div class="sb-div"></div>
     <button class="sb-btn" id="settingsBtn"><span class="ic">⚙</span>设置</button>
   </nav>
   <main class="content"><div class="ci">
-    <div id="panel"><div class="panel-cols">
+    <div id="panel"><div class="toolkit-row" id="toolkitRow"></div><div class="panel-cols">
       <div class="feed-col" id="feedCol"></div>
       <div class="cards-col" id="cardsCol"></div>
     </div></div>
@@ -670,6 +727,7 @@ html.locked .sub-filter{display:none}
 <div class="mo" id="widgetModal"><div class="ms"><div class="mh"><span class="mt">组件库</span><button class="mc" id="wmClose">x</button></div><div class="modal-split"><div class="wm-sidebar" id="wmSidebar"></div><div class="modal-content"><div class="wm-tabs" id="wmTabs"></div><div id="widgetList"></div></div></div></div></div>
 <div class="mo" id="settingsModal"><div class="ms"><div class="mh"><span class="mt">设置</span><button class="mc" id="smClose">x</button></div><div class="modal-split"><div class="modal-sidebar" id="smSidebar"><button class="msb active" data-s="time">时间</button><button class="msb" data-s="salary">发薪日</button></div><div class="modal-content" id="settingsBody"></div></div></div></div>
 <div class="mo" id="wallpaperModal"><div class="ms" style="max-width:600px"><div class="mh"><span class="mt">更换壁纸</span><button class="mc" id="wpClose">x</button></div><div class="modal-content" id="wpBody" style="padding:16px 20px 20px"></div></div></div>
+<div class="mo" id="toolkitModal"><div class="ms"><div class="mh"><span class="mt" id="tkTitle">实用工具</span><button class="mc" id="tkClose">✕</button></div><div class="modal-content" id="tkContent"></div></div></div>
 <div class="cal-popover" id="calPopover">
   <div class="widget-card cal-card">
     <div class="cal-head">

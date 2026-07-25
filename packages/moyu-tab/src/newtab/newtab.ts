@@ -19,10 +19,55 @@ import { renderHotCard, initHotCard } from './widgets/hot';
 import { renderNewsCard, initNewsCard } from './widgets/news';
 import { CAT_TREE, ALL_WIDGETS, TopCat, WID } from './config';
 
+// 实用工具：3 个计算器整合为弹窗，入口卡片始终渲染在 #panel 第一行
+function tkSvg(p: string): string {
+  return `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${p}</svg>`;
+}
+const TK_TITLE_ICON = tkSvg(
+  '<path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/>',
+);
+const TOOLKIT: {
+  id: string;
+  title: string;
+  desc: string;
+  icon: string;
+  render: () => string;
+  init: () => void;
+}[] = [
+  {
+    id: 'tax',
+    title: '个税计算器',
+    desc: '月薪到手税后',
+    icon: tkSvg(
+      '<line x1="19" y1="5" x2="5" y2="19"/><circle cx="6.5" cy="6.5" r="2.5"/><circle cx="17.5" cy="17.5" r="2.5"/>',
+    ),
+    render: renderTaxCard,
+    init: initTax,
+  },
+  {
+    id: 'mortgage',
+    title: '房贷计算器',
+    desc: '等额本息/本金',
+    icon: tkSvg('<path d="M3 10 12 3l9 7"/><path d="M5 9.5V20h14V9.5"/><path d="M10 20v-5h4v5"/>'),
+    render: renderMortgageCard,
+    init: initMortgage,
+  },
+  {
+    id: 'bmi',
+    title: 'BMI 计算器',
+    desc: '身体质量指数',
+    icon: tkSvg(
+      '<rect x="4" y="3" width="16" height="18" rx="2"/><circle cx="12" cy="10" r="3.2"/><line x1="12" y1="10" x2="14" y2="8.2"/>',
+    ),
+    render: renderBmiCard,
+    init: initBmi,
+  },
+];
+
 const SS = 'moyu_schedule',
   SW = 'moyu_widgets',
   SR = 'moyu_salary',
-  WV = 6; // 组件存储结构版本：变更组件分类归属时 +1，触发按新 cat.sub 重组迁移
+  WV = 7; // 组件存储结构版本：变更组件分类归属时 +1，触发按新 cat.sub 重组迁移
 interface Sch {
   startHour: number;
   startMinute: number;
@@ -187,6 +232,15 @@ async function renderPanel() {
   cardsCol.innerHTML = rightIds.length
     ? html(rightIds)
     : `<div class="empty"><div>暂无组件</div><div class="add-hint">左下角点 添加</div></div>`;
+  const tkRow = document.getElementById('toolkitRow');
+  if (tkRow) {
+    tkRow.innerHTML = renderToolkitCard();
+    tkRow
+      .querySelectorAll('.toolkit-tile')
+      .forEach((b) =>
+        b.addEventListener('click', () => openToolkit((b as HTMLElement).dataset.tool!)),
+      );
+  }
   for (const id of [...leftIds, ...rightIds]) initW(id);
   nmTrigger();
 }
@@ -207,14 +261,21 @@ function getCard(w: WID): string {
   if (w.id === 'notes') return renderNotesCard();
   if (w.id === 'review') return renderReviewCard();
   if (w.id === 'search') return renderSearchCard();
-  if (w.id === 'tax') return renderTaxCard();
-  if (w.id === 'mortgage') return renderMortgageCard();
-  if (w.id === 'bmi') return renderBmiCard();
   if (w.id === 'currency') return renderCurrencyCard();
   if (w.id === 'bookmarks') return renderBookmarksCard();
   if (w.id === 'hot') return renderHotCard();
   if (w.id === 'news') return renderNewsCard();
   return `<div class="widget-card clickable" data-widget="${w.id}"><div class="widget-entry"><span>${w.desc}</span><span class="arrow">→</span></div></div>`;
+}
+function renderToolkitCard(): string {
+  const tiles = TOOLKIT.map(
+    (t) =>
+      `<button class="toolkit-tile" data-tool="${t.id}"><span class="tk-head"><span class="tk-ico">${t.icon}</span><span class="tk-name">${t.title}</span></span><span class="tk-desc">${t.desc}</span></button>`,
+  ).join('');
+  return `<div class="widget-card toolkit-card">
+      <div class="toolkit-title">${TK_TITLE_ICON} 实用工具</div>
+      <div class="toolkit-grid">${tiles}</div>
+    </div>`;
 }
 async function refreshMarket() {
   const btn = document.getElementById('marketRefresh');
@@ -261,15 +322,6 @@ async function initW(id: string) {
     case 'search':
       initSearch();
       break;
-    case 'tax':
-      initTax();
-      break;
-    case 'mortgage':
-      initMortgage();
-      break;
-    case 'bmi':
-      initBmi();
-      break;
     case 'currency':
       initCurrency();
       break;
@@ -281,6 +333,17 @@ async function initW(id: string) {
 
 document.getElementById('addWidgetBtn')!.addEventListener('click', () => openWidgetModal(true));
 document.getElementById('settingsBtn')!.addEventListener('click', openSettings);
+document.getElementById('gotoToolkitBtn')!.addEventListener('click', () => {
+  const row = document.getElementById('toolkitRow');
+  if (!row) return;
+  row.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  const card = row.querySelector('.toolkit-card');
+  if (card) {
+    card.classList.remove('tk-locate');
+    void (card as HTMLElement).offsetWidth; // 重新触发动画
+    card.classList.add('tk-locate');
+  }
+});
 
 // ── Widget Modal ──
 const wm = document.getElementById('widgetModal')!;
@@ -384,6 +447,28 @@ async function openWidgetModal(showTree: boolean) {
   await renderWmList(wmCat, wmSub);
   wm.classList.add('open');
 }
+
+// ── 实用工具弹窗（单工具弹窗：只展示被点击的工具，无工具切换列表）──
+const tk = document.getElementById('toolkitModal')!;
+let tkCur = 'tax';
+function renderTkContent() {
+  const t = TOOLKIT.find((x) => x.id === tkCur);
+  const c = document.getElementById('tkContent');
+  const title = document.getElementById('tkTitle');
+  if (!t || !c) return;
+  if (title) title.textContent = t.title;
+  c.innerHTML = t.render();
+  t.init();
+}
+function openToolkit(tool?: string) {
+  if (tool) tkCur = tool;
+  renderTkContent();
+  tk.classList.add('open');
+}
+document.getElementById('tkClose')!.addEventListener('click', () => tk.classList.remove('open'));
+tk.addEventListener('click', (e) => {
+  if (e.target === tk) tk.classList.remove('open');
+});
 
 // ── 全局消息提示（Toast，页面顶部居中）──
 type MsgType = 'success' | 'warning' | 'error' | 'info';
@@ -523,6 +608,7 @@ document.addEventListener('keydown', (e) => {
   if (e.key === 'Escape') {
     wm.classList.remove('open');
     sm.classList.remove('open');
+    tk.classList.remove('open');
   }
 });
 

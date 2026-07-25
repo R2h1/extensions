@@ -37,7 +37,7 @@ function saveInput(d: TaxInput) {
 export function renderTaxCard(): string {
   const d = loadInput();
   return `<div class="widget-card calc-card tax-card">
-      <div class="calc-head"><div class="calc-title">🧾 个税计算器</div><div class="calc-sub">月度综合所得</div></div>
+      <div class="calc-head"><div class="calc-title">个税计算器</div><div class="calc-sub">月度综合所得</div></div>
       <div class="calc-form">
         <label class="calc-field"><span>税前月薪（元）</span><input id="taxSalary" type="number" inputmode="decimal" min="0" placeholder="如 15000" value="${esc(d.salary)}" /></label>
         <label class="calc-field"><span>五险一金扣除（元/月）</span><input id="taxInsurance" type="number" inputmode="decimal" min="0" placeholder="选填" value="${esc(d.insurance)}" /></label>

@@ -71,12 +71,6 @@ export const CAT_TREE: TopCat[] = [
     subs: [{ id: 'market', name: '行情' }],
   },
   {
-    id: 'tools',
-    name: '工具',
-    icon: ICONS.tools,
-    subs: [{ id: 'calc', name: '计算' }],
-  },
-  {
     id: 'bookmark',
     name: '书签',
     icon: ICONS.bookmark,
@@ -96,7 +90,4 @@ export const ALL_WIDGETS: WID[] = [
   { id: 'market', name: '行情', desc: '金价+基金估值', cat: 'finance', sub: 'market' },
   { id: 'currency', name: '汇率换算', desc: '实时汇率换算', cat: 'finance', sub: 'market' },
   { id: 'bookmarks', name: '书签同步', desc: '浏览器书签栏', cat: 'bookmark', sub: 'nav' },
-  { id: 'tax', name: '个税计算器', desc: '月薪到手税后', cat: 'tools', sub: 'calc' },
-  { id: 'mortgage', name: '房贷计算器', desc: '等额本息/本金', cat: 'tools', sub: 'calc' },
-  { id: 'bmi', name: 'BMI 计算器', desc: '身体质量指数', cat: 'tools', sub: 'calc' },
 ];

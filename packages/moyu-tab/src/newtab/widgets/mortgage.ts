@@ -26,7 +26,7 @@ function saveInput(d: MgInput) {
 export function renderMortgageCard(): string {
   const d = loadInput();
   return `<div class="widget-card calc-card mortgage-card">
-      <div class="calc-head"><div class="calc-title">🏠 房贷计算器</div></div>
+      <div class="calc-head"><div class="calc-title">房贷计算器</div></div>
       <div class="calc-form">
         <label class="calc-field"><span>贷款金额（万元）</span><input id="mgAmount" type="number" inputmode="decimal" min="0" placeholder="如 100" value="${esc(d.amount)}" /></label>
         <div class="calc-row2">
