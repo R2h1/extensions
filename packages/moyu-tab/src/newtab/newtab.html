@@ -16,9 +16,10 @@ html.locked .widget-card{opacity:0;visibility:hidden;transition:opacity 0.35s ea
 html.locked .entry-btn{opacity:0;visibility:hidden;transition:opacity 0.3s ease,visibility 0.3s}
 html.locked .entry-grid{opacity:0;visibility:hidden;transition:opacity 0.3s ease,visibility 0.3s}
 .header-date{display:flex;align-items:baseline;gap:10px;pointer-events:none;white-space:nowrap}
-.hd-time{font-size:14px;font-weight:600;color:#3b3b3b;font-variant-numeric:tabular-nums;font-family:'Courier New',ui-monospace,monospace}
+.hd-time{font-size:14px;font-weight:600;color:#3b3b3b;font-variant-numeric:tabular-nums;font-family:'Courier New',ui-monospace,monospace;pointer-events:auto;cursor:pointer;border-radius:6px;padding:2px 6px;margin:-2px -6px;transition:background .15s,color .15s}
 .hd-date{font-size:12px;color:#2a2a2c;pointer-events:auto;cursor:pointer;border-radius:6px;padding:2px 6px;margin:-2px -6px;transition:background .15s,color .15s}
 html:not(.locked) .hd-date:hover{background:var(--glass-accent);color:var(--accent)}
+html:not(.locked) .hd-time:hover{background:var(--glass-accent);color:var(--accent)}
 .hd-date .d-lunar{display:none}
 .lock-btn{width:34px;height:34px;margin-left:auto;border:none;border-radius:50%;background:var(--nm-surface);box-shadow:var(--nm-out),0 2px 4px rgba(0,0,0,0.1);color:var(--text-secondary);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:color .15s,box-shadow .15s;font-family:inherit;flex-shrink:0}
 .lock-btn:hover{color:var(--accent)}
@@ -68,7 +69,6 @@ html.locked .header-row{padding:0 16px}
 .cat-panel{display:none;padding:4px 0}
 .cat-panel.active{display:flex;gap:10px;align-items:flex-start}
 .mason-col{flex:1 1 0;min-width:0;display:flex;flex-direction:column;gap:10px}
-.sal-card{container-type:inline-size}
 .cat-panel .empty{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;padding:36px 0;color:var(--text-tertiary);font-size:13px}
 .cat-panel .add-hint{font-size:11px;color:var(--text-tertiary)}
 .sub-filter{display:flex;align-items:center;gap:2px;flex-wrap:wrap;padding:2px 0;background:transparent;width:100%;max-width:580px;min-height:34px}
@@ -128,38 +128,36 @@ html.locked .sub-filter{display:none}
 .wp-btn-ghost{background:transparent;color:var(--text-secondary);border:0.5px solid var(--glass-border)}
 .wp-btn-ghost:hover{border-color:var(--accent);color:var(--accent);filter:none}
 .wp-hint{font-size:11px;color:var(--text-tertiary);text-align:center;margin-top:10px}
-/* 薪资跳动 · 明细卡片 */
-.sal-card{padding:18px 18px 16px}
-.sal-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px 28px;align-items:start}
+/* 薪资跳动 · 弹出卡片 */
+.sal-card{padding:12px}
+.sal-grid{display:grid;grid-template-columns:1fr;gap:8px}
 .sal-left{min-width:0}
-.sal-title{font-size:14px;font-weight:600;color:var(--text-secondary);letter-spacing:.5px;margin-bottom:6px;display:flex;align-items:center;gap:6px}
-.sal-label{font-size:11px;color:var(--text-tertiary)}
-.sal-amount{font-size:44px;font-weight:700;color:#f97316;letter-spacing:-1px;line-height:1.1;margin:4px 0 8px;font-variant-numeric:tabular-nums;font-family:'Courier New',ui-monospace,monospace}
-.sal-breakdown{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text-secondary);flex-wrap:wrap}
+.sal-label{font-size:10px;color:var(--text-tertiary)}
+.sal-amount{font-size:26px;font-weight:700;color:#f97316;letter-spacing:-1px;line-height:1.1;margin:2px 0 4px;font-variant-numeric:tabular-nums;font-family:'Courier New',ui-monospace,monospace}
+.sal-breakdown{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--text-secondary);flex-wrap:wrap}
 .sal-breakdown .bd-item{display:flex;flex-direction:column;align-items:center;line-height:1.3}
-.sal-breakdown .bd-item span:first-child{font-size:10px;color:var(--text-tertiary)}
-.sal-breakdown .bd-item span:last-child{font-variant-numeric:tabular-nums;font-size:13px;font-family:'Courier New',ui-monospace,monospace}
-.sal-breakdown .bd-sym{color:var(--text-tertiary);font-size:14px}
+.sal-breakdown .bd-item span:first-child{font-size:9px;color:var(--text-tertiary)}
+.sal-breakdown .bd-item span:last-child{font-variant-numeric:tabular-nums;font-size:11px;font-family:'Courier New',ui-monospace,monospace}
+.sal-breakdown .bd-sym{color:var(--text-tertiary);font-size:12px}
 .sal-breakdown .t-green{color:#10b981}
-.sal-right{display:flex;flex-direction:column;align-items:center;padding-top:2px}
-.sal-toggle{display:flex;background:var(--nm-surface);border-radius:30px;padding:3px;width:100%;max-width:200px;box-shadow:inset 5px 5px 10px rgba(174,174,178,.5),inset -5px -5px 10px rgba(255,255,255,.9)}
-.sal-tb{flex:1;border-radius:26px;padding:8px 0;text-align:center;font-weight:600;font-size:13px;cursor:pointer;transition:all .2s;user-select:none;color:var(--text-tertiary)}
+.sal-right{display:flex;flex-direction:column;align-items:center}
+.sal-toggle{display:flex;background:var(--nm-surface);border-radius:24px;padding:2px;width:100%;max-width:160px;box-shadow:inset 5px 5px 10px rgba(174,174,178,.5),inset -5px -5px 10px rgba(255,255,255,.9)}
+.sal-tb{flex:1;border-radius:20px;padding:4px 0;text-align:center;font-weight:600;font-size:11px;cursor:pointer;transition:all .2s;user-select:none;color:var(--text-tertiary)}
 .sal-tb.active{background:var(--nm-surface);color:var(--accent);box-shadow:3px 3px 8px rgba(174,174,178,.3),-3px -3px 8px rgba(255,255,255,.8)}
-.sal-timer{font-size:30px;font-weight:500;color:var(--text);margin-top:12px;letter-spacing:1px;font-variant-numeric:tabular-nums;font-family:ui-monospace,'Courier New',monospace}
-.sal-text{color:var(--text-secondary);font-size:13px;margin-top:4px}
-.sal-bottom{grid-column:1/-1;margin-top:14px;background:var(--nm-surface);border-radius:14px;padding:14px 16px;box-shadow:var(--nm-in)}
-.sal-ticks{display:flex;justify-content:space-between;font-size:11px;font-weight:500;color:var(--text-tertiary);margin-bottom:4px}
+.sal-timer{font-size:20px;font-weight:500;color:var(--text);margin-top:6px;letter-spacing:1px;font-variant-numeric:tabular-nums;font-family:ui-monospace,'Courier New',monospace}
+.sal-text{color:var(--text-secondary);font-size:11px;margin-top:2px}
+.sal-bottom{grid-column:1/-1;margin-top:2px;background:var(--nm-surface);border-radius:10px;padding:8px 10px;box-shadow:var(--nm-in)}
+.sal-ticks{display:flex;justify-content:space-between;font-size:9px;font-weight:500;color:var(--text-tertiary);margin-bottom:3px}
 .sal-trackwrap{position:relative;margin-top:2px}
-.sal-track{position:relative;height:22px;width:100%;background:#e2e8f0;border-radius:11px;overflow:hidden}
-.sal-seg{position:absolute;height:100%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:500;color:#fff;overflow:hidden;white-space:nowrap}
+.sal-track{position:relative;height:14px;width:100%;background:#e2e8f0;border-radius:7px;overflow:hidden}
+.sal-seg{position:absolute;height:100%;display:flex;align-items:center;justify-content:center;font-size:8px;font-weight:500;color:#fff;overflow:hidden;white-space:nowrap}
 .seg-work{background:#3b82f6}
 .seg-rest{background:#10b981}
-.sal-indicator{position:absolute;top:0;left:0;width:2px;height:22px;background:#ef4444;z-index:10;border-radius:2px;transition:left .8s cubic-bezier(.4,0,.2,1);transform:translateX(-50%)}
-.sal-indicator::before{content:'';position:absolute;top:-4px;left:50%;transform:translateX(-50%);width:8px;height:8px;background:#ef4444;border-radius:50%}
-.sal-countdown{text-align:center;margin-top:10px;font-size:13px;color:var(--text-secondary)}
+.sal-indicator{position:absolute;top:0;left:0;width:2px;height:14px;background:#ef4444;z-index:10;border-radius:2px;transition:left .8s cubic-bezier(.4,0,.2,1);transform:translateX(-50%)}
+.sal-indicator::before{content:'';position:absolute;top:-3px;left:50%;transform:translateX(-50%);width:6px;height:6px;background:#ef4444;border-radius:50%}
+.sal-countdown{text-align:center;margin-top:5px;font-size:11px;color:var(--text-secondary)}
 .sal-countdown span{color:#3b82f6;font-weight:600;font-variant-numeric:tabular-nums;font-family:ui-monospace,monospace}
-.sal-payday{text-align:center;font-size:10px;color:var(--text-tertiary);margin-top:6px;border-top:.5px solid rgba(0,0,0,.04);padding-top:6px}
-@container (max-width:450px){.sal-grid{grid-template-columns:1fr;gap:12px}.sal-amount{font-size:34px}.sal-timer{font-size:24px}.sal-right{padding-top:0}}
+.sal-payday{text-align:center;font-size:9px;color:var(--text-tertiary);margin-top:4px;border-top:.5px solid rgba(0,0,0,.04);padding-top:4px}
 /* 行情卡片（金价 + 基金） */
 .market-card{padding:12px 14px}
 .market-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px}
@@ -304,6 +302,8 @@ html.locked .sub-filter{display:none}
 @keyframes calpop{from{opacity:0;transform:translateY(-6px) scale(.97)}to{opacity:1;transform:translateY(0) scale(1)}}
 .weather-popover{display:none;position:fixed;z-index:80;width:320px}
 .weather-popover.open{display:block;animation:calpop .16s ease-out;transform-origin:top left}
+.sal-popover{display:none;position:fixed;z-index:80;width:300px;max-height:calc(100vh - 88px);overflow-y:auto}
+.sal-popover.open{display:block;animation:calpop .16s ease-out;transform-origin:top left}
 /* 影音卡片 */
 .tv-card{padding:12px 14px}
 .tv-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
@@ -680,6 +680,40 @@ html.locked .sub-filter{display:none}
     <div class="weather-daily" id="weatherDaily" style="display:none">
       <div class="weather-daily-head">7天预报</div>
       <div class="weather-daily-grid" id="weatherDailyGrid"></div>
+    </div>
+  </div>
+</div>
+<div class="sal-popover" id="salPopover">
+  <div class="widget-card sal-card">
+    <div class="sal-grid">
+      <div class="sal-left">
+        <div class="sal-label">今日实时收入</div>
+        <div class="sal-amount" id="salAmount">¥0.000</div>
+        <div class="sal-breakdown">
+          <div class="bd-item"><span>工作</span><span id="salWork">¥0.000</span></div>
+          <span class="bd-sym">+</span>
+          <div class="bd-item"><span>摸鱼</span><span id="salFish" class="t-green">¥0.000</span></div>
+          <span class="bd-sym">+</span>
+          <div class="bd-item"><span>额外</span><span id="salRest" class="t-green">¥0.000</span></div>
+        </div>
+      </div>
+      <div class="sal-right">
+        <div class="sal-toggle" id="salToggle">
+          <div class="sal-tb active" data-mode="work">😤 工作</div>
+          <div class="sal-tb" data-mode="fish">🐟 摸鱼</div>
+        </div>
+        <div class="sal-timer" id="salTimer">00:00:00</div>
+        <div class="sal-text" id="salText">专注工作中</div>
+      </div>
+      <div class="sal-bottom">
+        <div class="sal-ticks" id="salTicks"></div>
+        <div class="sal-trackwrap">
+          <div class="sal-track" id="salTrack"></div>
+          <div class="sal-indicator" id="salIndicator" style="display:none"></div>
+        </div>
+        <div class="sal-countdown" id="salCountdown">⏲️ 距离上班还有 <span>--:--:--</span></div>
+        <div class="sal-payday" id="salPayDay"></div>
+      </div>
     </div>
   </div>
 </div>

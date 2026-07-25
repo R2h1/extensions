@@ -22,7 +22,7 @@ import { CAT_TREE, ALL_WIDGETS, TopCat, WID } from './config';
 const SS = 'moyu_schedule',
   SW = 'moyu_widgets',
   SR = 'moyu_salary',
-  WV = 4; // 组件存储结构版本：变更组件分类归属时 +1，触发按新 cat.sub 重组迁移
+  WV = 5; // 组件存储结构版本：变更组件分类归属时 +1，触发按新 cat.sub 重组迁移
 interface Sch {
   startHour: number;
   startMinute: number;
@@ -289,38 +289,6 @@ async function showCat(cat: string) {
   await renderPanel();
 }
 function getCard(w: WID): string {
-  if (w.id === 'salary')
-    return `<div class="widget-card sal-card"><div class="sal-grid">
-      <div class="sal-left">
-        <div class="sal-title">✦ 薪资跳动</div>
-        <div class="sal-label">今日实时收入</div>
-        <div class="sal-amount" id="salAmount">¥0.000</div>
-        <div class="sal-breakdown">
-          <div class="bd-item"><span>工作</span><span id="salWork">¥0.000</span></div>
-          <span class="bd-sym">+</span>
-          <div class="bd-item"><span>摸鱼</span><span id="salFish" class="t-green">¥0.000</span></div>
-          <span class="bd-sym">+</span>
-          <div class="bd-item"><span>额外</span><span id="salRest" class="t-green">¥0.000</span></div>
-        </div>
-      </div>
-      <div class="sal-right">
-        <div class="sal-toggle" id="salToggle">
-          <div class="sal-tb active" data-mode="work">😤 工作</div>
-          <div class="sal-tb" data-mode="fish">🐟 摸鱼</div>
-        </div>
-        <div class="sal-timer" id="salTimer">00:00:00</div>
-        <div class="sal-text" id="salText">专注工作中</div>
-      </div>
-      <div class="sal-bottom">
-        <div class="sal-ticks" id="salTicks"></div>
-        <div class="sal-trackwrap">
-          <div class="sal-track" id="salTrack"></div>
-          <div class="sal-indicator" id="salIndicator" style="display:none"></div>
-        </div>
-        <div class="sal-countdown" id="salCountdown">⏲️ 距离上班还有 <span>--:--:--</span></div>
-        <div class="sal-payday" id="salPayDay"></div>
-      </div>
-    </div></div>`;
   if (w.id === 'market')
     return `<div class="widget-card market-card">
       <div class="market-head">
@@ -386,9 +354,6 @@ async function initW(id: string) {
   if (rendered[id]) return;
   rendered[id] = true;
   switch (id) {
-    case 'salary':
-      initSalary();
-      break;
     case 'market':
       initMarket();
       break;
@@ -1631,7 +1596,7 @@ function initCalendar() {
 // ── 顶部 header 浮层（日历 / 天气，互斥展开）──
 function closeAllPopovers() {
   document
-    .querySelectorAll('.cal-popover.open, .weather-popover.open')
+    .querySelectorAll('.cal-popover.open, .weather-popover.open, .sal-popover.open')
     .forEach((p) => p.classList.remove('open'));
 }
 function setupHeaderPopover(triggerId: string, popId: string, onClose?: () => void) {
@@ -1681,6 +1646,10 @@ function initCalendarPopover() {
 function initWeatherPopover() {
   initWeather();
   setupHeaderPopover('headerWeather', 'weatherPopover');
+}
+function initSalaryPopover() {
+  initSalary();
+  setupHeaderPopover('timeDisplay', 'salPopover');
 }
 
 // ── 音乐（APlayer + Meting API）──
@@ -1802,6 +1771,7 @@ async function init() {
   initWebSearch();
   await loadSch();
   await loadSal();
+  initSalaryPopover();
   renderSidebar();
   await showCat(curCat);
   setInterval(() => {

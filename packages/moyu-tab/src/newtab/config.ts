@@ -66,12 +66,6 @@ export const CAT_TREE: TopCat[] = [
     ],
   },
   {
-    id: 'work',
-    name: '工作',
-    icon: ICONS.work,
-    subs: [{ id: 'salary', name: '薪资' }],
-  },
-  {
     id: 'study',
     name: '学习',
     icon: ICONS.study,
@@ -111,7 +105,6 @@ export const ALL_WIDGETS: WID[] = [
   { id: 'notes', name: '我的笔记', desc: '笔记与划线', cat: 'study', sub: 'read' },
   { id: 'review', name: '书评', desc: '最近在读书评', cat: 'study', sub: 'read' },
   { id: 'search', name: '搜书', desc: '搜索书城', cat: 'study', sub: 'read' },
-  { id: 'salary', name: '薪资跳动', desc: '实时薪资计数器', cat: 'work', sub: 'salary' },
   { id: 'market', name: '行情', desc: '金价+基金估值', cat: 'finance', sub: 'market' },
   { id: 'currency', name: '汇率换算', desc: '实时汇率换算', cat: 'finance', sub: 'market' },
   { id: 'bookmarks', name: '书签同步', desc: '浏览器书签栏', cat: 'bookmark', sub: 'nav' },
