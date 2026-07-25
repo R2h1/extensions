@@ -131,6 +131,7 @@ html.locked .sub-filter{display:none}
 /* 薪资跳动 · 弹出卡片 */
 .sal-card{padding:12px}
 .sal-grid{display:grid;grid-template-columns:1fr;gap:8px}
+.sal-top{display:flex;justify-content:space-between;align-items:flex-start;gap:10px}
 .sal-left{min-width:0}
 .sal-label{font-size:10px;color:var(--text-tertiary)}
 .sal-amount{font-size:26px;font-weight:700;color:#f97316;letter-spacing:-1px;line-height:1.1;margin:2px 0 4px;font-variant-numeric:tabular-nums;font-family:'Courier New',ui-monospace,monospace}
@@ -140,12 +141,11 @@ html.locked .sub-filter{display:none}
 .sal-breakdown .bd-item span:last-child{font-variant-numeric:tabular-nums;font-size:11px;font-family:'Courier New',ui-monospace,monospace}
 .sal-breakdown .bd-sym{color:var(--text-tertiary);font-size:12px}
 .sal-breakdown .t-green{color:#10b981}
-.sal-right{display:flex;flex-direction:column;align-items:center}
-.sal-toggle{display:flex;background:var(--nm-surface);border-radius:24px;padding:2px;width:100%;max-width:160px;box-shadow:inset 5px 5px 10px rgba(174,174,178,.5),inset -5px -5px 10px rgba(255,255,255,.9)}
-.sal-tb{flex:1;border-radius:20px;padding:4px 0;text-align:center;font-weight:600;font-size:11px;cursor:pointer;transition:all .2s;user-select:none;color:var(--text-tertiary)}
+.sal-right{display:flex;flex-direction:column;align-items:flex-end;gap:4px}
+.sal-toggle{display:flex;gap:2px}
+.sal-tb{flex:1;border-radius:20px;padding:4px 10px;text-align:center;font-weight:600;font-size:11px;cursor:pointer;transition:all .2s;user-select:none;color:var(--text-tertiary)}
 .sal-tb.active{background:var(--nm-surface);color:var(--accent);box-shadow:3px 3px 8px rgba(174,174,178,.3),-3px -3px 8px rgba(255,255,255,.8)}
-.sal-timer{font-size:20px;font-weight:500;color:var(--text);margin-top:6px;letter-spacing:1px;font-variant-numeric:tabular-nums;font-family:ui-monospace,'Courier New',monospace}
-.sal-text{color:var(--text-secondary);font-size:11px;margin-top:2px}
+.sal-timer{font-size:20px;font-weight:500;color:var(--text);letter-spacing:1px;font-variant-numeric:tabular-nums;font-family:ui-monospace,'Courier New',monospace}
 .sal-bottom{grid-column:1/-1;margin-top:2px;background:var(--nm-surface);border-radius:10px;padding:8px 10px;box-shadow:var(--nm-in)}
 .sal-ticks{display:flex;justify-content:space-between;font-size:9px;font-weight:500;color:var(--text-tertiary);margin-bottom:3px}
 .sal-trackwrap{position:relative;margin-top:2px}
@@ -686,24 +686,25 @@ html.locked .sub-filter{display:none}
 <div class="sal-popover" id="salPopover">
   <div class="widget-card sal-card">
     <div class="sal-grid">
-      <div class="sal-left">
-        <div class="sal-label">今日实时收入</div>
-        <div class="sal-amount" id="salAmount">¥0.000</div>
-        <div class="sal-breakdown">
-          <div class="bd-item"><span>工作</span><span id="salWork">¥0.000</span></div>
-          <span class="bd-sym">+</span>
-          <div class="bd-item"><span>摸鱼</span><span id="salFish" class="t-green">¥0.000</span></div>
-          <span class="bd-sym">+</span>
-          <div class="bd-item"><span>额外</span><span id="salRest" class="t-green">¥0.000</span></div>
+      <div class="sal-top">
+        <div class="sal-left">
+          <div class="sal-label">今日实时收入</div>
+          <div class="sal-amount" id="salAmount">¥0.00</div>
+          <div class="sal-breakdown">
+            <div class="bd-item"><span>工作</span><span id="salWork">¥0.00</span></div>
+            <span class="bd-sym">+</span>
+            <div class="bd-item"><span>摸鱼</span><span id="salFish" class="t-green">¥0.00</span></div>
+            <span class="bd-sym">+</span>
+            <div class="bd-item"><span>额外</span><span id="salRest" class="t-green">¥0.00</span></div>
+          </div>
         </div>
-      </div>
-      <div class="sal-right">
-        <div class="sal-toggle" id="salToggle">
-          <div class="sal-tb active" data-mode="work">😤 工作</div>
-          <div class="sal-tb" data-mode="fish">🐟 摸鱼</div>
+        <div class="sal-right">
+          <div class="sal-toggle" id="salToggle">
+            <div class="sal-tb active" data-mode="work">工作</div>
+            <div class="sal-tb" data-mode="fish">摸鱼</div>
+          </div>
+          <div class="sal-timer" id="salTimer">00:00:00</div>
         </div>
-        <div class="sal-timer" id="salTimer">00:00:00</div>
-        <div class="sal-text" id="salText">专注工作中</div>
       </div>
       <div class="sal-bottom">
         <div class="sal-ticks" id="salTicks"></div>
@@ -711,7 +712,7 @@ html.locked .sub-filter{display:none}
           <div class="sal-track" id="salTrack"></div>
           <div class="sal-indicator" id="salIndicator" style="display:none"></div>
         </div>
-        <div class="sal-countdown" id="salCountdown">⏲️ 距离上班还有 <span>--:--:--</span></div>
+        <div class="sal-countdown" id="salCountdown">距离上班还有 <span>--:--:--</span></div>
         <div class="sal-payday" id="salPayDay"></div>
       </div>
     </div>

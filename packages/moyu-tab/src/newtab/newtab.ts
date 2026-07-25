@@ -1105,8 +1105,8 @@ function saveSalState() {
     localStorage.setItem(SAL_KEY, JSON.stringify(salState));
   } catch {}
 }
-function toMoney3(v: number) {
-  return '¥' + v.toFixed(3);
+function toMoney(v: number) {
+  return '¥' + v.toFixed(2);
 }
 function toTime(sec: number) {
   const h = Math.floor(sec / 3600),
@@ -1149,7 +1149,6 @@ function tickSalary() {
     fishEl = document.getElementById('salFish'),
     restEl = document.getElementById('salRest'),
     timerEl = document.getElementById('salTimer'),
-    textEl = document.getElementById('salText'),
     ind = document.getElementById('salIndicator'),
     cd = document.getElementById('salCountdown'),
     pdp = document.getElementById('salPayDay');
@@ -1179,10 +1178,10 @@ function tickSalary() {
 
   // 金额与明细
   const total = salState.workIncome + salState.fishIncome + salState.restIncome;
-  if (amt) amt.textContent = toMoney3(total);
-  if (workEl) workEl.textContent = toMoney3(salState.workIncome);
-  if (fishEl) fishEl.textContent = toMoney3(salState.fishIncome);
-  if (restEl) restEl.textContent = toMoney3(salState.restIncome);
+  if (amt) amt.textContent = toMoney(total);
+  if (workEl) workEl.textContent = toMoney(salState.workIncome);
+  if (fishEl) fishEl.textContent = toMoney(salState.fishIncome);
+  if (restEl) restEl.textContent = toMoney(salState.restIncome);
 
   // 状态计时器
   if (timerEl)
@@ -1207,7 +1206,7 @@ function tickSalary() {
   // 倒计时
   if (cd) {
     if (!isWorkday) {
-      cd.innerHTML = '🛏️ 周末双休，享受生活';
+      cd.innerHTML = '周末双休，享受生活';
     } else {
       let target = 0,
         label = '';
@@ -1229,17 +1228,8 @@ function tickSalary() {
       }
       let diff = target - cur;
       if (diff < 0) diff = 0;
-      cd.innerHTML = `⏲️ ${label} <span>${toTime(diff)}</span>`;
+      cd.innerHTML = `${label} <span>${toTime(diff)}</span>`;
     }
-  }
-
-  // 状态文字
-  if (textEl) {
-    if (!isWorkday) textEl.textContent = '周末休息中';
-    else if (cur < start) textEl.textContent = '还没开工';
-    else if (cur >= off) textEl.textContent = '今天已下班';
-    else if (salState.mode === 'work') textEl.textContent = '专注工作中';
-    else textEl.textContent = '摸鱼中';
   }
 
   // 发薪日
