@@ -22,7 +22,7 @@ import { CAT_TREE, ALL_WIDGETS, TopCat, WID } from './config';
 const SS = 'moyu_schedule',
   SW = 'moyu_widgets',
   SR = 'moyu_salary',
-  WV = 5; // 组件存储结构版本：变更组件分类归属时 +1，触发按新 cat.sub 重组迁移
+  WV = 6; // 组件存储结构版本：变更组件分类归属时 +1，触发按新 cat.sub 重组迁移
 interface Sch {
   startHour: number;
   startMinute: number;
@@ -165,9 +165,9 @@ function renderSidebar() {
     (top) =>
       `<button class="sb-btn sb-top" data-cat="${top.id}"><span class="ic">${top.icon}</span>${top.name}</button>`,
   ).join('');
-  nav.querySelectorAll('.sb-top').forEach((b) =>
-    b.addEventListener('click', () => showCat((b as HTMLElement).dataset.cat!)),
-  );
+  nav
+    .querySelectorAll('.sb-top')
+    .forEach((b) => b.addEventListener('click', () => showCat((b as HTMLElement).dataset.cat!)));
 }
 function highlightCat() {
   const nav = document.getElementById('sidebarNav')!;
@@ -247,11 +247,7 @@ async function renderPanel() {
   const top = CAT_TREE.find((t) => t.id === curCat);
   const subs = top ? nonEmptySubs(top) : [];
   const subIds =
-    curSub === 'all'
-      ? subs.map((s) => s.id)
-      : subs.some((s) => s.id === curSub)
-        ? [curSub]
-        : [];
+    curSub === 'all' ? subs.map((s) => s.id) : subs.some((s) => s.id === curSub) ? [curSub] : [];
   const ids: string[] = [];
   for (const sid of subIds) {
     for (const id of d.subs[subKey(curCat, sid)] || []) {
@@ -299,28 +295,6 @@ function getCard(w: WID): string {
       <div class="market-divider"></div>
       ${renderFundSection()}
     </div>`;
-  if (w.id === 'tv')
-    return `<div class="widget-card tv-card">
-      <div class="tv-head">
-        <div class="tv-title">▶ 视频</div>
-        <div class="tv-controls">
-          <button class="tv-back" id="tvBack" title="返回">←</button>
-          <a class="tv-open" href="http://app.conan.js.cn/tv" target="_blank" rel="noopener">新标签打开 ↗</a>
-        </div>
-      </div>
-      <iframe class="tv-frame" id="tvFrame" src="http://app.conan.js.cn/tv?v=${new Date().toISOString().slice(0, 10)}" referrerpolicy="no-referrer" loading="lazy" allow="fullscreen; encrypted-media" allowfullscreen></iframe>
-    </div>`;
-  if (w.id === 'music')
-    return `<div class="widget-card music-card">
-      <div class="music-head">
-        <div class="music-title">♫ 音乐</div>
-        <div class="music-ctrl">
-          <button class="music-btn" id="musicPrev" title="上一首">‹</button>
-          <button class="music-btn" id="musicNext" title="下一首">›</button>
-        </div>
-      </div>
-      <div class="music-player" id="musicPlayer"></div>
-    </div>`;
   if (w.id === 'weread') return renderWereadCard();
   if (w.id === 'readdata') return renderReaddataCard();
   if (w.id === 'recommend') return renderRecommendCard();
@@ -356,12 +330,6 @@ async function initW(id: string) {
   switch (id) {
     case 'market':
       initMarket();
-      break;
-    case 'music':
-      initMusic();
-      break;
-    case 'tv':
-      initTv();
       break;
     case 'hot':
       initHotCard();
@@ -1642,16 +1610,40 @@ function initSalaryPopover() {
   setupHeaderPopover('timeDisplay', 'salPopover');
 }
 
-// ── 音乐（APlayer + Meting API）──
+// ── 底部媒体栏（音乐迷你控制 + 展开歌单 + 视频弹窗）──
 const MUSIC_API = 'https://api.i-meto.com/meting/api?server=netease&type=playlist&id=3778678&r=';
 let musicAp: any = null;
-async function initMusic() {
+let musicInited = false;
+let musicPlaying = false;
+
+function mbTrackName() {
+  const cur = musicAp?.list?.[musicAp?.index];
+  return cur ? `${cur.name || '未知'}${cur.artist ? ' · ' + cur.artist : ''}` : '未播放';
+}
+function updateMusicBar() {
+  const nameEl = document.getElementById('mbName');
+  const playBtn = document.getElementById('mbPlay');
+  const prog = document.getElementById('mbProg');
+  if (nameEl) nameEl.textContent = mbTrackName();
+  if (playBtn) playBtn.textContent = musicPlaying ? '⏸' : '▶';
+  if (prog) {
+    let pct = 0;
+    try {
+      const cur = (musicAp?.audio?.seek?.() as number) || 0;
+      const dur = (musicAp?.audio?.duration?.() as number) || 0;
+      pct = dur > 0 ? (cur / dur) * 100 : 0;
+    } catch {
+      /* ignore */
+    }
+    prog.style.width = pct + '%';
+  }
+}
+async function ensureMusic() {
+  if (musicInited) return;
   const container = document.getElementById('musicPlayer');
   if (!container) return;
-  container.onclick = null;
+  musicInited = true;
   container.innerHTML = '<div class="hot-empty">加载中…</div>';
-  document.getElementById('musicPrev')?.addEventListener('click', () => musicAp?.skipBack());
-  document.getElementById('musicNext')?.addEventListener('click', () => musicAp?.skipForward());
   try {
     const res = await fetch(MUSIC_API + Math.random());
     if (!res.ok) throw new Error('HTTP ' + res.status);
@@ -1670,30 +1662,79 @@ async function initMusic() {
       audio,
       autoplay: false,
       theme: '#d97706',
-      listFolded: true,
+      listFolded: false,
       loop: 'all',
       order: 'list',
-      listMaxHeight: '220px',
+      listMaxHeight: '260px',
       lrcType: 3,
     });
+    musicAp.on('play', () => {
+      musicPlaying = true;
+      updateMusicBar();
+    });
+    musicAp.on('pause', () => {
+      musicPlaying = false;
+      updateMusicBar();
+    });
+    musicAp.on('listswitch', updateMusicBar);
+    musicAp.on('timeupdate', updateMusicBar);
+    updateMusicBar();
   } catch {
     container.innerHTML = '<div class="hot-empty">⚠ 加载失败 · 点击重试</div>';
-    container.onclick = () => initMusic();
+    container.onclick = () => {
+      musicInited = false;
+      ensureMusic();
+    };
+    musicInited = false;
   }
 }
-
-function initTv() {
-  document.getElementById('tvBack')?.addEventListener('click', () => {
-    const f = document.getElementById('tvFrame') as HTMLIFrameElement | null;
-    if (!f) return;
-    try {
-      // 跨域 iframe 会拦截 history 访问，能回退就用回退
-      f.contentWindow?.history.back();
-    } catch {
-      // 拦截则重载回首页（带唯一 r 防同 URL 不刷新）
-      f.src = `http://app.conan.js.cn/tv?v=${new Date().toISOString().slice(0, 10)}&r=${Date.now()}`;
-    }
+function toggleMusicPanel() {
+  const panel = document.getElementById('mediaPanel');
+  const btn = document.getElementById('mbExpand');
+  if (!panel) return;
+  const willOpen = !panel.classList.contains('open');
+  panel.classList.toggle('open', willOpen);
+  if (btn) btn.textContent = willOpen ? '⌄' : '⌃';
+  if (willOpen) ensureMusic();
+}
+function openVideoModal() {
+  const modal = document.getElementById('videoModal');
+  if (!modal) return;
+  const frame = document.getElementById('tvFrame') as HTMLIFrameElement | null;
+  if (frame && !frame.src) {
+    frame.src = `http://app.conan.js.cn/tv?v=${new Date().toISOString().slice(0, 10)}`;
+  }
+  modal.classList.add('open');
+}
+function closeVideoModal() {
+  document.getElementById('videoModal')?.classList.remove('open');
+}
+function initMediaBar() {
+  document.getElementById('mbPrev')?.addEventListener('click', () => musicAp?.skipBack());
+  document.getElementById('mbPlay')?.addEventListener('click', async () => {
+    await ensureMusic();
+    if (!musicAp) return;
+    if (musicPlaying) musicAp.pause();
+    else musicAp.play();
   });
+  document.getElementById('mbNext')?.addEventListener('click', () => musicAp?.skipForward());
+  document.getElementById('mbExpand')?.addEventListener('click', toggleMusicPanel);
+  document.getElementById('mbVideo')?.addEventListener('click', openVideoModal);
+  document.getElementById('vmClose')?.addEventListener('click', closeVideoModal);
+  document.getElementById('videoModal')?.addEventListener('click', (e) => {
+    if (e.target === document.getElementById('videoModal')) closeVideoModal();
+  });
+  const progBar = document.getElementById('mbProgBar');
+  progBar?.addEventListener('click', (e) => {
+    if (!musicAp) return;
+    const dur = (musicAp.audio?.duration?.() as number) || 0;
+    if (dur <= 0) return;
+    const r = (progBar as HTMLElement).getBoundingClientRect();
+    const ratio = Math.max(0, Math.min(1, (e.clientX - r.left) / r.width));
+    musicAp.seek(ratio * dur);
+    updateMusicBar();
+  });
+  updateMusicBar();
 }
 
 // ── 顶部搜索框 ──
@@ -1717,7 +1758,8 @@ function initWebSearch() {
   if (!nameEl || !listEl || !ddEl || !inputEl) return;
   nameEl.textContent = sbCur.name;
   listEl.innerHTML = ENGINES.map(
-    (e) => `<div class="sb-engine-opt${e.name === sbCur.name ? ' active' : ''}" data-name="${e.name}">${e.name}</div>`,
+    (e) =>
+      `<div class="sb-engine-opt${e.name === sbCur.name ? ' active' : ''}" data-name="${e.name}">${e.name}</div>`,
   ).join('');
   document.getElementById('sbEngineBtn')?.addEventListener('click', (e) => {
     e.stopPropagation();
@@ -1732,9 +1774,9 @@ function initWebSearch() {
       sbCur = eng;
       localStorage.setItem(SB_KEY, eng.name);
       nameEl.textContent = eng.name;
-      listEl.querySelectorAll('.sb-engine-opt').forEach((o) =>
-        o.classList.toggle('active', (o as HTMLElement).dataset.name === name),
-      );
+      listEl
+        .querySelectorAll('.sb-engine-opt')
+        .forEach((o) => o.classList.toggle('active', (o as HTMLElement).dataset.name === name));
       ddEl.classList.remove('open');
       inputEl.focus();
     }),
@@ -1759,6 +1801,7 @@ async function init() {
   initCalendarPopover();
   initWeatherPopover();
   initWebSearch();
+  initMediaBar();
   await loadSch();
   await loadSal();
   initSalaryPopover();

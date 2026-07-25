@@ -56,16 +56,6 @@ export const CAT_TREE: TopCat[] = [
     ],
   },
   {
-    id: 'fun',
-    name: '娱乐',
-    icon: ICONS.fun,
-    subs: [
-      { id: 'media', name: '影音' },
-      { id: 'joke', name: '趣味' },
-      { id: 'game', name: '游戏' },
-    ],
-  },
-  {
     id: 'study',
     name: '学习',
     icon: ICONS.study,
@@ -97,8 +87,6 @@ export const CAT_TREE: TopCat[] = [
 export const ALL_WIDGETS: WID[] = [
   { id: 'hot', name: '热搜', desc: '微博/B站/百度/掘金热榜', cat: 'news', sub: 'hot' },
   { id: 'news', name: '资讯', desc: 'AI精选/知乎日报/财经快讯', cat: 'news', sub: 'news' },
-  { id: 'tv', name: '视频', desc: '视频网站', cat: 'fun', sub: 'media' },
-  { id: 'music', name: '音乐', desc: '音乐播放器', cat: 'fun', sub: 'media' },
   { id: 'weread', name: '微信读书', desc: '我的书架', cat: 'study', sub: 'read' },
   { id: 'readdata', name: '阅读统计', desc: '本月阅读数据', cat: 'study', sub: 'read' },
   { id: 'recommend', name: '为你推荐', desc: '个性化推荐', cat: 'study', sub: 'read' },
