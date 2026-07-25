@@ -38,7 +38,6 @@ export const ICONS: Record<string, string> = {
   study: svg(
     '<path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>',
   ),
-  finance: svg('<path d="M3 17l6-6 4 4 8-8"/><path d="M21 7v6h-6"/>'),
   tools: svg(
     '<path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/>',
   ),
@@ -65,12 +64,6 @@ export const CAT_TREE: TopCat[] = [
     ],
   },
   {
-    id: 'finance',
-    name: '理财',
-    icon: ICONS.finance,
-    subs: [{ id: 'market', name: '行情' }],
-  },
-  {
     id: 'bookmark',
     name: '书签',
     icon: ICONS.bookmark,
@@ -87,6 +80,5 @@ export const ALL_WIDGETS: WID[] = [
   { id: 'notes', name: '我的笔记', desc: '笔记与划线', cat: 'study', sub: 'read' },
   { id: 'review', name: '书评', desc: '最近在读书评', cat: 'study', sub: 'read' },
   { id: 'search', name: '搜书', desc: '搜索书城', cat: 'study', sub: 'read' },
-  { id: 'market', name: '行情', desc: '金价+基金估值', cat: 'finance', sub: 'market' },
   { id: 'bookmarks', name: '书签同步', desc: '浏览器书签栏', cat: 'bookmark', sub: 'nav' },
 ];

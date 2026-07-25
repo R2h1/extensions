@@ -648,7 +648,7 @@ html.locked .sub-filter{display:none}
 .vm-close:hover{color:var(--accent)}
 .vm-frame{width:100%;height:min(70vh,560px);border:none;background:#000}
 /* 实用工具入口卡片 + 弹窗 */
-.toolkit-row{margin-bottom:14px}
+.toolkit-row{margin-bottom:14px;display:flex;flex-direction:column;gap:14px}
 .toolkit-card{padding:14px 16px}
 .toolkit-title{font-size:14px;font-weight:600;color:var(--text-secondary);letter-spacing:.5px;display:flex;align-items:center;gap:6px;margin-bottom:10px}
 .toolkit-title svg{width:16px;height:16px}
@@ -708,6 +708,7 @@ html.locked .sub-filter{display:none}
     <button class="sb-btn" id="addWidgetBtn"><span class="ic">+</span>添加</button>
     <button class="sb-btn" id="gotoToolkitBtn"><span class="ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg></span>工具</button>
     <button class="sb-btn" id="gotoHotBtn"><span class="ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg></span>资讯</button>
+    <button class="sb-btn" id="gotoMarketBtn"><span class="ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="7" y1="4" x2="7" y2="20"/><rect x="5" y="8" width="4" height="6" rx="1"/><line x1="17" y1="4" x2="17" y2="20"/><rect x="15" y="11" width="4" height="5" rx="1"/></svg></span>行情</button>
     <div class="sb-div"></div>
     <button class="sb-btn" id="settingsBtn"><span class="ic">⚙</span>设置</button>
   </nav>

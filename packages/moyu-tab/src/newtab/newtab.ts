@@ -226,19 +226,20 @@ async function renderPanel() {
     : `<div class="empty"><div>暂无组件</div><div class="add-hint">左下角点 添加</div></div>`;
   const tkRow = document.getElementById('toolkitRow');
   if (tkRow) {
-    tkRow.innerHTML = renderToolkitCard();
+    // 实用工具卡片 + 行情卡片（常驻）置于面板顶部第一行
+    tkRow.innerHTML = renderToolkitCard() + renderMarketCard();
     tkRow
       .querySelectorAll('.toolkit-tile')
       .forEach((b) =>
         b.addEventListener('click', () => openToolkit((b as HTMLElement).dataset.tool!)),
       );
+    initMarket();
   }
   for (const id of [...leftIds, ...rightIds]) initW(id);
   nmTrigger();
 }
-function getCard(w: WID): string {
-  if (w.id === 'market')
-    return `<div class="widget-card market-card">
+function renderMarketCard(): string {
+  return `<div class="widget-card market-card">
       <div class="market-head">
         <div class="market-title">◆ 行情</div>
         <button class="market-refresh" id="marketRefresh" title="刷新">↻</button>
@@ -247,6 +248,8 @@ function getCard(w: WID): string {
       <div class="market-divider"></div>
       ${renderFundSection()}
     </div>`;
+}
+function getCard(w: WID): string {
   if (w.id === 'weread') return renderWereadCard();
   if (w.id === 'readdata') return renderReaddataCard();
   if (w.id === 'recommend') return renderRecommendCard();
@@ -286,9 +289,6 @@ async function initW(id: string) {
   if (rendered[id]) return;
   rendered[id] = true;
   switch (id) {
-    case 'market':
-      initMarket();
-      break;
     case 'hot':
       initHotCard();
       break;
@@ -334,6 +334,14 @@ document.getElementById('gotoToolkitBtn')!.addEventListener('click', () => {
 });
 document.getElementById('gotoHotBtn')!.addEventListener('click', () => {
   const card = document.querySelector('.hot-card');
+  if (!card) return;
+  card.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  card.classList.remove('locate');
+  void (card as HTMLElement).offsetWidth; // 重新触发动画
+  card.classList.add('locate');
+});
+document.getElementById('gotoMarketBtn')!.addEventListener('click', () => {
+  const card = document.querySelector('.market-card');
   if (!card) return;
   card.scrollIntoView({ behavior: 'smooth', block: 'start' });
   card.classList.remove('locate');
