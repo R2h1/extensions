@@ -154,13 +154,10 @@ async function setSal(s: SalStt) {
 }
 const WDPM = 21.75;
 
-const nmContent = document.querySelector('.content') as HTMLElement;
 const NM_ENTER_DUR = 500;
 const curCat = CAT_TREE[0].id;
 const curSub = 'all';
 let nmEnterStart = 0;
-let nmLag = 0;
-let nmLastTop = nmContent.scrollTop;
 let nmRaf = 0;
 function nmSchedule() {
   if (nmRaf) return;
@@ -168,8 +165,6 @@ function nmSchedule() {
 }
 function nmUpdate() {
   nmRaf = 0;
-  nmLag *= 0.85;
-  if (Math.abs(nmLag) < 0.3) nmLag = 0;
   const now = performance.now();
   const panel = document.getElementById('panel');
   let entering = false;
@@ -185,32 +180,19 @@ function nmUpdate() {
       }
       if (enter > 0.001) {
         el.style.opacity = String(1 - enter);
-        el.style.transform = `translateY(${nmLag + enter * 22}px) scale(${1 - enter * 0.04})`;
-      } else if (nmLag !== 0) {
-        el.style.opacity = '';
-        el.style.transform = `translateY(${nmLag}px)`;
+        el.style.transform = `translateY(${enter * 22}px) scale(${1 - enter * 0.04})`;
       } else {
         el.style.opacity = '';
         el.style.transform = '';
       }
     });
   }
-  if (entering || nmLag !== 0) nmSchedule();
+  if (entering) nmSchedule();
 }
 function nmTrigger() {
   nmEnterStart = performance.now();
   nmSchedule();
 }
-nmContent.addEventListener(
-  'scroll',
-  () => {
-    const dt = nmContent.scrollTop - nmLastTop;
-    nmLastTop = nmContent.scrollTop;
-    nmLag = Math.max(-28, Math.min(28, nmLag + dt * 0.2));
-    nmSchedule();
-  },
-  { passive: true },
-);
 function nonEmptySubs(top: TopCat) {
   return top.subs.filter((s) => ALL_WIDGETS.some((w) => w.cat === top.id && w.sub === s.id));
 }
