@@ -546,6 +546,40 @@ async function openWidgetModal(showTree: boolean) {
   wm.classList.add('open');
 }
 
+// ── 全局消息提示（Toast，页面顶部居中）──
+type MsgType = 'success' | 'warning' | 'error' | 'info';
+const MSG_ICONS: Record<MsgType, string> = { success: '✓', warning: '!', error: '✕', info: 'i' };
+function ensureMsgContainer(): HTMLElement {
+  let c = document.getElementById('msgContainer');
+  if (!c) {
+    c = document.createElement('div');
+    c.id = 'msgContainer';
+    c.className = 'msg-container';
+    document.body.appendChild(c);
+  }
+  return c;
+}
+function dismissMsg(toast: HTMLElement) {
+  if (!toast.parentNode) return;
+  toast.classList.add('out');
+  toast.addEventListener('animationend', () => toast.remove(), { once: true });
+}
+function showMessage(text: string, type: MsgType = 'info') {
+  const c = ensureMsgContainer();
+  const toast = document.createElement('div');
+  toast.className = `msg-toast ${type}`;
+  const icon = document.createElement('span');
+  icon.className = 'msg-icon';
+  icon.textContent = MSG_ICONS[type];
+  const txt = document.createElement('span');
+  txt.className = 'msg-text';
+  txt.textContent = text;
+  toast.append(icon, txt);
+  toast.addEventListener('click', () => dismissMsg(toast));
+  c.appendChild(toast);
+  setTimeout(() => dismissMsg(toast), 2500);
+}
+
 // ── Settings ──
 const sm = document.getElementById('settingsModal')!;
 document.getElementById('smClose')!.addEventListener('click', () => sm.classList.remove('open'));
@@ -577,7 +611,7 @@ async function renderSetTime() {
     .join('');
   const t = (h: number, m: number) => `${pad(h)}:${pad(m)}`;
   document.getElementById('settingsBody')!.innerHTML =
-    `<div class="f"><label>上班</label><input type="time" id="sStart" value="${t(s.startHour, s.startMinute)}"/></div><div class="f"><label>午餐</label><input type="time" id="sLunch" value="${t(s.lunchHour, s.lunchMinute)}"/></div><div class="f"><label>午休结束</label><input type="time" id="sRestEnd" value="${t(s.restEndHour, s.restEndMinute)}"/></div><div class="f"><label>下班</label><input type="time" id="sEnd" value="${t(s.endHour, s.endMinute)}"/></div><div class="f"><label>工作日</label><div style="display:flex;gap:5px" id="sDays">${dhtml}</div></div><button class="btn" id="sSave">保存</button><div id="sStatus" style="text-align:center;font-size:12px;padding:6px;display:none;color:var(--accent)"></div>`;
+    `<div class="f"><label>上班</label><input type="time" id="sStart" value="${t(s.startHour, s.startMinute)}"/></div><div class="f"><label>午餐</label><input type="time" id="sLunch" value="${t(s.lunchHour, s.lunchMinute)}"/></div><div class="f"><label>午休结束</label><input type="time" id="sRestEnd" value="${t(s.restEndHour, s.restEndMinute)}"/></div><div class="f"><label>下班</label><input type="time" id="sEnd" value="${t(s.endHour, s.endMinute)}"/></div><div class="f"><label>工作日</label><div style="display:flex;gap:5px" id="sDays">${dhtml}</div></div><button class="btn" id="sSave">保存</button>`;
   document.querySelectorAll('#sDays .dc').forEach((el) =>
     el.addEventListener('click', function (this: HTMLElement) {
       this.classList.toggle('active');
@@ -596,7 +630,10 @@ async function renderSetTime() {
     const [eh, em] = (document.getElementById('sEnd') as HTMLInputElement).value
       .split(':')
       .map(Number);
-    if (isNaN(sh) || isNaN(lh) || isNaN(rh) || isNaN(eh)) return;
+    if (isNaN(sh) || isNaN(lh) || isNaN(rh) || isNaN(eh)) {
+      showMessage('请填写完整的工作时间', 'warning');
+      return;
+    }
     const oldRate = salRate();
     const wd: number[] = [];
     document
@@ -617,9 +654,7 @@ async function renderSetTime() {
     rescaleSal(oldRate);
     buildSalTimeline();
     tickSalary();
-    document.getElementById('sStatus')!.textContent = '已保存';
-    document.getElementById('sStatus')!.style.display = 'block';
-    setTimeout(() => (document.getElementById('sStatus')!.style.display = 'none'), 2500);
+    showMessage('工作时间已保存', 'success');
   });
 }
 async function renderSetSalary() {
@@ -628,20 +663,20 @@ async function renderSetSalary() {
     <div class="f"><label>月薪（元）</label><input type="number" id="sSalInc" value="${s.monthlyIncome}" min="1" style="width:100%;padding:9px 12px;font-size:13px;border:0.5px solid var(--glass-border);border-radius:var(--radius-xs);background:rgba(255,255,255,0.5);color:var(--text);outline:none;font-family:inherit"/></div>
     <div class="f"><label>发薪日</label><div style="display:flex;align-items:center;gap:8px"><span style="font-size:13px;color:var(--text-secondary)">每月</span><input type="number" id="sSalDay" value="${s.payDay}" min="1" max="31" style="width:80px;padding:9px 12px;font-size:13px;border:0.5px solid var(--glass-border);border-radius:var(--radius-xs);background:rgba(255,255,255,0.5);color:var(--text);outline:none;font-family:inherit;text-align:center"/><span style="font-size:13px;color:var(--text-secondary)">号</span></div></div>
     <div class="f" style="font-size:11px;color:var(--text-tertiary)">工作日 21.75 天/月，薪资按 上班~下班 时段计算（含午休带薪）</div>
-    <button class="btn" id="sSalSave">保存</button>
-    <div id="sSalStat" style="text-align:center;font-size:12px;padding:6px;display:none;color:var(--accent)"></div>`;
+    <button class="btn" id="sSalSave">保存</button>`;
   document.getElementById('sSalSave')!.addEventListener('click', async () => {
     const inc = Number((document.getElementById('sSalInc') as HTMLInputElement).value);
     const d = Number((document.getElementById('sSalDay') as HTMLInputElement).value);
-    if (inc < 1 || d < 1 || d > 31) return;
+    if (inc < 1 || d < 1 || d > 31) {
+      showMessage('请输入有效的月薪和发薪日', 'warning');
+      return;
+    }
     const oldRate = salRate();
     salStt = { monthlyIncome: inc, payDay: d };
     await setSal(salStt);
     rescaleSal(oldRate);
     tickSalary();
-    document.getElementById('sSalStat')!.textContent = '已保存';
-    document.getElementById('sSalStat')!.style.display = 'block';
-    setTimeout(() => (document.getElementById('sSalStat')!.style.display = 'none'), 2500);
+    showMessage('薪资设置已保存', 'success');
   });
 }
 
