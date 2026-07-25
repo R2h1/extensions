@@ -210,6 +210,111 @@ async function handleFundFetch(codes: string[]): Promise<FundResponse> {
   return { success: true, data };
 }
 
+// ─── Stock / Index Quotes (腾讯 qt.gtimg.cn) ─────────
+
+interface StockQuote {
+  name: string;
+  current: number;
+  prevClose: number;
+  change: number;
+  changePct: number;
+}
+interface StockResponse {
+  success: boolean;
+  data?: Record<string, StockQuote | null>;
+  error?: string;
+}
+
+/** 批量抓取股票/指数行情。腾讯返回 v_CODE="~分隔字段~"; 格式，字段 1=名称 3=现价 4=昨收，涨跌自算（对 A 股指数、全球指数、个股通用）。 */
+async function handleStockFetch(codes: string[]): Promise<StockResponse> {
+  if (!codes.length) return { success: true, data: {} };
+  const ctrl = new AbortController();
+  const to = setTimeout(() => ctrl.abort(), 12000);
+  try {
+    const res = await fetch(`https://qt.gtimg.cn/q=${codes.join(',')}`, {
+      cache: 'no-store',
+      signal: ctrl.signal,
+    });
+    if (!res.ok) return { success: false, error: 'HTTP ' + res.status };
+    const text = await res.text();
+    const data: Record<string, StockQuote | null> = {};
+    for (const code of codes) {
+      const m = text.match(new RegExp('v_' + code + '="([^"]*)"'));
+      if (!m) {
+        data[code] = null;
+        continue;
+      }
+      const f = m[1].split('~');
+      const current = parseFloat(f[3]);
+      const prevClose = parseFloat(f[4]);
+      if (isNaN(current) || isNaN(prevClose)) {
+        data[code] = null;
+        continue;
+      }
+      const change = current - prevClose;
+      data[code] = {
+        name: String(f[1] || ''),
+        current,
+        prevClose,
+        change,
+        changePct: prevClose > 0 ? (change / prevClose) * 100 : 0,
+      };
+    }
+    return { success: true, data };
+  } catch (e) {
+    return { success: false, error: e instanceof Error ? e.message : String(e) };
+  } finally {
+    clearTimeout(to);
+  }
+}
+
+// ─── Sector Ranking (东财 行业板块) ───────────────────
+
+interface SectorQuote {
+  name: string;
+  changePct: number;
+  price: number;
+  leader: string;
+  leaderPrice: number;
+}
+interface SectorResponse {
+  success: boolean;
+  data?: SectorQuote[];
+  error?: string;
+}
+
+/** 抓取行业板块涨跌幅排行（东财 clist，fs=m:90+t:2，按 f3 降序 Top 12）。f14=板块名 f3=涨跌幅 f128=领涨股 f140=领涨股价。 */
+async function handleSectorFetch(): Promise<SectorResponse> {
+  const ctrl = new AbortController();
+  const to = setTimeout(() => ctrl.abort(), 12000);
+  try {
+    const url =
+      'https://push2.eastmoney.com/api/qt/clist/get?pn=1&pz=12&po=1&np=1&fltt=2&invt=2&fid=f3&fs=m:90+t:2&fields=f2,f3,f12,f14,f128,f140';
+    const res = await fetch(url, { cache: 'no-store', signal: ctrl.signal });
+    if (!res.ok) return { success: false, error: 'HTTP ' + res.status };
+    const j = await res.json();
+    const arr = (j?.data?.diff ?? []) as unknown[];
+    const items: SectorQuote[] = arr
+      .map((x) => {
+        const d = x as Record<string, unknown>;
+        return {
+          name: String(d.f14 ?? ''),
+          changePct: Number(d.f3 ?? 0),
+          price: Number(d.f2 ?? 0),
+          leader: String(d.f128 ?? ''),
+          leaderPrice: Number(d.f140 ?? 0),
+        };
+      })
+      .filter((x) => x.name);
+    if (!items.length) return { success: false, error: 'empty' };
+    return { success: true, data: items };
+  } catch (e) {
+    return { success: false, error: e instanceof Error ? e.message : String(e) };
+  } finally {
+    clearTimeout(to);
+  }
+}
+
 // ─── Hot Search (微博 / B站 / 百度) ─────────────────────
 
 interface HotItem {
@@ -1109,6 +1214,10 @@ chrome.runtime.onMessage.addListener((message: { type: string }, _sender, sendRe
     handleGoldFetch().then(sendResponse);
   } else if (message?.type === 'FUND_FETCH') {
     handleFundFetch((message as unknown as { codes?: string[] }).codes ?? []).then(sendResponse);
+  } else if (message?.type === 'STOCK_FETCH') {
+    handleStockFetch((message as unknown as { codes?: string[] }).codes ?? []).then(sendResponse);
+  } else if (message?.type === 'SECTOR_FETCH') {
+    handleSectorFetch().then(sendResponse);
   } else if (message?.type === 'HOT_FETCH') {
     handleHotFetch((message as unknown as { platform?: string }).platform ?? 'weibo').then(
       sendResponse,

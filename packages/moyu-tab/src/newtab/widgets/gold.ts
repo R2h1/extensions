@@ -1,5 +1,6 @@
-/** 金价卡片：SW 代理抓取，1 分钟刷新 */
+/** 金价卡片：SW 代理抓取，刷新节奏由 market.ts 统一调度 */
 import { pad } from '../utils';
+import type { MarketTab } from './market';
 
 const GOLD_KEY = 'moyu_gold_cache';
 interface GoldPrice {
@@ -13,8 +14,6 @@ interface GoldCache {
   ts: number;
   prevGram: number;
 }
-let goldInited = false;
-let goldLoading = false;
 
 export function renderGoldSection(): string {
   return `<div class="gold-main">
@@ -93,9 +92,7 @@ async function fetchGold(): Promise<{ cny: GoldPrice; usd: GoldPrice }> {
   return res.data;
 }
 export async function refreshGold() {
-  if (goldLoading) return;
   if (!document.getElementById('goldGram')) return;
-  goldLoading = true;
   try {
     const prev = loadGoldCache();
     const r = await fetchGold();
@@ -109,20 +106,13 @@ export async function refreshGold() {
     saveGoldCache(c);
   } catch {
     renderGold(loadGoldCache(), true);
-  } finally {
-    goldLoading = false;
   }
 }
-function onGoldVis() {
-  if (document.visibilityState !== 'visible') return;
-  const c = loadGoldCache();
-  if (!c || Date.now() - c.ts > 60000) refreshGold();
-}
-export function initGold() {
-  renderGold(loadGoldCache(), false);
-  if (goldInited) return;
-  goldInited = true;
-  refreshGold();
-  setInterval(refreshGold, 60000);
-  document.addEventListener('visibilitychange', onGoldVis);
-}
+
+export const goldTab: MarketTab = {
+  id: 'gold',
+  name: '黄金',
+  render: renderGoldSection,
+  init: () => renderGold(loadGoldCache(), false),
+  refresh: refreshGold,
+};

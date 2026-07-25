@@ -159,17 +159,43 @@ html.locked .sub-filter{display:none}
 .sal-countdown{text-align:center;margin-top:5px;font-size:11px;color:var(--text-secondary)}
 .sal-countdown span{color:#3b82f6;font-weight:600;font-variant-numeric:tabular-nums;font-family:ui-monospace,monospace}
 .sal-payday{text-align:center;font-size:9px;color:var(--text-tertiary);margin-top:4px;border-top:.5px solid rgba(0,0,0,.04);padding-top:4px}
-/* 行情卡片（金价 + 基金） */
+/* 行情卡片（Tab：A股/行业/全球/黄金/自选） */
 .market-card{padding:12px 14px}
-.market-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px}
+.market-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
 .market-title{font-size:14px;font-weight:600;color:var(--text-secondary);letter-spacing:.5px;display:flex;align-items:center;gap:6px}
 .market-refresh{width:26px;height:26px;border-radius:50%;border:none;background:var(--nm-surface);box-shadow:var(--nm-out),0 2px 4px rgba(0,0,0,0.1);color:var(--text-tertiary);cursor:pointer;font-size:13px;display:flex;align-items:center;justify-content:center;transition:color .15s,box-shadow .15s;font-family:inherit}
 .market-refresh:hover{color:var(--accent)}
 .market-refresh:active{box-shadow:var(--nm-in-sm)}
 .market-refresh.spin{color:var(--accent);animation:goldspin 1s linear infinite}
-.market-divider{height:0.5px;background:var(--glass-border);margin:10px 0}
 @keyframes goldspin{to{transform:rotate(360deg)}}
-/* 金价段 */
+.market-tabs{display:flex;gap:4px;margin-bottom:10px;overflow-x:auto;scrollbar-width:none}
+.market-tabs::-webkit-scrollbar{display:none}
+.market-tab{flex-shrink:0;padding:4px 10px;font-size:12px;border:none;border-radius:var(--radius-xs);background:var(--nm-surface);box-shadow:var(--nm-out);color:var(--text-tertiary);cursor:pointer;font-family:inherit;transition:color .15s,background .15s}
+.market-tab:hover{color:var(--text-secondary)}
+.market-tab.active{background:var(--glass-accent);color:var(--accent);font-weight:600}
+.market-body{min-height:80px}
+/* 小卡片网格（红涨绿跌） */
+.mkt-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(96px,1fr));gap:8px}
+.mkt-empty{grid-column:1/-1;font-size:12px;color:var(--text-tertiary);text-align:center;padding:14px 0}
+.mkt-tile{position:relative;padding:8px;border-radius:var(--radius-xs);background:var(--nm-surface);box-shadow:var(--nm-out);display:flex;flex-direction:column;gap:2px;overflow:hidden}
+.mkt-tile.up{background:rgba(239,68,68,.10)}
+.mkt-tile.down{background:rgba(22,163,74,.10)}
+.mkt-tile.flat{background:var(--nm-surface)}
+.mkt-name{font-size:11px;color:var(--text-secondary);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.mkt-price{font-size:15px;font-weight:700;color:var(--text);font-variant-numeric:tabular-nums;font-family:'Courier New',ui-monospace,monospace;line-height:1.2}
+.mkt-chg{font-size:11px;font-weight:600;font-variant-numeric:tabular-nums}
+.mkt-chg.up{color:#dc2626}
+.mkt-chg.down{color:#16a34a}
+.mkt-chg.flat{color:var(--text-tertiary)}
+.mkt-leader{font-size:10px;color:var(--text-tertiary);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.mkt-del{position:absolute;top:1px;right:4px;background:none;border:none;color:var(--text-tertiary);cursor:pointer;font-size:13px;padding:0 2px;opacity:0;transition:opacity .15s;line-height:1}
+.mkt-tile:hover .mkt-del{opacity:1}
+/* 自选添加 */
+.wl-add{display:flex;gap:6px;margin-top:10px}
+.wl-add input{flex:1;padding:8px 10px;font-size:12px;border:none;border-radius:var(--radius-xs);background:var(--nm-surface);color:var(--text);outline:none;font-family:inherit;box-shadow:var(--nm-in);min-width:0}
+.wl-add input.err{box-shadow:var(--nm-in),0 0 0 1.5px #ef4444}
+.wl-add button{padding:8px 14px;font-size:12px;border:none;border-radius:var(--radius-xs);background:var(--glass-accent);color:var(--accent);cursor:pointer;font-family:inherit;font-weight:600}
+/* 金价段（黄金 Tab，红涨绿跌） */
 .gold-upd{font-size:10px;color:var(--text-tertiary);font-variant-numeric:tabular-nums}
 .gold-main{display:flex;align-items:baseline;gap:8px;margin-bottom:8px}
 .gold-amount{font-size:30px;font-weight:700;letter-spacing:-1px;line-height:1;background:linear-gradient(135deg,#f6c544,#b8860b);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;color:transparent;font-variant-numeric:tabular-nums;font-family:'Courier New',ui-monospace,monospace}
@@ -179,33 +205,10 @@ html.locked .sub-filter{display:none}
 .gold-sub-i span:first-child{font-size:10px;color:var(--text-tertiary)}
 .gold-sub-i span:last-child{font-size:13px;color:var(--text-secondary);font-variant-numeric:tabular-nums;font-family:'Courier New',ui-monospace,monospace}
 .gold-delta{margin-left:auto;font-size:12px;font-weight:600;font-variant-numeric:tabular-nums}
-.gold-delta.up{color:#10b981}
-.gold-delta.down{color:#ef4444}
+.gold-delta.up{color:#dc2626}
+.gold-delta.down{color:#16a34a}
 .gold-delta.flat{color:var(--text-tertiary)}
 @media (max-width:520px){.gold-amount{font-size:26px}}
-/* 基金段 */
-.fund-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px}
-.fund-title{font-size:14px;font-weight:600;color:var(--text-secondary);letter-spacing:.5px;display:flex;align-items:center;gap:6px}
-.fund-upd{font-size:10px;color:var(--text-tertiary);font-variant-numeric:tabular-nums;min-height:12px}
-.fund-list{display:flex;flex-direction:column}
-.fund-empty{font-size:12px;color:var(--text-tertiary);text-align:center;padding:14px 0}
-.fund-row{display:flex;align-items:center;gap:10px;padding:6px 0;border-bottom:0.5px solid rgba(0,0,0,0.04)}
-.fund-row:last-child{border-bottom:none}
-.fund-main{flex:1;min-width:0}
-.fund-name{font-size:13px;color:var(--text);font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.fund-sub{font-size:10px;color:var(--text-tertiary);margin-top:2px;font-variant-numeric:tabular-nums;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.fund-right{display:flex;flex-direction:column;align-items:flex-end;gap:2px;flex-shrink:0}
-.fund-gsz{font-size:14px;font-weight:600;color:var(--text);font-variant-numeric:tabular-nums;font-family:'Courier New',ui-monospace,monospace}
-.fund-chg{font-size:11px;font-weight:600;font-variant-numeric:tabular-nums}
-.fund-chg.up{color:#10b981}
-.fund-chg.down{color:#ef4444}
-.fund-chg.flat{color:var(--text-tertiary)}
-.fund-del{background:none;border:none;color:var(--text-tertiary);cursor:pointer;font-size:12px;padding:2px 4px;opacity:0;transition:opacity .15s;flex-shrink:0}
-.fund-row:hover .fund-del{opacity:1}
-.fund-add{display:flex;gap:6px;margin-top:10px}
-.fund-add input{flex:1;padding:8px 10px;font-size:12px;border:none;border-radius:var(--radius-xs);background:var(--nm-surface);color:var(--text);outline:none;font-family:inherit;box-shadow:var(--nm-in);min-width:0}
-.fund-add input.err{box-shadow:var(--nm-in),0 0 0 1.5px #ef4444}
-.fund-add button{padding:8px 14px;font-size:12px;border:none;border-radius:var(--radius-xs);background:var(--glass-accent);color:var(--accent);cursor:pointer;font-family:inherit;font-weight:600}
 /* 天气卡片 */
 .weather-card{padding:12px 14px}
 .weather-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px}

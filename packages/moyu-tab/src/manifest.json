@@ -40,7 +40,9 @@
     "https://weread.qq.com/*",
     "https://i.weread.qq.com/*",
     "https://open.er-api.com/*",
-    "https://aihot.virxact.com/*"
+    "https://aihot.virxact.com/*",
+    "https://qt.gtimg.cn/*",
+    "https://push2.eastmoney.com/*"
   ],
   "declarative_net_request": {
     "rule_resources": [

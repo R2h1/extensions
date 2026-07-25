@@ -1,6 +1,6 @@
 import APlayer from 'aplayer';
 import 'aplayer/dist/APlayer.min.css';
-import { initGold, renderGoldSection, refreshGold } from './widgets/gold';
+import { renderMarketCard, initMarket } from './widgets/market';
 import { initHoliday } from './widgets/holiday';
 import { initWeread, renderWereadCard } from './widgets/weread';
 import { initReaddata, renderReaddataCard } from './widgets/readdata';
@@ -13,7 +13,6 @@ import { initMortgage, renderMortgageCard } from './widgets/mortgage';
 import { initBmi, renderBmiCard } from './widgets/bmi';
 import { initCurrency, renderCurrencyCard } from './widgets/currency';
 import { initBookmarks, renderBookmarksCard } from './widgets/bookmarks';
-import { initFund, renderFundSection, refreshFund } from './widgets/fund';
 import { initWeather } from './widgets/weather';
 import { renderHotCard, initHotCard } from './widgets/hot';
 import { renderNewsCard, initNewsCard } from './widgets/news';
@@ -238,17 +237,6 @@ async function renderPanel() {
   for (const id of [...leftIds, ...rightIds]) initW(id);
   nmTrigger();
 }
-function renderMarketCard(): string {
-  return `<div class="widget-card market-card">
-      <div class="market-head">
-        <div class="market-title">◆ 行情</div>
-        <button class="market-refresh" id="marketRefresh" title="刷新">↻</button>
-      </div>
-      ${renderGoldSection()}
-      <div class="market-divider"></div>
-      ${renderFundSection()}
-    </div>`;
-}
 function getCard(w: WID): string {
   if (w.id === 'weread') return renderWereadCard();
   if (w.id === 'readdata') return renderReaddataCard();
@@ -270,20 +258,6 @@ function renderToolkitCard(): string {
       <div class="toolkit-title">${TK_TITLE_ICON} 实用工具</div>
       <div class="toolkit-grid">${tiles}</div>
     </div>`;
-}
-async function refreshMarket() {
-  const btn = document.getElementById('marketRefresh');
-  btn?.classList.add('spin');
-  try {
-    await Promise.all([refreshGold(), refreshFund()]);
-  } finally {
-    btn?.classList.remove('spin');
-  }
-}
-async function initMarket() {
-  initGold();
-  await initFund();
-  document.getElementById('marketRefresh')?.addEventListener('click', refreshMarket);
 }
 async function initW(id: string) {
   if (rendered[id]) return;
