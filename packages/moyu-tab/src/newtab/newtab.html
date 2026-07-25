@@ -26,6 +26,7 @@ html:not(.locked) .hd-time:hover{background:var(--glass-accent);color:var(--acce
 .lock-btn:active{box-shadow:var(--nm-in-sm)}
 .lock-btn.on{color:var(--accent)}
 @keyframes flyin{from{opacity:0;transform:translateX(-50%) translateY(-24px) scale(.96)}to{opacity:1;transform:translateX(-50%) translateY(0) scale(1)}}
+html.locked .content{display:none}
 html.locked .header-date{position:fixed;top:28%;left:50%;transform:translateX(-50%);flex-direction:column;align-items:center;gap:10px;animation:flyin .5s ease-out}
 html.locked .hd-time{order:-1;font-size:64px;font-weight:600;color:#fff;letter-spacing:4px;line-height:1;text-shadow:0 2px 12px rgba(0,0,0,.25)}
 html.locked .hd-date{font-size:16px;color:rgba(255,255,255,.9);letter-spacing:1px;text-shadow:0 1px 8px rgba(0,0,0,.25)}
