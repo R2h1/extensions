@@ -67,7 +67,7 @@ html.locked .header-row{padding:0 16px}
 .sb-sub.active{color:var(--accent);font-weight:600;background:var(--glass-accent)}
 .content{flex:1;display:flex;justify-content:flex-start;overflow-y:auto;min-width:0;padding-left:18%;padding-bottom:70px}
 .ci{width:100%;max-width:1040px;display:flex;flex-direction:column;padding:32px 28px 20px}
-.panel-cols{display:flex;gap:14px;align-items:flex-start}
+.panel-cols{display:flex;gap:14px;align-items:stretch}
 .feed-col{flex:3;display:flex;flex-direction:column;gap:14px;min-width:0}
 .cards-col{flex:7;display:flex;flex-direction:column;gap:14px;min-width:0}
 #panel .empty{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;padding:36px 0;color:var(--text-tertiary);font-size:13px}
@@ -349,7 +349,7 @@ html.locked .sub-filter{display:none}
 .hot-tag{font-style:normal;font-size:9px;color:var(--accent);border:0.5px solid var(--accent);padding:0 3px;border-radius:3px;flex-shrink:0;line-height:1.4}
 .hot-num{font-size:10px;color:var(--text-tertiary);flex-shrink:0;font-variant-numeric:tabular-nums;font-family:'Courier New',ui-monospace,monospace}
 /* 资讯卡片（AI精选/知乎日报/财经快讯 合并，Tab 切换） */
-.news-card{padding:12px 14px}
+.news-card{padding:12px 14px;position:sticky;top:16px}
 .news-card .hot-head{gap:5px}
 .news-card .hot-tab{padding:4px 6px}
 .news-card .hot-swap{padding:3px 5px;font-size:10px}
