@@ -64,13 +64,13 @@ html.locked .header-row{padding:0 16px}
 .sb-sub{font-size:12px;padding:6px 12px;color:var(--text-tertiary)}
 .sb-sub:hover{color:var(--text-secondary);background:var(--glass-accent)}
 .sb-sub.active{color:var(--accent);font-weight:600;background:var(--glass-accent)}
-.content{flex:1;display:flex;justify-content:center;overflow-y:auto;min-width:0;padding-left:132px;padding-bottom:70px}
+.content{flex:1;display:flex;justify-content:flex-start;overflow-y:auto;min-width:0;padding-left:328px;padding-bottom:70px}
 .ci{width:100%;max-width:1040px;display:flex;flex-direction:column;padding:32px 28px 20px}
-.cat-panel{display:none;padding:4px 0}
-.cat-panel.active{display:flex;gap:10px;align-items:flex-start}
-.mason-col{flex:1 1 0;min-width:0;display:flex;flex-direction:column;gap:10px}
-.cat-panel .empty{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;padding:36px 0;color:var(--text-tertiary);font-size:13px}
-.cat-panel .add-hint{font-size:11px;color:var(--text-tertiary)}
+.panel-cols{display:flex;gap:14px;align-items:flex-start}
+.feed-col{flex:3;display:flex;flex-direction:column;gap:14px;min-width:0}
+.cards-col{flex:7;display:flex;flex-direction:column;gap:14px;min-width:0}
+#panel .empty{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;padding:36px 0;color:var(--text-tertiary);font-size:13px}
+#panel .add-hint{font-size:11px;color:var(--text-tertiary)}
 .sub-filter{display:flex;align-items:center;gap:2px;flex-wrap:wrap;padding:2px 0;background:transparent;width:100%;max-width:580px;min-height:34px}
 .sf-chip{padding:6px 12px;background:transparent;border:none;border-bottom:2px solid transparent;color:var(--text-secondary);font-size:13px;font-weight:500;font-family:inherit;cursor:pointer;transition:all 0.15s}
 .sf-chip:hover{color:var(--text)}
@@ -642,18 +642,18 @@ html.locked .sub-filter{display:none}
       <input class="sb-input" id="sbInput" type="text" placeholder="输入关键词搜索…" autocomplete="off" />
       <button class="sb-go" id="sbGo" title="搜索"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></button>
     </div>
-    <div class="sub-filter" id="subFilter"></div>
   </header>
   <div class="app-body">
   <nav class="sidebar">
     <button class="sb-btn" id="addWidgetBtn"><span class="ic">+</span>添加</button>
     <div class="sb-div"></div>
-    <div class="sidebar-nav" id="sidebarNav"></div>
-    <div class="sb-div"></div>
     <button class="sb-btn" id="settingsBtn"><span class="ic">⚙</span>设置</button>
   </nav>
   <main class="content"><div class="ci">
-    <div class="cat-panel active" id="panel"></div>
+    <div id="panel"><div class="panel-cols">
+      <div class="feed-col" id="feedCol"></div>
+      <div class="cards-col" id="cardsCol"></div>
+    </div></div>
   </div></main>
   </div>
   <div class="media-dock">

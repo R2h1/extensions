@@ -101,8 +101,8 @@ const WDPM = 21.75;
 
 const nmContent = document.querySelector('.content') as HTMLElement;
 const NM_ENTER_DUR = 500;
-let curCat = CAT_TREE[0].id;
-let curSub = 'all';
+const curCat = CAT_TREE[0].id;
+const curSub = 'all';
 let nmEnterStart = 0;
 let nmLag = 0;
 let nmLastTop = nmContent.scrollTop;
@@ -159,130 +159,36 @@ nmContent.addEventListener(
 function nonEmptySubs(top: TopCat) {
   return top.subs.filter((s) => ALL_WIDGETS.some((w) => w.cat === top.id && w.sub === s.id));
 }
-function renderSidebar() {
-  const nav = document.getElementById('sidebarNav')!;
-  nav.innerHTML = CAT_TREE.map(
-    (top) =>
-      `<button class="sb-btn sb-top" data-cat="${top.id}"><span class="ic">${top.icon}</span>${top.name}</button>`,
-  ).join('');
-  nav
-    .querySelectorAll('.sb-top')
-    .forEach((b) => b.addEventListener('click', () => showCat((b as HTMLElement).dataset.cat!)));
-}
-function highlightCat() {
-  const nav = document.getElementById('sidebarNav')!;
-  nav.querySelectorAll('.sb-top').forEach((b) => {
-    (b as HTMLElement).classList.toggle('active', (b as HTMLElement).dataset.cat === curCat);
-  });
-}
-function renderSubFilter() {
-  const f = document.getElementById('subFilter')!;
-  const top = CAT_TREE.find((t) => t.id === curCat);
-  const subs = top ? nonEmptySubs(top) : [];
-  if (subs.length <= 1) {
-    f.innerHTML = '';
-    return;
-  }
-  const chip = (id: string, name: string) =>
-    `<button class="sf-chip${id === curSub ? ' active' : ''}" data-sub="${id}">${name}</button>`;
-  f.innerHTML = chip('all', '全部') + subs.map((s) => chip(s.id, s.name)).join('');
-  f.querySelectorAll('.sf-chip').forEach((b) =>
-    b.addEventListener('click', () => {
-      curSub = (b as HTMLElement).dataset.sub!;
-      renderSubFilter();
-      renderPanel();
-    }),
-  );
-}
-
 let rendered: Record<string, boolean> = {},
   salStt: SalStt = { monthlyIncome: 10000, payDay: 10 };
-let masonCols = 0;
-function computeCols(panel: HTMLElement) {
-  const gap = 10;
-  const minCard = 300;
-  const w = panel.clientWidth;
-  const n = Math.floor((w + gap) / (minCard + gap));
-  return Math.max(1, Math.min(4, n));
-}
-function masonryLayout(panel: HTMLElement, cards: HTMLElement[]) {
-  const n = computeCols(panel);
-  panel.innerHTML = '';
-  const cols: HTMLElement[] = [];
-  for (let i = 0; i < n; i++) {
-    const c = document.createElement('div');
-    c.className = 'mason-col';
-    panel.appendChild(c);
-    cols.push(c);
-  }
-  for (const card of cards) {
-    let min = cols[0];
-    let minH = cols[0].offsetHeight;
-    for (let i = 1; i < cols.length; i++) {
-      const h = cols[i].offsetHeight;
-      if (h < minH) {
-        minH = h;
-        min = cols[i];
-      }
-    }
-    min.appendChild(card);
-  }
-  masonCols = n;
-}
-function masonryRelayout() {
-  const panel = document.getElementById('panel');
-  if (!panel) return;
-  const cards = Array.from(panel.querySelectorAll('.widget-card')) as HTMLElement[];
-  if (!cards.length) return;
-  if (computeCols(panel) === masonCols) return;
-  masonryLayout(panel, cards);
-}
-let masonResizeTimer = 0;
-window.addEventListener('resize', () => {
-  clearTimeout(masonResizeTimer);
-  masonResizeTimer = setTimeout(masonryRelayout, 150);
-});
 async function renderPanel() {
   const d = await getWD();
-  const top = CAT_TREE.find((t) => t.id === curCat);
-  const subs = top ? nonEmptySubs(top) : [];
-  const subIds =
-    curSub === 'all' ? subs.map((s) => s.id) : subs.some((s) => s.id === curSub) ? [curSub] : [];
-  const ids: string[] = [];
-  for (const sid of subIds) {
-    for (const id of d.subs[subKey(curCat, sid)] || []) {
-      if (!ids.includes(id)) ids.push(id);
-    }
+  const enabled = new Set<string>();
+  for (const k of Object.keys(d.subs)) {
+    for (const id of d.subs[k]) enabled.add(id);
   }
-  const panel = document.getElementById('panel')!;
+  const leftIds: string[] = [];
+  const rightIds: string[] = [];
+  for (const w of ALL_WIDGETS) {
+    if (!enabled.has(w.id)) continue;
+    (w.id === 'hot' || w.id === 'news' ? leftIds : rightIds).push(w.id);
+  }
+  const feedCol = document.getElementById('feedCol');
+  const cardsCol = document.getElementById('cardsCol');
   rendered = {};
-  if (!ids.length) {
-    panel.innerHTML = `<div class="empty"><div>暂无组件</div><div class="add-hint">左侧点击 组件库</div></div>`;
-    nmTrigger();
-    return;
-  }
-  const tmp = document.createElement('div');
-  for (const id of ids) {
-    const w = ALL_WIDGETS.find((x) => x.id === id);
-    if (!w) continue;
-    tmp.insertAdjacentHTML('beforeend', getCard(w));
-  }
-  const cards = Array.from(tmp.children) as HTMLElement[];
-  if (!cards.length) {
-    panel.innerHTML = `<div class="empty"><div>暂无组件</div><div class="add-hint">左侧点击 组件库</div></div>`;
-    nmTrigger();
-    return;
-  }
-  masonryLayout(panel, cards);
-  for (const id of ids) initW(id);
+  if (!feedCol || !cardsCol) return;
+  const html = (ids: string[]) =>
+    ids
+      .map((id) => ALL_WIDGETS.find((x) => x.id === id))
+      .filter(Boolean)
+      .map((w) => getCard(w!))
+      .join('');
+  feedCol.innerHTML = leftIds.length ? html(leftIds) : '';
+  cardsCol.innerHTML = rightIds.length
+    ? html(rightIds)
+    : `<div class="empty"><div>暂无组件</div><div class="add-hint">左下角点 添加</div></div>`;
+  for (const id of [...leftIds, ...rightIds]) initW(id);
   nmTrigger();
-}
-async function showCat(cat: string) {
-  curCat = cat;
-  curSub = 'all';
-  highlightCat();
-  renderSubFilter();
-  await renderPanel();
 }
 function getCard(w: WID): string {
   if (w.id === 'market')
@@ -421,7 +327,7 @@ async function renderWmList(cat: string, sub: string) {
           d.subs[k] = [...arr, id];
         }
         await setWD(d);
-        showCat(wmCat);
+        renderPanel();
         renderWmList(wmCat, wmSub);
       }),
     );
@@ -1768,8 +1674,7 @@ async function init() {
   await loadSch();
   await loadSal();
   initSalaryPopover();
-  renderSidebar();
-  await showCat(curCat);
+  await renderPanel();
   setInterval(() => {
     updT();
     tickSalary();
