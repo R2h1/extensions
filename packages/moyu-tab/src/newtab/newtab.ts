@@ -1642,7 +1642,7 @@ async function ensureMusic() {
       loop: 'all',
       order: 'list',
       listMaxHeight: '260px',
-      lrcType: 3,
+      lrcType: 1,
     });
   } catch {
     container.innerHTML = '<div class="hot-empty">⚠ 加载失败 · 点击重试</div>';
@@ -1691,8 +1691,9 @@ function initMedia() {
   document.addEventListener('click', (e) => {
     const panel = document.getElementById('mediaPanel');
     if (!panel?.classList.contains('open')) return;
-    const dock = document.querySelector('.media-dock');
-    if (dock && !dock.contains(e.target as Node)) closeMediaPanel();
+    const t = e.target as HTMLElement | null;
+    if (t && (t.closest('.media-dock') || t.closest('.aplayer-lrc'))) return;
+    closeMediaPanel();
   });
   document.addEventListener('keydown', (e) => {
     if ((e as KeyboardEvent).key !== 'Escape') return;
@@ -1707,8 +1708,6 @@ const ENGINES: { name: string; url: string }[] = [
   { name: '百度', url: 'https://www.baidu.com/s?wd=' },
   { name: 'Google', url: 'https://www.google.com/search?q=' },
   { name: '必应', url: 'https://www.bing.com/search?q=' },
-  { name: 'DuckDuckGo', url: 'https://duckduckgo.com/?q=' },
-  { name: '360', url: 'https://www.so.com/s?q=' },
   { name: '搜狗', url: 'https://www.sogou.com/web?query=' },
 ];
 let sbCur = ENGINES[0];

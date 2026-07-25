@@ -605,12 +605,11 @@ html.locked .sub-filter{display:none}
 .media-panel.open{display:block}
 .media-fabs{display:flex;gap:8px}
 .media-panel .aplayer{margin:0}
+.media-panel .aplayer-miniswitcher{display:none}
 .video-modal{display:none;position:fixed;inset:0;z-index:200;background:rgba(0,0,0,0.5);backdrop-filter:blur(2px);-webkit-backdrop-filter:blur(2px);align-items:center;justify-content:center}
 .video-modal.open{display:flex}
 .vm-card{width:min(960px,94vw);max-height:92vh;background:var(--nm-surface);border-radius:var(--radius);box-shadow:var(--card-shadow-h);overflow:hidden;display:flex;flex-direction:column;animation:calpop .16s ease-out}
 .vm-head{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;border-bottom:0.5px solid var(--glass-border)}
-.vm-title{font-size:14px;font-weight:600;color:var(--text-secondary);letter-spacing:.5px}
-.vm-ctrl{display:flex;align-items:center;gap:12px}
 .vm-open{font-size:11px;color:var(--text-tertiary);text-decoration:none}
 .vm-open:hover{color:var(--accent)}
 .vm-close{width:28px;height:28px;border-radius:50%;border:none;background:var(--nm-surface);box-shadow:var(--nm-out),0 2px 4px rgba(0,0,0,0.1);color:var(--text-tertiary);cursor:pointer;font-size:13px;display:flex;align-items:center;justify-content:center;font-family:inherit}
@@ -663,7 +662,7 @@ html.locked .sub-filter{display:none}
     </div>
     <div class="media-fabs">
       <button class="media-fab" id="mediaFab" title="音乐"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg></button>
-      <button class="media-fab" id="mbVideo" title="视频"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"><polygon points="6 3 20 12 6 21 6 3"/></svg></button>
+      <button class="media-fab" id="mbVideo" title="视频"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="13" rx="2"/><path d="M17 2l-5 5-5-5"/></svg></button>
     </div>
   </div>
 </div>
@@ -750,11 +749,8 @@ html.locked .sub-filter{display:none}
 <div class="video-modal" id="videoModal">
   <div class="vm-card">
     <div class="vm-head">
-      <div class="vm-title">▶ 视频</div>
-      <div class="vm-ctrl">
-        <a class="vm-open" href="http://app.conan.js.cn/tv" target="_blank" rel="noopener">新标签打开 ↗</a>
-        <button class="vm-close" id="vmClose" title="关闭">✕</button>
-      </div>
+      <a class="vm-open" href="http://app.conan.js.cn/tv" target="_blank" rel="noopener">新标签打开 ↗</a>
+      <button class="vm-close" id="vmClose" title="关闭">✕</button>
     </div>
     <iframe class="vm-frame" id="tvFrame" referrerpolicy="no-referrer" allow="fullscreen; encrypted-media" allowfullscreen></iframe>
   </div>
