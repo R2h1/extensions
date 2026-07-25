@@ -1610,34 +1610,10 @@ function initSalaryPopover() {
   setupHeaderPopover('timeDisplay', 'salPopover');
 }
 
-// ── 底部媒体栏（音乐迷你控制 + 展开歌单 + 视频弹窗）──
+// ── 左下角媒体（♪ 图标 → 弹出 APlayer + 视频弹窗）──
 const MUSIC_API = 'https://api.i-meto.com/meting/api?server=netease&type=playlist&id=3778678&r=';
-let musicAp: any = null;
 let musicInited = false;
-let musicPlaying = false;
 
-function mbTrackName() {
-  const cur = musicAp?.list?.[musicAp?.index];
-  return cur ? `${cur.name || '未知'}${cur.artist ? ' · ' + cur.artist : ''}` : '未播放';
-}
-function updateMusicBar() {
-  const nameEl = document.getElementById('mbName');
-  const playBtn = document.getElementById('mbPlay');
-  const prog = document.getElementById('mbProg');
-  if (nameEl) nameEl.textContent = mbTrackName();
-  if (playBtn) playBtn.textContent = musicPlaying ? '⏸' : '▶';
-  if (prog) {
-    let pct = 0;
-    try {
-      const cur = (musicAp?.audio?.seek?.() as number) || 0;
-      const dur = (musicAp?.audio?.duration?.() as number) || 0;
-      pct = dur > 0 ? (cur / dur) * 100 : 0;
-    } catch {
-      /* ignore */
-    }
-    prog.style.width = pct + '%';
-  }
-}
 async function ensureMusic() {
   if (musicInited) return;
   const container = document.getElementById('musicPlayer');
@@ -1657,7 +1633,7 @@ async function ensureMusic() {
       lrc: s.lrc,
     }));
     container.innerHTML = '';
-    musicAp = new APlayer({
+    new APlayer({
       container: container as HTMLElement,
       audio,
       autoplay: false,
@@ -1668,17 +1644,6 @@ async function ensureMusic() {
       listMaxHeight: '260px',
       lrcType: 3,
     });
-    musicAp.on('play', () => {
-      musicPlaying = true;
-      updateMusicBar();
-    });
-    musicAp.on('pause', () => {
-      musicPlaying = false;
-      updateMusicBar();
-    });
-    musicAp.on('listswitch', updateMusicBar);
-    musicAp.on('timeupdate', updateMusicBar);
-    updateMusicBar();
   } catch {
     container.innerHTML = '<div class="hot-empty">⚠ 加载失败 · 点击重试</div>';
     container.onclick = () => {
@@ -1688,14 +1653,21 @@ async function ensureMusic() {
     musicInited = false;
   }
 }
-function toggleMusicPanel() {
+function closeMediaPanel() {
+  document.getElementById('mediaPanel')?.classList.remove('open');
+  document.getElementById('mediaFab')?.classList.remove('active');
+}
+function toggleMediaPanel() {
   const panel = document.getElementById('mediaPanel');
-  const btn = document.getElementById('mbExpand');
   if (!panel) return;
   const willOpen = !panel.classList.contains('open');
-  panel.classList.toggle('open', willOpen);
-  if (btn) btn.textContent = willOpen ? '⌄' : '⌃';
-  if (willOpen) ensureMusic();
+  if (willOpen) {
+    panel.classList.add('open');
+    document.getElementById('mediaFab')?.classList.add('active');
+    ensureMusic();
+  } else {
+    closeMediaPanel();
+  }
 }
 function openVideoModal() {
   const modal = document.getElementById('videoModal');
@@ -1709,32 +1681,24 @@ function openVideoModal() {
 function closeVideoModal() {
   document.getElementById('videoModal')?.classList.remove('open');
 }
-function initMediaBar() {
-  document.getElementById('mbPrev')?.addEventListener('click', () => musicAp?.skipBack());
-  document.getElementById('mbPlay')?.addEventListener('click', async () => {
-    await ensureMusic();
-    if (!musicAp) return;
-    if (musicPlaying) musicAp.pause();
-    else musicAp.play();
-  });
-  document.getElementById('mbNext')?.addEventListener('click', () => musicAp?.skipForward());
-  document.getElementById('mbExpand')?.addEventListener('click', toggleMusicPanel);
+function initMedia() {
+  document.getElementById('mediaFab')?.addEventListener('click', () => toggleMediaPanel());
   document.getElementById('mbVideo')?.addEventListener('click', openVideoModal);
   document.getElementById('vmClose')?.addEventListener('click', closeVideoModal);
   document.getElementById('videoModal')?.addEventListener('click', (e) => {
     if (e.target === document.getElementById('videoModal')) closeVideoModal();
   });
-  const progBar = document.getElementById('mbProgBar');
-  progBar?.addEventListener('click', (e) => {
-    if (!musicAp) return;
-    const dur = (musicAp.audio?.duration?.() as number) || 0;
-    if (dur <= 0) return;
-    const r = (progBar as HTMLElement).getBoundingClientRect();
-    const ratio = Math.max(0, Math.min(1, (e.clientX - r.left) / r.width));
-    musicAp.seek(ratio * dur);
-    updateMusicBar();
+  document.addEventListener('click', (e) => {
+    const panel = document.getElementById('mediaPanel');
+    if (!panel?.classList.contains('open')) return;
+    const dock = document.querySelector('.media-dock');
+    if (dock && !dock.contains(e.target as Node)) closeMediaPanel();
   });
-  updateMusicBar();
+  document.addEventListener('keydown', (e) => {
+    if ((e as KeyboardEvent).key !== 'Escape') return;
+    closeMediaPanel();
+    closeVideoModal();
+  });
 }
 
 // ── 顶部搜索框 ──
@@ -1801,7 +1765,7 @@ async function init() {
   initCalendarPopover();
   initWeatherPopover();
   initWebSearch();
-  initMediaBar();
+  initMedia();
   await loadSch();
   await loadSal();
   initSalaryPopover();

@@ -64,7 +64,7 @@ html.locked .header-row{padding:0 16px}
 .sb-sub{font-size:12px;padding:6px 12px;color:var(--text-tertiary)}
 .sb-sub:hover{color:var(--text-secondary);background:var(--glass-accent)}
 .sb-sub.active{color:var(--accent);font-weight:600;background:var(--glass-accent)}
-.content{flex:1;display:flex;justify-content:center;overflow-y:auto;min-width:0;padding-left:132px}
+.content{flex:1;display:flex;justify-content:center;overflow-y:auto;min-width:0;padding-left:132px;padding-bottom:70px}
 .ci{width:100%;max-width:1040px;display:flex;flex-direction:column;padding:32px 28px 20px}
 .cat-panel{display:none;padding:4px 0}
 .cat-panel.active{display:flex;gap:10px;align-items:flex-start}
@@ -596,21 +596,14 @@ html.locked .sub-filter{display:none}
 .msg-toast.info .msg-icon{background:#2563eb}
 @keyframes msgIn{from{opacity:0;transform:translateY(-12px)}to{opacity:1;transform:translateY(0)}}
 @keyframes msgOut{from{opacity:1;transform:translateY(0)}to{opacity:0;transform:translateY(-12px)}}
-/* 底部媒体栏 + 视频弹窗 */
-.media-bar{flex-shrink:0;display:flex;align-items:center;gap:10px;padding:8px 16px;background:rgba(255,255,255,0.55);backdrop-filter:blur(8px) saturate(140%);-webkit-backdrop-filter:blur(8px) saturate(140%);border-top:0.5px solid var(--glass-border-h);position:relative;z-index:6}
-.mb-info{display:flex;align-items:center;gap:6px;min-width:0;flex:1}
-.mb-icon{color:var(--accent);font-size:14px;flex-shrink:0}
-.mb-name{font-size:12px;color:var(--text-secondary);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
-.mb-ctrl{display:flex;align-items:center;gap:4px;flex-shrink:0}
-.mb-btn{width:28px;height:28px;border-radius:50%;border:none;background:var(--nm-surface);box-shadow:var(--nm-out),0 2px 4px rgba(0,0,0,0.1);color:var(--text-secondary);cursor:pointer;font-size:12px;display:flex;align-items:center;justify-content:center;transition:color .15s,box-shadow .15s;font-family:inherit;flex-shrink:0}
-.mb-btn:hover{color:var(--accent)}
-.mb-btn:active{box-shadow:var(--nm-in-sm)}
-.mb-play{width:34px;height:34px;font-size:14px;color:var(--accent)}
-.mb-prog{width:140px;flex-shrink:1;min-width:50px;height:5px;background:rgba(0,0,0,0.08);border-radius:3px;cursor:pointer;position:relative}
-.mb-prog-fill{position:absolute;left:0;top:0;height:100%;background:var(--accent);border-radius:3px;width:0;transition:width .2s}
-.mb-video{width:auto;padding:0 12px;border-radius:14px;font-size:11px;gap:4px;color:var(--text-secondary)}
-.media-panel{display:none;position:absolute;bottom:100%;left:50%;transform:translateX(-50%);width:min(420px,92vw);margin-bottom:10px;background:var(--nm-surface);border-radius:var(--radius);box-shadow:var(--card-shadow-h);padding:10px;animation:calpop .16s ease-out}
+/* 左下角媒体（♪ FAB + 弹出播放器 + 视频弹窗）*/
+.media-dock{position:fixed;bottom:16px;left:16px;z-index:6}
+.media-fab{width:34px;height:34px;border-radius:50%;border:none;background:var(--nm-surface);box-shadow:var(--card-shadow-h);color:var(--accent);cursor:pointer;display:flex;align-items:center;justify-content:center;font-family:inherit;transition:transform .15s,box-shadow .15s}
+.media-fab:hover{transform:translateY(-1px)}
+.media-fab.active{box-shadow:var(--nm-in-sm);color:var(--accent)}
+.media-panel{display:none;position:absolute;bottom:100%;left:0;width:min(360px,calc(100vw - 32px));margin-bottom:12px;background:var(--nm-surface);border-radius:var(--radius);box-shadow:var(--card-shadow-h);padding:12px;animation:calpop .16s ease-out}
 .media-panel.open{display:block}
+.media-fabs{display:flex;gap:8px}
 .media-panel .aplayer{margin:0}
 .video-modal{display:none;position:fixed;inset:0;z-index:200;background:rgba(0,0,0,0.5);backdrop-filter:blur(2px);-webkit-backdrop-filter:blur(2px);align-items:center;justify-content:center}
 .video-modal.open{display:flex}
@@ -664,17 +657,14 @@ html.locked .sub-filter{display:none}
     <div class="cat-panel active" id="panel"></div>
   </div></main>
   </div>
-  <div class="media-bar">
-    <div class="mb-info"><span class="mb-icon">♪</span><span class="mb-name" id="mbName">未播放</span></div>
-    <div class="mb-ctrl">
-      <button class="mb-btn" id="mbPrev" title="上一首">⏮</button>
-      <button class="mb-btn mb-play" id="mbPlay" title="播放">▶</button>
-      <button class="mb-btn" id="mbNext" title="下一首">⏭</button>
+  <div class="media-dock">
+    <div class="media-panel" id="mediaPanel">
+      <div id="musicPlayer"></div>
     </div>
-    <div class="mb-prog" id="mbProgBar"><div class="mb-prog-fill" id="mbProg"></div></div>
-    <button class="mb-btn" id="mbExpand" title="歌单">⌃</button>
-    <button class="mb-btn mb-video" id="mbVideo" title="视频">▶ 视频</button>
-    <div class="media-panel" id="mediaPanel"><div id="musicPlayer"></div></div>
+    <div class="media-fabs">
+      <button class="media-fab" id="mediaFab" title="音乐"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg></button>
+      <button class="media-fab" id="mbVideo" title="视频"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"><polygon points="6 3 20 12 6 21 6 3"/></svg></button>
+    </div>
   </div>
 </div>
 <div class="ctx-menu" id="ctxMenu"><button id="ctxWidgets">组件库</button><button id="ctxWallpaper">更换壁纸</button></div>
