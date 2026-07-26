@@ -433,7 +433,7 @@ const WR_VIEWS = [
   { id: 'shelf', name: '我的书架', render: renderWereadCard, init: initWeread },
   { id: 'notes', name: '我的笔记', render: renderNotesCard, init: initNotes },
   { id: 'review', name: '书评', render: renderReviewCard, init: initReview },
-  { id: 'recommend', name: '推荐', render: renderRecommendCard, init: initRecommend },
+  { id: 'recommend', name: '好书推荐', render: renderRecommendCard, init: initRecommend },
   { id: 'search', name: '搜书', render: renderSearchCard, init: () => { const q = pendingSearchQuery; pendingSearchQuery = ''; void initSearch(q); } },
 ];
 const wrModal = document.getElementById('wereadModal')!;

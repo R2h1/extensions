@@ -21,7 +21,7 @@ let openModal: (tab: string, query?: string) => void = () => {};
 export function renderWereadOverviewCard(): string {
   return `<div class="widget-card hot-card weread-ov-card">
       <div class="hot-head">
-        <div class="hot-title">📚 微信读书</div>
+        <div class="hot-title"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 7v14"/><path d="M3 18a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h5a4 4 0 0 1 4 4 4 4 0 0 1 4-4h5a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1h-6a3 3 0 0 0-3 3 3 3 0 0 0-3-3z"/></svg>微信读书</div>
         <div class="hot-meta">
           <span class="hot-upd" id="wrOvUpd"></span>
           <button class="hot-swap" id="wrOvRefresh" title="刷新">↻</button>
@@ -76,7 +76,7 @@ function renderRecommend(books: RCBook[]): string {
     })
     .join('');
   return `<div class="wr-ov-sec">
-      <div class="wr-ov-sec-head"><span class="wr-ov-sec-title">💡 推荐</span><button class="wr-ov-more" data-tab="recommend" type="button">查看更多 ›</button></div>
+      <div class="wr-ov-sec-head"><span class="wr-ov-sec-title"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 14c.2-1 .7-1.7 1.5-2.5 1-.9 1.5-2.2 1.5-3.5A6 6 0 0 0 6 8c0 1 .2 2.2 1.5 3.5.7.7 1.3 1.5 1.5 2.5"/><path d="M9 18h6"/><path d="M10 22h4"/></svg>好书推荐</span><button class="wr-ov-more" data-tab="recommend" type="button">查看更多 ›</button></div>
       ${rows}
     </div>`;
 }
