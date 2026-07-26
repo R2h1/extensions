@@ -678,6 +678,7 @@ interface WereadShelfBook {
   bid: string;
   title: string;
   author: string;
+  cover: string;
   category: string;
   deepLink: string;
   readUpdateTime: number;
@@ -718,6 +719,7 @@ async function handleWereadShelfFetch(apiKey: string): Promise<WereadShelfRespon
           bid: String(b.bookId ?? ''),
           title: String(b.title ?? ''),
           author: String(b.author ?? ''),
+          cover: String(b.cover ?? ''),
           category: String(b.category ?? ''),
           deepLink: String(b.deepLink ?? '') || wereadBookUrl(String(b.bookId ?? '')),
           readUpdateTime: Number(b.readUpdateTime ?? 0),
@@ -905,6 +907,7 @@ interface WereadNotesBook {
   bid: string;
   title: string;
   author: string;
+  cover: string;
   deepLink: string;
   noteCount: number;
   progress: number;
@@ -948,6 +951,7 @@ async function handleWereadNotesFetch(apiKey: string): Promise<WereadNotesRespon
           bid,
           title: String(info.title ?? b.title ?? ''),
           author: String(info.author ?? b.author ?? ''),
+          cover: String(info.cover ?? b.cover ?? ''),
           deepLink: String(info.deepLink ?? b.deepLink ?? '') || wereadBookUrl(bid),
           noteCount: reviewCount + noteCount + bookmarkCount,
           progress,
@@ -982,7 +986,7 @@ interface WereadReviewItem {
 }
 interface WereadReviewResponse {
   success: boolean;
-  data?: { bookTitle: string; bookDeepLink: string; reviews: WereadReviewItem[]; total: number };
+  data?: { bookTitle: string; bookCover: string; bookDeepLink: string; reviews: WereadReviewItem[]; total: number };
   error?: string;
 }
 
@@ -1010,6 +1014,7 @@ async function handleWereadReviewFetch(apiKey: string): Promise<WereadReviewResp
         return {
           bid: String(b.bookId ?? ''),
           title: String(b.title ?? ''),
+          cover: String(b.cover ?? ''),
           deepLink: String(b.deepLink ?? ''),
           readUpdateTime: Number(b.readUpdateTime ?? 0),
         };
@@ -1052,6 +1057,7 @@ async function handleWereadReviewFetch(apiKey: string): Promise<WereadReviewResp
       success: true,
       data: {
         bookTitle: book.title,
+        bookCover: book.cover,
         bookDeepLink: book.deepLink || wereadBookUrl(book.bid),
         reviews,
         total: Number(rj?.reviewsCnt ?? reviews.length),
@@ -1070,6 +1076,7 @@ interface WereadSearchBook {
   bid: string;
   title: string;
   author: string;
+  cover: string;
   rating: number;
   deepLink: string;
 }
@@ -1119,6 +1126,7 @@ async function handleWereadSearchFetch(
           bid,
           title: String(info.title ?? ''),
           author: String(info.author ?? ''),
+          cover: String(info.cover ?? ''),
           rating: Number(info.newRating ?? 0),
           deepLink: String(info.deepLink ?? '') || wereadBookUrl(bid),
         });

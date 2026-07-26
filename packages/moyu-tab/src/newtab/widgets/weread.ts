@@ -8,6 +8,7 @@ export interface WRShelfBook {
   bid: string;
   title: string;
   author: string;
+  cover: string;
   category: string;
   deepLink: string;
   readUpdateTime: number;
@@ -77,17 +78,20 @@ async function renderWR(error?: string) {
     if (a.isTop !== b.isTop) return a.isTop ? -1 : 1;
     return (b.readUpdateTime || 0) - (a.readUpdateTime || 0);
   });
-  const rows = books
+  const items = books
     .slice(0, 15)
     .map((b) => {
-      const parts = [esc(b.title)];
-      if (b.author) parts.push(`<span class="weread-author">${esc(b.author)}</span>`);
-      if (b.category) parts.push(`<span class="weread-cat">${esc(b.category)}</span>`);
-      const done = b.finished ? '<span class="weread-tag done">读完</span>' : '';
-      return `<a class="hot-row" href="${esc(b.deepLink)}" target="_blank" rel="noopener"><span class="hot-title">${parts.join(' ')}</span>${done}</a>`;
+      const badge = b.finished ? '<span class="wr-cover-badge done">读完</span>' : '';
+      const cover = b.cover
+        ? `<img src="${esc(b.cover)}" alt="" loading="lazy" referrerpolicy="no-referrer"/>`
+        : '<div class="wr-rec-cover-ph">📖</div>';
+      const author = b.author
+        ? `<span class="wr-rec-author">${esc(b.author)}</span>`
+        : '<span></span>';
+      return `<a class="wr-rec-item" href="${esc(b.deepLink)}" target="_blank" rel="noopener"><div class="wr-rec-cover">${cover}${badge}</div><div class="wr-rec-title">${esc(b.title)}</div><div class="wr-rec-meta">${author}</div></a>`;
     })
     .join('');
-  body.innerHTML = `<div class="weread-total">书架 ${c.total} 个条目 · 最近在读</div>${rows}`;
+  body.innerHTML = `<div class="weread-total">书架 ${c.total} 个条目 · 最近在读</div><div class="wr-rec-grid">${items}</div>`;
   if (upd) upd.textContent = fmtWRTime(c.ts);
 }
 

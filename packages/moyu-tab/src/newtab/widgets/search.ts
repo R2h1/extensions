@@ -5,6 +5,7 @@ interface SRBook {
   bid: string;
   title: string;
   author: string;
+  cover: string;
   rating: number;
   deepLink: string;
 }
@@ -43,16 +44,19 @@ async function doSearch() {
       | { success: boolean; data?: { books: SRBook[] }; error?: string }
       | undefined;
     if (res?.success && res.data?.books?.length) {
-      list.innerHTML = res.data.books
-        .map((b, i) => {
-          const rank = i + 1;
-          const top = rank <= 3 ? ' top' : '';
-          const author = b.author ? ` <span class="weread-author">· ${esc(b.author)}</span>` : '';
+      list.innerHTML = `<div class="wr-rec-grid">${res.data.books
+        .map((b) => {
           const rating = b.rating ? (b.rating / 10).toFixed(1) : '';
-          const num = rating ? `<span class="hot-num">${rating}</span>` : '';
-          return `<a class="hot-row" href="${esc(b.deepLink)}" target="_blank" rel="noopener"><span class="hot-rank${top}">${rank}</span><span class="hot-title">${esc(b.title)}${author}</span>${num}</a>`;
+          const ratingStr = rating ? `<span class="wr-rec-rating">★ ${rating}</span>` : '';
+          const cover = b.cover
+            ? `<img src="${esc(b.cover)}" alt="" loading="lazy" referrerpolicy="no-referrer"/>`
+            : '<div class="wr-rec-cover-ph">📖</div>';
+          const author = b.author
+            ? `<span class="wr-rec-author">${esc(b.author)}</span>`
+            : '<span></span>';
+          return `<a class="wr-rec-item" href="${esc(b.deepLink)}" target="_blank" rel="noopener"><div class="wr-rec-cover">${cover}</div><div class="wr-rec-title">${esc(b.title)}</div><div class="wr-rec-meta">${author}${ratingStr}</div></a>`;
         })
-        .join('');
+        .join('')}</div>`;
       if (upd) upd.textContent = `${res.data.books.length} 本`;
     } else {
       list.innerHTML = `<div class="hot-empty">${res?.error === 'invalid_key' ? 'API Key 无效' : '无搜索结果'}</div>`;

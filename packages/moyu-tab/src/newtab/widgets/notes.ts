@@ -8,6 +8,7 @@ interface NBBook {
   bid: string;
   title: string;
   author: string;
+  cover: string;
   deepLink: string;
   noteCount: number;
   progress: number;
@@ -75,20 +76,25 @@ async function renderNB(error?: string) {
   }
   list.onclick = null;
   const books = [...c.books].sort((a, b) => (b.sort || 0) - (a.sort || 0));
-  const rows = books
+  const items = books
     .slice(0, 15)
     .map((b) => {
-      const author = b.author ? ` <span class="weread-author">· ${esc(b.author)}</span>` : '';
-      const num = b.noteCount ? `<span class="hot-num">${b.noteCount}条</span>` : '';
-      const prog = b.finished
-        ? '<span class="weread-tag done">读完</span>'
+      const badge = b.finished
+        ? '<span class="wr-cover-badge done">读完</span>'
         : b.progress
-          ? `<span class="notes-prog">${b.progress}%</span>`
+          ? `<span class="wr-cover-badge progress">${b.progress}%</span>`
           : '';
-      return `<a class="hot-row" href="${esc(b.deepLink)}" target="_blank" rel="noopener"><span class="hot-title">${esc(b.title)}${author}</span>${num}${prog}</a>`;
+      const cover = b.cover
+        ? `<img src="${esc(b.cover)}" alt="" loading="lazy" referrerpolicy="no-referrer"/>`
+        : '<div class="wr-rec-cover-ph">📖</div>';
+      const author = b.author
+        ? `<span class="wr-rec-author">${esc(b.author)}</span>`
+        : '<span></span>';
+      const num = b.noteCount ? `<span class="wr-rec-rating">${b.noteCount}条</span>` : '';
+      return `<a class="wr-rec-item" href="${esc(b.deepLink)}" target="_blank" rel="noopener"><div class="wr-rec-cover">${cover}${badge}</div><div class="wr-rec-title">${esc(b.title)}</div><div class="wr-rec-meta">${author}${num}</div></a>`;
     })
     .join('');
-  list.innerHTML = `<div class="weread-total">${c.totalBooks} 本 · ${c.totalNotes} 条笔记</div>${rows}`;
+  list.innerHTML = `<div class="weread-total">${c.totalBooks} 本 · ${c.totalNotes} 条笔记</div><div class="wr-rec-grid">${items}</div>`;
   if (upd) upd.textContent = fmtTime(c.ts);
 }
 

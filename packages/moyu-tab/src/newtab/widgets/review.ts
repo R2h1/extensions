@@ -12,6 +12,7 @@ interface RVReview {
 }
 interface RVCache {
   bookTitle: string;
+  bookCover: string;
   bookDeepLink: string;
   reviews: RVReview[];
   total: number;
@@ -75,9 +76,13 @@ async function renderRV(error?: string) {
     return;
   }
   body.onclick = null;
-  const head = c.bookDeepLink
-    ? `<a class="review-book" href="${esc(c.bookDeepLink)}" target="_blank" rel="noopener">《${esc(c.bookTitle)}》· ${c.total} 条书评</a>`
-    : `<div class="review-book">《${esc(c.bookTitle)}》· ${c.total} 条书评</div>`;
+  const cover = c.bookCover
+    ? `<img src="${esc(c.bookCover)}" alt="" loading="lazy" referrerpolicy="no-referrer"/>`
+    : '<div class="wr-rec-cover-ph">📖</div>';
+  const titleHtml = c.bookDeepLink
+    ? `<a class="wr-rv-title" href="${esc(c.bookDeepLink)}" target="_blank" rel="noopener">《${esc(c.bookTitle)}》</a>`
+    : `<div class="wr-rv-title">《${esc(c.bookTitle)}》</div>`;
+  const head = `<div class="wr-rv-book"><div class="wr-rec-cover wr-rv-cover">${cover}</div><div class="wr-rv-info">${titleHtml}<div class="wr-rv-meta">${c.total} 条书评</div></div></div>`;
   const rows = c.reviews
     .map((r) => {
       const star = fmtStar(r.star);
@@ -102,11 +107,12 @@ async function refreshRV() {
   btn?.classList.add('spin');
   try {
     const res = (await chrome.runtime.sendMessage({ type: 'WEREAD_REVIEW_FETCH', apiKey: key })) as
-      | { success: boolean; data?: { bookTitle: string; bookDeepLink: string; reviews: RVReview[]; total: number }; error?: string }
+      | { success: boolean; data?: { bookTitle: string; bookCover: string; bookDeepLink: string; reviews: RVReview[]; total: number }; error?: string }
       | undefined;
     if (res?.success && res.data) {
       saveCache({
         bookTitle: res.data.bookTitle,
+        bookCover: res.data.bookCover,
         bookDeepLink: res.data.bookDeepLink,
         reviews: res.data.reviews,
         total: res.data.total,
