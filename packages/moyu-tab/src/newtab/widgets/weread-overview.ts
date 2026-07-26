@@ -24,7 +24,7 @@ export function renderWereadOverviewCard(): string {
           <button class="hot-swap" data-tab="shelf" type="button" title="我的书架"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m16 6 4 14"/><path d="M12 6v14"/><path d="M8 8v12"/><path d="M4 4v16"/></svg>我的书架</button>
           <button class="hot-swap" data-tab="notes" type="button" title="我的笔记"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 6h4"/><path d="M2 10h4"/><path d="M2 14h4"/><path d="M2 18h4"/><rect width="16" height="20" x="4" y="2" rx="2"/></svg>我的笔记</button>
           <button class="hot-swap" data-tab="search" type="button" title="搜书"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>搜书</button>
-          <button class="hot-swap" id="wrOvRefresh" title="刷新">↻</button>
+          <button class="wr-refresh" id="wrOvRefresh" title="刷新统计">↻</button>
         </div>
       </div>
       <div class="weread-ov-body" id="wrOvBody"><div class="hot-empty">加载中…</div></div>
@@ -75,7 +75,7 @@ function renderRecommend(books: RCBook[]): string {
     })
     .join('');
   return `<div class="wr-ov-sec">
-      <div class="wr-ov-sec-head"><span class="wr-ov-sec-title"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 14c.2-1 .7-1.7 1.5-2.5 1-.9 1.5-2.2 1.5-3.5A6 6 0 0 0 6 8c0 1 .2 2.2 1.5 3.5.7.7 1.3 1.5 1.5 2.5"/><path d="M9 18h6"/><path d="M10 22h4"/></svg>为你推荐</span><button class="wr-ov-rec-swap" id="wrOvRecSwap" type="button" title="换一换推荐">换一换</button></div>
+      <div class="wr-ov-sec-head"><span class="wr-ov-sec-title"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 14c.2-1 .7-1.7 1.5-2.5 1-.9 1.5-2.2 1.5-3.5A6 6 0 0 0 6 8c0 1 .2 2.2 1.5 3.5.7.7 1.3 1.5 1.5 2.5"/><path d="M9 18h6"/><path d="M10 22h4"/></svg>为你推荐</span><button class="wr-refresh" id="wrOvRecSwap" type="button" title="换一换推荐">↻</button></div>
       <div class="wr-rec-grid wr-rec-grid-5">${items}</div>
     </div>`;
 }

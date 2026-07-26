@@ -426,10 +426,10 @@ html.locked .sub-filter{display:none}
 .wr-ov-sec-title{font-size:11px;font-weight:600;color:var(--text-secondary);display:flex;align-items:center;gap:4px}
 .wr-ov-more{font-size:10px;color:var(--text-tertiary);background:transparent;border:none;cursor:pointer;font-family:inherit;padding:0;transition:color .15s}
 .wr-ov-more:hover{color:var(--accent)}
-.wr-ov-rec-swap{font-size:10px;font-weight:500;color:var(--text-tertiary);background:transparent;border:none;cursor:pointer;font-family:inherit;padding:2px 6px;border-radius:var(--radius-xs);transition:color .15s}
-.wr-ov-rec-swap:hover{color:var(--accent)}
-.wr-ov-rec-swap.spin{color:var(--accent);pointer-events:none}
-.wr-ov-rec-swap.spin::before{content:'↻';display:inline-block;margin-right:3px;animation:goldspin 1s linear infinite}
+.wr-refresh{flex-shrink:0;width:26px;height:26px;border-radius:50%;border:none;background:var(--nm-surface);box-shadow:var(--nm-out),0 2px 4px rgba(0,0,0,0.1);color:var(--text-tertiary);cursor:pointer;font-size:13px;display:flex;align-items:center;justify-content:center;transition:color .15s,box-shadow .15s;font-family:inherit}
+.wr-refresh:hover{color:var(--accent)}
+.wr-refresh:active{box-shadow:var(--nm-in-sm)}
+.wr-refresh.spin{color:var(--accent);animation:goldspin 1s linear infinite}
 /* 推荐封面网格 */
 .wr-rec-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px 10px}
 @media (max-width:520px){.wr-rec-grid{grid-template-columns:repeat(3,1fr)}}
