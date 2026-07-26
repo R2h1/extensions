@@ -1,5 +1,5 @@
 import { esc, pad } from '../utils';
-import { loadWereadKey, renderWereadKeySetup } from './weread-shared';
+import { loadWereadKey, renderWereadKeyPrompt } from './weread-shared';
 
 const NB_CACHE = 'moyu_weread_notes_cache';
 const NB_TTL = 60 * 60 * 1000;
@@ -63,14 +63,18 @@ async function renderNB(error?: string) {
   if (!list) return;
   const key = await loadWereadKey();
   if (!key) {
-    renderWereadKeySetup(list, refreshNB);
+    renderWereadKeyPrompt(list, '未设置 API Key');
     if (upd) upd.textContent = '';
     return;
   }
   const c = loadCache();
   if (!c || !c.books.length) {
-    list.innerHTML = `<div class="hot-empty">${error ? '⚠ ' + esc(error) + ' · 点击重试' : '加载中…'}</div>`;
-    list.onclick = error ? () => refreshNB() : null;
+    if (error === 'API Key 无效') {
+      renderWereadKeyPrompt(list, 'API Key 无效');
+    } else {
+      list.innerHTML = `<div class="hot-empty">${error ? '⚠ ' + esc(error) + ' · 点击重试' : '加载中…'}</div>`;
+      list.onclick = error ? () => refreshNB() : null;
+    }
     if (upd) upd.textContent = error ? '⚠ 失败' : '';
     return;
   }
@@ -126,7 +130,7 @@ async function openBookNotes(b: NBBook) {
   list.innerHTML = '<div class="hot-empty">加载中…</div>';
   const key = await loadWereadKey();
   if (!key) {
-    renderWereadKeySetup(list, () => openBookNotes(b));
+    renderWereadKeyPrompt(list, '未设置 API Key');
     return;
   }
   try {

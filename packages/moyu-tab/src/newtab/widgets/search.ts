@@ -1,5 +1,5 @@
 import { esc } from '../utils';
-import { loadWereadKey, renderWereadKeySetup } from './weread-shared';
+import { loadWereadKey, renderWereadKeyPrompt } from './weread-shared';
 
 interface SRBook {
   bid: string;
@@ -58,8 +58,11 @@ async function doSearch() {
         })
         .join('')}</div>`;
       if (upd) upd.textContent = `${res.data.books.length} 本`;
+    } else if (res?.error === 'invalid_key') {
+      renderWereadKeyPrompt(list, 'API Key 无效');
+      if (upd) upd.textContent = '';
     } else {
-      list.innerHTML = `<div class="hot-empty">${res?.error === 'invalid_key' ? 'API Key 无效' : '无搜索结果'}</div>`;
+      list.innerHTML = '<div class="hot-empty">无搜索结果</div>';
       if (upd) upd.textContent = '';
     }
   } catch {
@@ -78,7 +81,7 @@ export async function initSearch(initialQuery?: string) {
   const list = document.getElementById('searchList');
   const key = await loadWereadKey();
   if (!key) {
-    if (list) renderWereadKeySetup(list, () => initSearch(initialQuery));
+    if (list) renderWereadKeyPrompt(list, '未设置 API Key');
     return;
   }
   const inp = document.getElementById('searchInput') as HTMLInputElement | null;

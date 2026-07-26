@@ -1,6 +1,6 @@
 /** 微信读书概览卡：统计 + 在读 + 推荐(3+更多)。书架/笔记/搜书入口在头部工具栏，全量视图由弹窗承载。 */
 import { esc, pad } from '../utils';
-import { loadWereadKey, renderWereadKeySetup } from './weread-shared';
+import { loadWereadKey, renderWereadKeyPrompt } from './weread-shared';
 import { loadCache as loadRD, saveCache as saveRD, type RDStat } from './readdata';
 import { loadCache as loadShelf, saveCache as saveShelf, type WRShelfBook } from './weread';
 import { loadCache as loadRC, saveCache as saveRC, type RCBook } from './recommend';
@@ -86,7 +86,7 @@ async function renderOV(error?: string) {
   if (!body) return;
   const key = await loadWereadKey();
   if (!key) {
-    renderWereadKeySetup(body, refreshOV);
+    renderWereadKeyPrompt(body, '未设置 API Key');
     if (upd) upd.textContent = '';
     return;
   }
@@ -94,8 +94,12 @@ async function renderOV(error?: string) {
   const shelf = loadShelf();
   const rc = loadRC();
   if (!rd?.stat && !shelf?.books?.length && !rc?.books?.length) {
-    body.innerHTML = `<div class="hot-empty">${error ? '⚠ ' + esc(error) + ' · 点击重试' : '加载中…'}</div>`;
-    body.onclick = error ? () => refreshOV() : null;
+    if (error === 'API Key 无效') {
+      renderWereadKeyPrompt(body, 'API Key 无效');
+    } else {
+      body.innerHTML = `<div class="hot-empty">${error ? '⚠ ' + esc(error) + ' · 点击重试' : '加载中…'}</div>`;
+      body.onclick = error ? () => refreshOV() : null;
+    }
     if (upd) upd.textContent = error ? '⚠ 失败' : '';
     return;
   }
@@ -201,6 +205,11 @@ async function refreshRecommend() {
 function onOVVis() {
   if (document.visibilityState !== 'visible') return;
   if (Date.now() - ovLastFetch > OV_TTL) refreshOV();
+}
+
+export function refreshWereadOverview() {
+  refreshOV();
+  refreshRecommend();
 }
 
 export async function initWereadOverview(

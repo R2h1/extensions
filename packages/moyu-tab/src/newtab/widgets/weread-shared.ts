@@ -20,7 +20,7 @@ export function renderWereadKeySetup(container: HTMLElement, onSaved: () => void
         <input class="weread-key-input" type="text" placeholder="wrk-xxxxxxxx" autocomplete="off" />
         <button class="weread-key-btn weread-key-save">保存</button>
       </div>
-      <div class="weread-setup-tip">Key 绑定你的微信读书账号，三张卡片共用。<a class="weread-setup-link" href="https://weread.qq.com/r/weread-skills" target="_blank" rel="noopener">获取 API Key ↗</a>；失效时可在此更换</div>
+      <div class="weread-setup-tip">Key 绑定你的微信读书账号。<a class="weread-setup-link" href="https://weread.qq.com/r/weread-skills" target="_blank" rel="noopener">获取 API Key ↗</a>；失效时可在此更换</div>
     </div>`;
   const inp = container.querySelector('.weread-key-input') as HTMLInputElement | null;
   const btn = container.querySelector('.weread-key-save');
@@ -37,6 +37,17 @@ export function renderWereadKeySetup(container: HTMLElement, onSaved: () => void
   });
 }
 
+// 由 newtab.ts 注入：打开设置里的微信读书 Key 输入
+let openSettingsFn: () => void = () => {};
+export function setWereadSettingsOpener(fn: () => void): void {
+  openSettingsFn = fn;
+}
+/** 无 Key / Key 失效时，渲染"去设置"提示（代替内联输入） */
+export function renderWereadKeyPrompt(container: HTMLElement, msg: string): void {
+  container.innerHTML = `<div class="hot-empty">⚠ ${esc(msg)} · <span class="weread-setup-link">去设置</span></div>`;
+  container.onclick = () => openSettingsFn();
+}
+
 /** 书评下钻：进入该书的公开书评，支持返回，内含"在微信读书打开"。书信息由调用方提供。 */
 export async function openBookReviewIn(
   container: HTMLElement,
@@ -47,7 +58,7 @@ export async function openBookReviewIn(
   container.innerHTML = '<div class="hot-empty">加载中…</div>';
   const key = await loadWereadKey();
   if (!key) {
-    renderWereadKeySetup(container, () => openBookReviewIn(container, book, onBack));
+    renderWereadKeyPrompt(container, '未设置 API Key');
     return;
   }
   try {
@@ -67,13 +78,11 @@ export async function openBookReviewIn(
       | undefined;
     if (res?.success && res.data) {
       renderBookReviewIn(container, book, res.data.reviews, res.data.total, onBack);
+    } else if (res?.error === 'invalid_key') {
+      renderWereadKeyPrompt(container, 'API Key 无效');
     } else {
       container.innerHTML = `<div class="hot-empty">${
-        res?.error === 'invalid_key'
-          ? 'API Key 无效'
-          : res?.error === 'empty'
-            ? '暂无书评'
-            : '加载失败'
+        res?.error === 'empty' ? '暂无书评' : '加载失败'
       }</div>`;
     }
   } catch {

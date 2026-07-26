@@ -1,5 +1,5 @@
 import { esc, pad } from '../utils';
-import { loadWereadKey, renderWereadKeySetup, openBookReviewIn } from './weread-shared';
+import { loadWereadKey, renderWereadKeyPrompt, openBookReviewIn } from './weread-shared';
 
 const WR_CACHE = 'moyu_weread_shelf_cache';
 const WR_TTL = 30 * 60 * 1000;
@@ -62,14 +62,18 @@ async function renderWR(error?: string) {
   if (!body) return;
   const key = await loadWereadKey();
   if (!key) {
-    renderWereadKeySetup(body, refreshWR);
+    renderWereadKeyPrompt(body, '未设置 API Key');
     if (upd) upd.textContent = '';
     return;
   }
   const c = loadCache();
   if (!c || !c.books.length) {
-    body.innerHTML = `<div class="hot-empty">${error ? '⚠ ' + esc(error) + ' · 点击重试' : '加载中…'}</div>`;
-    body.onclick = error ? () => refreshWR() : null;
+    if (error === 'API Key 无效') {
+      renderWereadKeyPrompt(body, 'API Key 无效');
+    } else {
+      body.innerHTML = `<div class="hot-empty">${error ? '⚠ ' + esc(error) + ' · 点击重试' : '加载中…'}</div>`;
+      body.onclick = error ? () => refreshWR() : null;
+    }
     if (upd) upd.textContent = error ? '⚠ 失败' : '';
     return;
   }

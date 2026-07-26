@@ -145,7 +145,7 @@ function paint(error: boolean) {
   const grid = document.getElementById(GRID_ID);
   if (!grid) return;
   if (!items.length) {
-    grid.innerHTML = `<div class="mkt-empty">暂无自选 · 下方输入代码添加</div>`;
+    grid.innerHTML = `<div class="mkt-empty">暂无自选 · 点「+ 添加」添加</div>`;
     return;
   }
   const cache = loadCache();

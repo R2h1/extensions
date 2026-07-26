@@ -5,8 +5,8 @@ import { initHoliday } from './widgets/holiday';
 import { initWeread, renderWereadCard } from './widgets/weread';
 import { initNotes, renderNotesCard } from './widgets/notes';
 import { initSearch, renderSearchCard } from './widgets/search';
-import { initWereadOverview, renderWereadOverviewCard } from './widgets/weread-overview';
-import { openBookReviewIn } from './widgets/weread-shared';
+import { initWereadOverview, renderWereadOverviewCard, refreshWereadOverview } from './widgets/weread-overview';
+import { openBookReviewIn, renderWereadKeySetup, setWereadSettingsOpener } from './widgets/weread-shared';
 import { initTax, renderTaxCard } from './widgets/tax';
 import { initMortgage, renderMortgageCard } from './widgets/mortgage';
 import { initBmi, renderBmiCard } from './widgets/bmi';
@@ -512,6 +512,7 @@ document.querySelectorAll('#smSidebar .msb').forEach((b) =>
     document.querySelectorAll('#smSidebar .msb').forEach((x) => x.classList.remove('active'));
     this.classList.add('active');
     if (this.dataset.s === 'time') renderSetTime();
+    else if (this.dataset.s === 'weread') renderSetWeread();
     else renderSetSalary();
   }),
 );
@@ -521,6 +522,22 @@ async function openSettings() {
   renderSetTime();
   sm.classList.add('open');
 }
+function renderSetWeread() {
+  const body = document.getElementById('settingsBody');
+  if (!body) return;
+  renderWereadKeySetup(body, async () => {
+    sm.classList.remove('open');
+    refreshWereadOverview();
+  });
+}
+function openSettingsWeread() {
+  document.getElementById('wereadModal')?.classList.remove('open');
+  document.querySelectorAll('#smSidebar .msb').forEach((b) => b.classList.remove('active'));
+  document.querySelector('#smSidebar [data-s="weread"]')?.classList.add('active');
+  renderSetWeread();
+  sm.classList.add('open');
+}
+setWereadSettingsOpener(openSettingsWeread);
 async function renderSetTime() {
   const r = await chrome.storage.sync.get(SS);
   const s = { ...DS, ...(r[SS] || {}) };
