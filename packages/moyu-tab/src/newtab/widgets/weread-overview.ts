@@ -1,4 +1,4 @@
-/** 微信读书概览卡：统计 + 在读 + 推荐(3+更多) + 搜书 + 书架/笔记/书评入口。全量视图由弹窗承载。 */
+/** 微信读书概览卡：统计 + 在读 + 推荐(3+更多)。书架/笔记/搜书入口在头部工具栏，全量视图由弹窗承载。 */
 import { esc, pad } from '../utils';
 import { loadWereadKey, renderWereadKeySetup } from './weread-shared';
 import { loadCache as loadRD, saveCache as saveRD, type RDStat } from './readdata';
@@ -7,16 +7,13 @@ import { loadCache as loadRC, saveCache as saveRC, type RCBook } from './recomme
 
 const OV_TTL = 60 * 60 * 1000;
 
-const CHIPS = [
-  { id: 'shelf', name: '我的书架' },
-  { id: 'notes', name: '我的笔记' },
-];
-
 let ovLoading = false;
+let rcLoading = false;
 let ovInited = false;
 let ovLastFetch = 0;
 // 由 newtab.ts 注入：点入口/查看更多/搜索时打开弹窗
 let openModal: (tab: string, query?: string) => void = () => {};
+let reviewOpener: (book: { bid: string; title: string; cover: string; deepLink: string }) => void = () => {};
 
 export function renderWereadOverviewCard(): string {
   return `<div class="widget-card hot-card weread-ov-card">
@@ -24,6 +21,9 @@ export function renderWereadOverviewCard(): string {
         <div class="hot-title"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 7v14"/><path d="M3 18a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h5a4 4 0 0 1 4 4 4 4 0 0 1 4-4h5a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1h-6a3 3 0 0 0-3 3 3 3 0 0 0-3-3z"/></svg>微信读书</div>
         <div class="hot-meta">
           <span class="hot-upd" id="wrOvUpd"></span>
+          <button class="hot-swap" data-tab="shelf" type="button" title="我的书架"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m16 6 4 14"/><path d="M12 6v14"/><path d="M8 8v12"/><path d="M4 4v16"/></svg>我的书架</button>
+          <button class="hot-swap" data-tab="notes" type="button" title="我的笔记"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 6h4"/><path d="M2 10h4"/><path d="M2 14h4"/><path d="M2 18h4"/><rect width="16" height="20" x="4" y="2" rx="2"/></svg>我的笔记</button>
+          <button class="hot-swap" data-tab="search" type="button" title="搜书"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>搜书</button>
           <button class="hot-swap" id="wrOvRefresh" title="刷新">↻</button>
         </div>
       </div>
@@ -58,35 +58,26 @@ function renderHero(books: WRShelfBook[]): string {
   const author = cur.author ? `<span class="wr-ov-author">· ${esc(cur.author)}</span>` : '';
   const tag = cur.finished ? '<span class="weread-tag done">读完</span>' : '';
   const href = cur.deepLink ? ` href="${esc(cur.deepLink)}" target="_blank" rel="noopener"` : '';
-  return `<div class="wr-ov-hero"><a class="wr-ov-hero-link"${href}><span class="wr-ov-label">${label}</span><span class="wr-ov-book">《${esc(cur.title)}》</span>${author}${tag}</a><button class="wr-ov-review-btn" data-tab="review" type="button" title="这本书的书评">书评</button></div>`;
+  return `<div class="wr-ov-hero"><a class="wr-ov-hero-link" data-bid="${esc(cur.bid)}"${href}><span class="wr-ov-label">${label}</span><span class="wr-ov-book">《${esc(cur.title)}》</span>${author}${tag}</a></div>`;
 }
 
 function renderRecommend(books: RCBook[]): string {
   if (!books || !books.length) return '';
-  const rows = books
-    .slice(0, 3)
-    .map((b, i) => {
-      const rank = i + 1;
-      const top = rank <= 3 ? ' top' : '';
-      const author = b.author ? ` <span class="wr-ov-author">· ${esc(b.author)}</span>` : '';
+  const items = books
+    .map((b) => {
       const rating = fmtRating(b.rating);
-      const num = rating ? `<span class="hot-num">${rating}</span>` : '';
-      const reason = b.reason ? ` title="${esc(b.reason)}"` : '';
-      return `<a class="hot-row" href="${esc(b.deepLink)}" target="_blank" rel="noopener"${reason}><span class="hot-rank${top}">${rank}</span><span class="hot-title">${esc(b.title)}${author}</span>${num}</a>`;
+      const ratingStr = rating ? `<span class="wr-rec-rating">★ ${rating}</span>` : '';
+      const cover = b.cover
+        ? `<img src="${esc(b.cover)}" alt="" loading="lazy" referrerpolicy="no-referrer"/>`
+        : '<div class="wr-rec-cover-ph">📖</div>';
+      const author = b.author ? `<span class="wr-rec-author">${esc(b.author)}</span>` : '<span></span>';
+      return `<a class="wr-rec-item" href="${esc(b.deepLink)}" target="_blank" rel="noopener" data-bid="${esc(b.bid)}" title="查看书评"><div class="wr-rec-cover">${cover}</div><div class="wr-rec-title">${esc(b.title)}</div><div class="wr-rec-meta">${author}${ratingStr}</div></a>`;
     })
     .join('');
   return `<div class="wr-ov-sec">
-      <div class="wr-ov-sec-head"><span class="wr-ov-sec-title"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 14c.2-1 .7-1.7 1.5-2.5 1-.9 1.5-2.2 1.5-3.5A6 6 0 0 0 6 8c0 1 .2 2.2 1.5 3.5.7.7 1.3 1.5 1.5 2.5"/><path d="M9 18h6"/><path d="M10 22h4"/></svg>好书推荐</span><button class="wr-ov-more" data-tab="recommend" type="button">查看更多 ›</button></div>
-      ${rows}
+      <div class="wr-ov-sec-head"><span class="wr-ov-sec-title"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 14c.2-1 .7-1.7 1.5-2.5 1-.9 1.5-2.2 1.5-3.5A6 6 0 0 0 6 8c0 1 .2 2.2 1.5 3.5.7.7 1.3 1.5 1.5 2.5"/><path d="M9 18h6"/><path d="M10 22h4"/></svg>为你推荐</span><button class="wr-ov-rec-swap" id="wrOvRecSwap" type="button" title="换一换推荐">换一换</button></div>
+      <div class="wr-rec-grid wr-rec-grid-5">${items}</div>
     </div>`;
-}
-
-function renderSearch(): string {
-  return `<div class="search-box"><input id="wrOvSearchInput" class="search-input" type="text" placeholder="搜索书名 / 作者" autocomplete="off" /><button id="wrOvSearchBtn" class="weread-key-btn" type="button">搜索</button></div>`;
-}
-
-function renderChips(): string {
-  return `<div class="wr-ov-chips">${CHIPS.map((c) => `<button class="wr-ov-chip" data-tab="${c.id}" type="button">${c.name}</button>`).join('')}</div>`;
 }
 
 async function renderOV(error?: string) {
@@ -119,21 +110,22 @@ async function renderOV(error?: string) {
     : '<div class="hot-empty" style="padding:6px 0">暂无统计数据</div>';
   const hero = shelf?.books?.length ? renderHero(shelf.books) : '';
   const recommend = rc?.books?.length ? renderRecommend(rc.books) : '';
-  body.innerHTML = stats + hero + recommend + renderSearch() + renderChips();
-  // 入口 chip + 推荐查看更多 -> 打开弹窗对应 tab
-  body.querySelectorAll<HTMLElement>('[data-tab]').forEach((b) =>
-    b.addEventListener('click', () => openModal(b.dataset.tab!)),
-  );
-  // 搜索框 -> 打开弹窗搜书 tab 并预填 query 自动搜
-  const searchInput = body.querySelector<HTMLInputElement>('#wrOvSearchInput');
-  const submitSearch = () => {
-    const q = searchInput?.value.trim();
-    if (q) openModal('search', q);
-  };
-  body.querySelector('#wrOvSearchBtn')?.addEventListener('click', submitSearch);
-  searchInput?.addEventListener('keydown', (e) => {
-    if ((e as KeyboardEvent).key === 'Enter') submitSearch();
+  body.innerHTML = stats + hero + recommend;
+  // 在读书名 / 推荐书封 -> 打开该书书评弹窗
+  const heroLink = body.querySelector<HTMLElement>('.wr-ov-hero-link');
+  heroLink?.addEventListener('click', (e) => {
+    e.preventDefault();
+    const b = shelf?.books?.find((x) => x.bid === heroLink.dataset.bid);
+    if (b) reviewOpener(b);
   });
+  body.querySelectorAll<HTMLElement>('.wr-ov-sec .wr-rec-item').forEach((el) =>
+    el.addEventListener('click', (e) => {
+      e.preventDefault();
+      const b = rc?.books?.find((x) => x.bid === el.dataset.bid);
+      if (b) reviewOpener(b);
+    }),
+  );
+  document.getElementById('wrOvRecSwap')?.addEventListener('click', refreshRecommend);
   const ts = Math.max(rd?.ts || 0, shelf?.ts || 0, rc?.ts || 0);
   if (upd && ts) upd.textContent = fmtTime(ts);
 }
@@ -150,27 +142,23 @@ async function refreshOV() {
   const btn = document.getElementById('wrOvRefresh');
   btn?.classList.add('spin');
   try {
-    const [rdRes, shRes, rcRes] = (await Promise.all([
+    const [rdRes, shRes] = (await Promise.all([
       chrome.runtime.sendMessage({ type: 'WEREAD_READDATA_FETCH', apiKey: key }),
       chrome.runtime.sendMessage({ type: 'WEREAD_SHELF_FETCH', apiKey: key }),
-      chrome.runtime.sendMessage({ type: 'WEREAD_RECOMMEND_FETCH', apiKey: key }),
     ])) as [
       | { success: boolean; data?: RDStat; error?: string }
       | undefined,
       | { success: boolean; data?: { books: WRShelfBook[]; total: number }; error?: string }
       | undefined,
-      | { success: boolean; data?: { books: RCBook[] }; error?: string }
-      | undefined,
     ];
     if (rdRes?.success && rdRes.data) saveRD({ stat: rdRes.data, ts: Date.now() });
     if (shRes?.success && shRes.data?.books?.length)
       saveShelf({ books: shRes.data.books, total: shRes.data.total, ts: Date.now() });
-    if (rcRes?.success && rcRes.data?.books?.length) saveRC({ books: rcRes.data.books, ts: Date.now() });
     ovLastFetch = Date.now();
     const err =
-      rdRes?.error === 'invalid_key' || shRes?.error === 'invalid_key' || rcRes?.error === 'invalid_key'
+      rdRes?.error === 'invalid_key' || shRes?.error === 'invalid_key'
         ? 'API Key 无效'
-        : !rdRes?.success && !shRes?.success && !rcRes?.success
+        : !rdRes?.success && !shRes?.success
           ? '获取失败'
           : undefined;
     renderOV(err);
@@ -182,15 +170,50 @@ async function refreshOV() {
   }
 }
 
+async function refreshRecommend() {
+  if (rcLoading) return;
+  if (!document.getElementById('wrOvBody')) return;
+  const key = await loadWereadKey();
+  if (!key) {
+    renderOV();
+    return;
+  }
+  rcLoading = true;
+  const btn = document.getElementById('wrOvRecSwap');
+  btn?.classList.add('spin');
+  try {
+    const res = (await chrome.runtime.sendMessage({
+      type: 'WEREAD_RECOMMEND_FETCH',
+      apiKey: key,
+    })) as { success: boolean; data?: { books: RCBook[] }; error?: string } | undefined;
+    if (res?.success && res.data?.books?.length) {
+      saveRC({ books: res.data.books, ts: Date.now() });
+    }
+    renderOV();
+  } catch {
+    renderOV();
+  } finally {
+    rcLoading = false;
+    btn?.classList.remove('spin');
+  }
+}
+
 function onOVVis() {
   if (document.visibilityState !== 'visible') return;
   if (Date.now() - ovLastFetch > OV_TTL) refreshOV();
 }
 
-export async function initWereadOverview(opener: (tab: string, query?: string) => void) {
+export async function initWereadOverview(
+  opener: (tab: string, query?: string) => void,
+  reviewOpenerFn: (book: { bid: string; title: string; cover: string; deepLink: string }) => void,
+) {
   openModal = opener;
+  reviewOpener = reviewOpenerFn;
   await renderOV();
   document.getElementById('wrOvRefresh')?.addEventListener('click', refreshOV);
+  document.querySelectorAll<HTMLElement>('.weread-ov-card .hot-head [data-tab]').forEach((b) =>
+    b.addEventListener('click', () => openModal(b.dataset.tab!)),
+  );
   if (ovInited) return;
   ovInited = true;
   const key = await loadWereadKey();
@@ -198,8 +221,9 @@ export async function initWereadOverview(opener: (tab: string, query?: string) =
     const rd = loadRD();
     const shelf = loadShelf();
     const rc = loadRC();
-    const stale = !rd || !shelf || !rc || Date.now() - Math.max(rd.ts, shelf.ts, rc.ts) > OV_TTL;
+    const stale = !rd || !shelf || Date.now() - Math.max(rd.ts, shelf.ts) > OV_TTL;
     if (stale) refreshOV();
+    if (!rc || Date.now() - rc.ts > OV_TTL) refreshRecommend();
   }
   document.addEventListener('visibilitychange', onOVVis);
 }

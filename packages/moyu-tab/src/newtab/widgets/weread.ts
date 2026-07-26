@@ -1,5 +1,5 @@
 import { esc, pad } from '../utils';
-import { loadWereadKey, renderWereadKeySetup } from './weread-shared';
+import { loadWereadKey, renderWereadKeySetup, openBookReviewIn } from './weread-shared';
 
 const WR_CACHE = 'moyu_weread_shelf_cache';
 const WR_TTL = 30 * 60 * 1000;
@@ -88,11 +88,18 @@ async function renderWR(error?: string) {
       const author = b.author
         ? `<span class="wr-rec-author">${esc(b.author)}</span>`
         : '<span></span>';
-      return `<a class="wr-rec-item" href="${esc(b.deepLink)}" target="_blank" rel="noopener" title="在微信读书打开"><div class="wr-rec-cover">${cover}${badge}</div><div class="wr-rec-title">${esc(b.title)}</div><div class="wr-rec-meta">${author}</div></a>`;
+      return `<a class="wr-rec-item" href="${esc(b.deepLink)}" target="_blank" rel="noopener" data-bid="${esc(b.bid)}" title="查看书评"><div class="wr-rec-cover">${cover}${badge}</div><div class="wr-rec-title">${esc(b.title)}</div><div class="wr-rec-meta">${author}</div></a>`;
     })
     .join('');
   body.innerHTML = `<div class="weread-total">书架 ${c.total} 个条目 · 最近在读</div><div class="wr-rec-grid">${items}</div>`;
   if (upd) upd.textContent = fmtWRTime(c.ts);
+  body.onclick = (e) => {
+    const item = (e.target as HTMLElement).closest('.wr-rec-item') as HTMLElement | null;
+    if (!item) return;
+    e.preventDefault();
+    const b = books.find((x) => x.bid === item.dataset.bid);
+    if (b) openBookReviewIn(body, b, renderWR);
+  };
 }
 
 async function refreshWR() {

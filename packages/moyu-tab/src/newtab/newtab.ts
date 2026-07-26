@@ -3,11 +3,10 @@ import 'aplayer/dist/APlayer.min.css';
 import { renderMarketCard, initMarket } from './widgets/market';
 import { initHoliday } from './widgets/holiday';
 import { initWeread, renderWereadCard } from './widgets/weread';
-import { initRecommend, renderRecommendCard } from './widgets/recommend';
 import { initNotes, renderNotesCard } from './widgets/notes';
-import { initReview, renderReviewCard } from './widgets/review';
 import { initSearch, renderSearchCard } from './widgets/search';
 import { initWereadOverview, renderWereadOverviewCard } from './widgets/weread-overview';
+import { openBookReviewIn } from './widgets/weread-shared';
 import { initTax, renderTaxCard } from './widgets/tax';
 import { initMortgage, renderMortgageCard } from './widgets/mortgage';
 import { initBmi, renderBmiCard } from './widgets/bmi';
@@ -265,7 +264,7 @@ async function initW(id: string) {
       initNewsCard();
       break;
     case 'weread':
-      initWereadOverview(openWereadModal);
+      initWereadOverview(openWereadModal, openReviewModal);
       break;
     case 'bookmarks':
       initBookmarks();
@@ -432,13 +431,13 @@ tk.addEventListener('click', (e) => {
 const WR_VIEWS = [
   { id: 'shelf', name: '我的书架', render: renderWereadCard, init: initWeread },
   { id: 'notes', name: '我的笔记', render: renderNotesCard, init: initNotes },
-  { id: 'review', name: '书评', render: renderReviewCard, init: initReview },
-  { id: 'recommend', name: '好书推荐', render: renderRecommendCard, init: initRecommend },
   { id: 'search', name: '搜书', render: renderSearchCard, init: () => { const q = pendingSearchQuery; pendingSearchQuery = ''; void initSearch(q); } },
+  { id: 'review', name: '书评', render: () => '<div class="hot-empty">加载中…</div>', init: () => { const b = pendingReviewBook; pendingReviewBook = null; if (b) void openBookReviewIn(document.getElementById('wrModalContent')!, b); } },
 ];
 const wrModal = document.getElementById('wereadModal')!;
 let wrModalCur = 'shelf';
 let pendingSearchQuery = '';
+let pendingReviewBook: { bid: string; title: string; cover: string; deepLink: string } | null = null;
 function renderWrPane() {
   const v = WR_VIEWS.find((x) => x.id === wrModalCur);
   const c = document.getElementById('wrModalContent');
@@ -458,6 +457,10 @@ function openWereadModal(tab?: string, query?: string) {
   if (tab === 'search' && query) pendingSearchQuery = query;
   renderWrPane();
   wrModal.classList.add('open');
+}
+function openReviewModal(book: { bid: string; title: string; cover: string; deepLink: string }) {
+  pendingReviewBook = book;
+  openWereadModal('review');
 }
 document.getElementById('wrModalClose')!.addEventListener('click', () => wrModal.classList.remove('open'));
 wrModal.addEventListener('click', (e) => {

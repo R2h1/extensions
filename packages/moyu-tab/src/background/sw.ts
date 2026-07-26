@@ -1086,39 +1086,44 @@ interface WereadReviewResponse {
   error?: string;
 }
 
-/** 微信读书书评：取书架最近阅读书，调 /review/list 显示该书公开点评。需 API Key。 */
-async function handleWereadReviewFetch(apiKey: string): Promise<WereadReviewResponse> {
+/** 微信读书书评：默认取书架最近阅读书；传 bookId 则直接查该书。调 /review/list 显示公开点评。需 API Key。 */
+async function handleWereadReviewFetch(apiKey: string, bookId?: string): Promise<WereadReviewResponse> {
   if (!apiKey) return { success: false, error: 'no_key' };
   const ctrl = new AbortController();
   const to = setTimeout(() => ctrl.abort(), 15000);
   try {
-    const shelfRes = await fetch('https://i.weread.qq.com/api/agent/gateway', {
-      method: 'POST',
-      headers: { Authorization: 'Bearer ' + apiKey, 'Content-Type': 'application/json' },
-      body: JSON.stringify({ api_name: '/shelf/sync', skill_version: '1.0.4' }),
-      cache: 'no-store',
-      signal: ctrl.signal,
-    });
-    if (shelfRes.status === 401) return { success: false, error: 'invalid_key' };
-    if (!shelfRes.ok) return { success: false, error: 'HTTP ' + shelfRes.status };
-    const sj = await shelfRes.json();
-    if (sj?.errcode && sj.errcode !== 0)
-      return { success: false, error: String(sj.errmsg || sj.errcode) };
-    const shelfBooks = ((sj?.books ?? []) as unknown[])
-      .map((it) => {
-        const b = it as Record<string, unknown>;
-        return {
-          bid: String(b.bookId ?? ''),
-          title: String(b.title ?? ''),
-          cover: String(b.cover ?? ''),
-          deepLink: String(b.deepLink ?? ''),
-          readUpdateTime: Number(b.readUpdateTime ?? 0),
-        };
-      })
-      .filter((b) => b.bid && b.title)
-      .sort((a, b) => b.readUpdateTime - a.readUpdateTime);
-    if (!shelfBooks.length) return { success: false, error: 'empty_shelf' };
-    const book = shelfBooks[0];
+    let book: { bid: string; title: string; cover: string; deepLink: string };
+    if (bookId) {
+      book = { bid: bookId, title: '', cover: '', deepLink: '' };
+    } else {
+      const shelfRes = await fetch('https://i.weread.qq.com/api/agent/gateway', {
+        method: 'POST',
+        headers: { Authorization: 'Bearer ' + apiKey, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ api_name: '/shelf/sync', skill_version: '1.0.4' }),
+        cache: 'no-store',
+        signal: ctrl.signal,
+      });
+      if (shelfRes.status === 401) return { success: false, error: 'invalid_key' };
+      if (!shelfRes.ok) return { success: false, error: 'HTTP ' + shelfRes.status };
+      const sj = await shelfRes.json();
+      if (sj?.errcode && sj.errcode !== 0)
+        return { success: false, error: String(sj.errmsg || sj.errcode) };
+      const shelfBooks = ((sj?.books ?? []) as unknown[])
+        .map((it) => {
+          const b = it as Record<string, unknown>;
+          return {
+            bid: String(b.bookId ?? ''),
+            title: String(b.title ?? ''),
+            cover: String(b.cover ?? ''),
+            deepLink: String(b.deepLink ?? ''),
+            readUpdateTime: Number(b.readUpdateTime ?? 0),
+          };
+        })
+        .filter((b) => b.bid && b.title)
+        .sort((a, b) => b.readUpdateTime - a.readUpdateTime);
+      if (!shelfBooks.length) return { success: false, error: 'empty_shelf' };
+      book = shelfBooks[0];
+    }
     const revRes = await fetch('https://i.weread.qq.com/api/agent/gateway', {
       method: 'POST',
       headers: { Authorization: 'Bearer ' + apiKey, 'Content-Type': 'application/json' },
@@ -1378,9 +1383,8 @@ chrome.runtime.onMessage.addListener((message: { type: string }, _sender, sendRe
     const m = message as unknown as { apiKey?: string; bookId?: string };
     handleWereadNotesContentFetch(m.apiKey ?? '', m.bookId ?? '').then(sendResponse);
   } else if (message?.type === 'WEREAD_REVIEW_FETCH') {
-    handleWereadReviewFetch((message as unknown as { apiKey?: string }).apiKey ?? '').then(
-      sendResponse,
-    );
+    const m = message as unknown as { apiKey?: string; bookId?: string };
+    handleWereadReviewFetch(m.apiKey ?? '', m.bookId).then(sendResponse);
   } else if (message?.type === 'WEREAD_SEARCH_FETCH') {
     const m = message as unknown as { apiKey?: string; keyword?: string };
     handleWereadSearchFetch(m.apiKey ?? '', m.keyword ?? '').then(sendResponse);

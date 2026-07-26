@@ -417,24 +417,25 @@ html.locked .sub-filter{display:none}
 .wr-ov-hero{display:flex;align-items:center;gap:6px;padding:7px 9px;border-radius:var(--radius-xs);background:var(--glass);border:0.5px solid var(--glass-border);transition:background .15s}
 .wr-ov-hero:hover{background:var(--glass-accent)}
 .wr-ov-hero-link{display:flex;align-items:center;gap:6px;min-width:0;flex:1;text-decoration:none}
-.wr-ov-review-btn{flex-shrink:0;padding:3px 9px;font-size:10px;font-weight:500;border:0.5px solid var(--glass-border);border-radius:var(--radius-xs);background:rgba(255,255,255,.5);color:var(--text-secondary);cursor:pointer;font-family:inherit;transition:all .15s}
-.wr-ov-review-btn:hover{border-color:var(--accent);color:var(--accent)}
 .wr-ov-label{font-size:10px;color:var(--accent);font-weight:600;flex-shrink:0;background:var(--glass-accent);padding:1px 5px;border-radius:3px}
 .wr-ov-book{font-size:13px;color:var(--text);font-weight:500;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;flex:1}
 .wr-ov-hero:hover .wr-ov-book{color:var(--accent)}
 .wr-ov-author{font-size:10px;color:var(--text-tertiary);flex-shrink:0}
-.wr-ov-chips{display:flex;flex-wrap:wrap;gap:5px}
-.wr-ov-chip{padding:4px 10px;font-size:11px;font-weight:500;border:0.5px solid var(--glass-border);border-radius:var(--radius-xs);background:rgba(255,255,255,.4);color:var(--text-secondary);cursor:pointer;font-family:inherit;transition:all .15s}
-.wr-ov-chip:hover{border-color:var(--accent);color:var(--accent);background:var(--glass-accent)}
 .wr-ov-sec{display:flex;flex-direction:column;gap:2px}
-.wr-ov-sec-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:2px}
+.wr-ov-sec-head{display:flex;align-items:center;justify-content:space-between;margin-top:10px;margin-bottom:6px}
 .wr-ov-sec-title{font-size:11px;font-weight:600;color:var(--text-secondary);display:flex;align-items:center;gap:4px}
 .wr-ov-more{font-size:10px;color:var(--text-tertiary);background:transparent;border:none;cursor:pointer;font-family:inherit;padding:0;transition:color .15s}
 .wr-ov-more:hover{color:var(--accent)}
-.weread-ov-body .search-box{margin-bottom:0}
+.wr-ov-rec-swap{font-size:10px;font-weight:500;color:var(--text-tertiary);background:transparent;border:none;cursor:pointer;font-family:inherit;padding:2px 6px;border-radius:var(--radius-xs);transition:color .15s}
+.wr-ov-rec-swap:hover{color:var(--accent)}
+.wr-ov-rec-swap.spin{color:var(--accent);pointer-events:none}
+.wr-ov-rec-swap.spin::before{content:'↻';display:inline-block;margin-right:3px;animation:goldspin 1s linear infinite}
 /* 推荐封面网格 */
 .wr-rec-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px 10px}
 @media (max-width:520px){.wr-rec-grid{grid-template-columns:repeat(3,1fr)}}
+.wr-rec-grid-5{grid-template-columns:repeat(5,1fr);gap:16px}
+@media (min-width:521px){.wr-rec-grid-5 .wr-rec-item{max-width:110px;justify-self:center}}
+@media (max-width:520px){.wr-rec-grid-5{grid-template-columns:repeat(3,1fr)}}
 .wr-rec-item{display:flex;flex-direction:column;gap:4px;text-decoration:none;min-width:0}
 .wr-rec-cover{position:relative;aspect-ratio:3/4;border-radius:var(--radius-xs);overflow:hidden;background:var(--nm-surface);box-shadow:var(--nm-out-sm)}
 .wr-rec-cover img{width:100%;height:100%;object-fit:cover;display:block}

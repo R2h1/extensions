@@ -1,5 +1,5 @@
 import { esc, pad } from '../utils';
-import { loadWereadKey, renderWereadKeySetup } from './weread-shared';
+import { loadWereadKey, renderWereadKeySetup, openBookReviewIn } from './weread-shared';
 
 const RC_CACHE = 'moyu_weread_recommend_cache';
 const RC_TTL = 30 * 60 * 1000;
@@ -74,7 +74,8 @@ async function renderRC(error?: string) {
     return;
   }
   list.onclick = null;
-  list.innerHTML = `<div class="wr-rec-grid">${c.books
+  const books = c.books;
+  list.innerHTML = `<div class="wr-rec-grid">${books
     .map((b) => {
       const rating = fmtRating(b.rating);
       const ratingStr = rating ? `<span class="wr-rec-rating">★ ${rating}</span>` : '';
@@ -84,11 +85,17 @@ async function renderRC(error?: string) {
       const author = b.author
         ? `<span class="wr-rec-author">${esc(b.author)}</span>`
         : '<span></span>';
-      const reason = b.reason ? ` title="${esc(b.reason)}"` : '';
-      return `<a class="wr-rec-item" href="${esc(b.deepLink)}" target="_blank" rel="noopener"${reason}><div class="wr-rec-cover">${cover}</div><div class="wr-rec-title">${esc(b.title)}</div><div class="wr-rec-meta">${author}${ratingStr}</div></a>`;
+      return `<a class="wr-rec-item" href="${esc(b.deepLink)}" target="_blank" rel="noopener" data-bid="${esc(b.bid)}" title="查看书评"><div class="wr-rec-cover">${cover}</div><div class="wr-rec-title">${esc(b.title)}</div><div class="wr-rec-meta">${author}${ratingStr}</div></a>`;
     })
     .join('')}</div>`;
   if (upd) upd.textContent = fmtTime(c.ts);
+  list.onclick = (e) => {
+    const item = (e.target as HTMLElement).closest('.wr-rec-item') as HTMLElement | null;
+    if (!item) return;
+    e.preventDefault();
+    const b = books.find((x) => x.bid === item.dataset.bid);
+    if (b) openBookReviewIn(list, b, renderRC);
+  };
 }
 
 async function refreshRC() {
