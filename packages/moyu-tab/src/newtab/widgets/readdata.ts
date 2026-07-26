@@ -4,13 +4,13 @@ import { loadWereadKey, renderWereadKeySetup } from './weread-shared';
 const RD_CACHE = 'moyu_weread_readdata_cache';
 const RD_TTL = 60 * 60 * 1000;
 
-interface RDLongest {
+export interface RDLongest {
   title: string;
   author: string;
   readTime: number;
   deepLink: string;
 }
-interface RDStat {
+export interface RDStat {
   totalReadTime: number;
   readDays: number;
   dayAverageReadTime: number;
@@ -19,7 +19,7 @@ interface RDStat {
   categoryWord?: string;
   timeWord?: string;
 }
-interface RDCache {
+export interface RDCache {
   stat: RDStat;
   ts: number;
 }
@@ -41,7 +41,7 @@ export function renderReaddataCard(): string {
     </div>`;
 }
 
-function loadCache(): RDCache | null {
+export function loadCache(): RDCache | null {
   try {
     const r = localStorage.getItem(RD_CACHE);
     return r ? JSON.parse(r) : null;
@@ -49,7 +49,7 @@ function loadCache(): RDCache | null {
     return null;
   }
 }
-function saveCache(c: RDCache) {
+export function saveCache(c: RDCache) {
   try {
     localStorage.setItem(RD_CACHE, JSON.stringify(c));
   } catch {}

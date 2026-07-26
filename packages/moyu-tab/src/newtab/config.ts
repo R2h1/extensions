@@ -74,11 +74,6 @@ export const CAT_TREE: TopCat[] = [
 export const ALL_WIDGETS: WID[] = [
   { id: 'hot', name: '热搜', desc: '微博/B站/百度/掘金热榜', cat: 'news', sub: 'hot' },
   { id: 'news', name: '资讯', desc: 'AI精选/知乎日报/财经快讯', cat: 'news', sub: 'news' },
-  { id: 'weread', name: '微信读书', desc: '我的书架', cat: 'study', sub: 'read' },
-  { id: 'readdata', name: '阅读统计', desc: '本月阅读数据', cat: 'study', sub: 'read' },
-  { id: 'recommend', name: '为你推荐', desc: '个性化推荐', cat: 'study', sub: 'read' },
-  { id: 'notes', name: '我的笔记', desc: '笔记与划线', cat: 'study', sub: 'read' },
-  { id: 'review', name: '书评', desc: '最近在读书评', cat: 'study', sub: 'read' },
-  { id: 'search', name: '搜书', desc: '搜索书城', cat: 'study', sub: 'read' },
+  { id: 'weread', name: '微信读书', desc: '书架/统计/笔记/书评/推荐/搜书', cat: 'study', sub: 'read' },
   { id: 'bookmarks', name: '书签同步', desc: '浏览器书签栏', cat: 'bookmark', sub: 'nav' },
 ];

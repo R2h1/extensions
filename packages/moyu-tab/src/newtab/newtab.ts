@@ -8,6 +8,7 @@ import { initRecommend, renderRecommendCard } from './widgets/recommend';
 import { initNotes, renderNotesCard } from './widgets/notes';
 import { initReview, renderReviewCard } from './widgets/review';
 import { initSearch, renderSearchCard } from './widgets/search';
+import { initWereadOverview, renderWereadOverviewCard } from './widgets/weread-overview';
 import { initTax, renderTaxCard } from './widgets/tax';
 import { initMortgage, renderMortgageCard } from './widgets/mortgage';
 import { initBmi, renderBmiCard } from './widgets/bmi';
@@ -238,12 +239,7 @@ async function renderPanel() {
   nmTrigger();
 }
 function getCard(w: WID): string {
-  if (w.id === 'weread') return renderWereadCard();
-  if (w.id === 'readdata') return renderReaddataCard();
-  if (w.id === 'recommend') return renderRecommendCard();
-  if (w.id === 'notes') return renderNotesCard();
-  if (w.id === 'review') return renderReviewCard();
-  if (w.id === 'search') return renderSearchCard();
+  if (w.id === 'weread') return renderWereadOverviewCard();
   if (w.id === 'bookmarks') return renderBookmarksCard();
   if (w.id === 'hot') return renderHotCard();
   if (w.id === 'news') return renderNewsCard();
@@ -270,22 +266,7 @@ async function initW(id: string) {
       initNewsCard();
       break;
     case 'weread':
-      initWeread();
-      break;
-    case 'readdata':
-      initReaddata();
-      break;
-    case 'recommend':
-      initRecommend();
-      break;
-    case 'notes':
-      initNotes();
-      break;
-    case 'review':
-      initReview();
-      break;
-    case 'search':
-      initSearch();
+      initWereadOverview(openWereadModal);
       break;
     case 'bookmarks':
       initBookmarks();
@@ -446,6 +427,50 @@ function openToolkit(tool?: string) {
 document.getElementById('tkClose')!.addEventListener('click', () => tk.classList.remove('open'));
 tk.addEventListener('click', (e) => {
   if (e.target === tk) tk.classList.remove('open');
+});
+
+// ── 微信读书弹窗（6 视图 tab，单 pane 挂载，复用各 widget 的 render/init）──
+const WR_MODAL_TABS = [
+  { id: 'shelf', name: '书架', render: renderWereadCard, init: initWeread },
+  { id: 'readdata', name: '统计', render: renderReaddataCard, init: initReaddata },
+  { id: 'notes', name: '笔记', render: renderNotesCard, init: initNotes },
+  { id: 'review', name: '书评', render: renderReviewCard, init: initReview },
+  { id: 'recommend', name: '推荐', render: renderRecommendCard, init: initRecommend },
+  { id: 'search', name: '搜书', render: renderSearchCard, init: () => { const q = pendingSearchQuery; pendingSearchQuery = ''; void initSearch(q); } },
+];
+const wrModal = document.getElementById('wereadModal')!;
+let wrModalCur = 'shelf';
+function renderWrTabs() {
+  const tabs = document.getElementById('wrModalTabs')!;
+  tabs.innerHTML = WR_MODAL_TABS.map(
+    (t) => `<button class="wm-tab${t.id === wrModalCur ? ' active' : ''}" data-tab="${t.id}">${t.name}</button>`,
+  ).join('');
+  tabs.querySelectorAll('.wm-tab').forEach((b) =>
+    b.addEventListener('click', () => {
+      wrModalCur = (b as HTMLElement).dataset.tab!;
+      renderWrTabs();
+      renderWrPane();
+    }),
+  );
+}
+function renderWrPane() {
+  const t = WR_MODAL_TABS.find((x) => x.id === wrModalCur);
+  const c = document.getElementById('wrModalContent');
+  if (!t || !c) return;
+  c.innerHTML = t.render();
+  t.init();
+}
+let pendingSearchQuery = '';
+function openWereadModal(tab?: string, query?: string) {
+  if (tab) wrModalCur = tab;
+  if (tab === 'search' && query) pendingSearchQuery = query;
+  renderWrTabs();
+  renderWrPane();
+  wrModal.classList.add('open');
+}
+document.getElementById('wrModalClose')!.addEventListener('click', () => wrModal.classList.remove('open'));
+wrModal.addEventListener('click', (e) => {
+  if (e.target === wrModal) wrModal.classList.remove('open');
 });
 
 // ── 全局消息提示（Toast，页面顶部居中）──

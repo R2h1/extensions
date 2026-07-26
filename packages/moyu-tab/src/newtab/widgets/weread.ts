@@ -4,7 +4,7 @@ import { loadWereadKey, renderWereadKeySetup } from './weread-shared';
 const WR_CACHE = 'moyu_weread_shelf_cache';
 const WR_TTL = 30 * 60 * 1000;
 
-interface WRShelfBook {
+export interface WRShelfBook {
   bid: string;
   title: string;
   author: string;
@@ -14,7 +14,7 @@ interface WRShelfBook {
   finished: boolean;
   isTop: boolean;
 }
-interface WRShelfCache {
+export interface WRShelfCache {
   books: WRShelfBook[];
   total: number;
   ts: number;
@@ -37,7 +37,7 @@ export function renderWereadCard(): string {
     </div>`;
 }
 
-function loadCache(): WRShelfCache | null {
+export function loadCache(): WRShelfCache | null {
   try {
     const r = localStorage.getItem(WR_CACHE);
     return r ? JSON.parse(r) : null;
@@ -45,7 +45,7 @@ function loadCache(): WRShelfCache | null {
     return null;
   }
 }
-function saveCache(c: WRShelfCache) {
+export function saveCache(c: WRShelfCache) {
   try {
     localStorage.setItem(WR_CACHE, JSON.stringify(c));
   } catch {}

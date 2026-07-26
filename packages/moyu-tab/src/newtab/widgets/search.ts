@@ -70,17 +70,22 @@ async function doSearch() {
   }
 }
 
-export async function initSearch() {
+export async function initSearch(initialQuery?: string) {
   const list = document.getElementById('searchList');
   const key = await loadWereadKey();
   if (!key) {
-    if (list) renderWereadKeySetup(list, initSearch);
+    if (list) renderWereadKeySetup(list, () => initSearch(initialQuery));
     return;
   }
+  const inp = document.getElementById('searchInput') as HTMLInputElement | null;
   document.getElementById('searchBtn')?.addEventListener('click', doSearch);
-  document.getElementById('searchInput')?.addEventListener('keydown', (e) => {
+  inp?.addEventListener('keydown', (e) => {
     if ((e as KeyboardEvent).key === 'Enter') doSearch();
   });
+  if (initialQuery && inp) {
+    inp.value = initialQuery;
+    doSearch();
+  }
   if (srInited) return;
   srInited = true;
 }

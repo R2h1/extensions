@@ -411,6 +411,23 @@ html.locked .sub-filter{display:none}
 .readdata-section{font-size:11px;color:var(--text-secondary);margin:6px 0 2px;font-weight:500}
 .readdata-cats{display:flex;flex-wrap:wrap;gap:4px;margin-top:6px}
 .readdata-cat{font-size:10px;padding:1px 6px;border-radius:3px;background:var(--glass);color:var(--text-secondary);border:0.5px solid var(--glass-border)}
+/* 微信读书概览卡 */
+.weread-ov-body{display:flex;flex-direction:column;gap:8px}
+.wr-ov-hero{display:flex;align-items:center;gap:6px;padding:7px 9px;border-radius:var(--radius-xs);background:var(--glass);border:0.5px solid var(--glass-border);text-decoration:none;transition:background .15s}
+.wr-ov-hero:hover{background:var(--glass-accent)}
+.wr-ov-label{font-size:10px;color:var(--accent);font-weight:600;flex-shrink:0;background:var(--glass-accent);padding:1px 5px;border-radius:3px}
+.wr-ov-book{font-size:13px;color:var(--text);font-weight:500;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;flex:1}
+.wr-ov-hero:hover .wr-ov-book{color:var(--accent)}
+.wr-ov-author{font-size:10px;color:var(--text-tertiary);flex-shrink:0}
+.wr-ov-chips{display:flex;flex-wrap:wrap;gap:5px}
+.wr-ov-chip{padding:4px 10px;font-size:11px;font-weight:500;border:0.5px solid var(--glass-border);border-radius:var(--radius-xs);background:rgba(255,255,255,.4);color:var(--text-secondary);cursor:pointer;font-family:inherit;transition:all .15s}
+.wr-ov-chip:hover{border-color:var(--accent);color:var(--accent);background:var(--glass-accent)}
+.wr-ov-sec{display:flex;flex-direction:column;gap:2px}
+.wr-ov-sec-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:2px}
+.wr-ov-sec-title{font-size:11px;font-weight:600;color:var(--text-secondary)}
+.wr-ov-more{font-size:10px;color:var(--text-tertiary);background:transparent;border:none;cursor:pointer;font-family:inherit;padding:0;transition:color .15s}
+.wr-ov-more:hover{color:var(--accent)}
+.weread-ov-body .search-box{margin-bottom:0}
 /* 知乎日报卡片 */
 .zhihu-card{padding:12px 14px}
 .zhihu-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;gap:8px}
@@ -684,6 +701,14 @@ html.locked .sub-filter{display:none}
 @keyframes tklocate{0%,30%{box-shadow:0 0 0 2px var(--accent),var(--card-shadow-h)}100%{box-shadow:var(--card-shadow)}}
 .toolkit-card.tk-locate{animation:tklocate .9s ease-out}
 .widget-card.locate{animation:tklocate .9s ease-out}
+/* 微信读书弹窗：剥卡片外壳，tab bar + 单 pane */
+#wereadModal .wm-tabs{padding:8px 16px 0;margin-bottom:0;border-bottom:0.5px solid rgba(0,0,0,0.05)}
+#wereadModal .modal-content{padding:12px 16px 16px}
+#wereadModal .widget-card{background:transparent;box-shadow:none;padding:0}
+#wereadModal .hot-title{display:none}
+#wereadModal .hot-head{justify-content:flex-end;margin-bottom:6px}
+#wrModalContent::-webkit-scrollbar{width:5px}
+#wrModalContent::-webkit-scrollbar-thumb{background:rgba(0,0,0,.12);border-radius:3px}
 
 </style>
 <script src="boot.js"></script>
@@ -744,6 +769,7 @@ html.locked .sub-filter{display:none}
 <div class="mo" id="settingsModal"><div class="ms"><div class="mh"><span class="mt">设置</span><button class="mc" id="smClose">x</button></div><div class="modal-split"><div class="modal-sidebar" id="smSidebar"><button class="msb active" data-s="time">时间</button><button class="msb" data-s="salary">发薪日</button></div><div class="modal-content" id="settingsBody"></div></div></div></div>
 <div class="mo" id="wallpaperModal"><div class="ms" style="max-width:600px"><div class="mh"><span class="mt">更换壁纸</span><button class="mc" id="wpClose">x</button></div><div class="modal-content" id="wpBody" style="padding:16px 20px 20px"></div></div></div>
 <div class="mo" id="toolkitModal"><div class="ms"><div class="mh"><span class="mt" id="tkTitle">实用工具</span><button class="mc" id="tkClose">✕</button></div><div class="modal-content" id="tkContent"></div></div></div>
+<div class="mo" id="wereadModal"><div class="ms" style="max-width:560px"><div class="mh"><span class="mt">微信读书</span><button class="mc" id="wrModalClose">✕</button></div><div class="wm-tabs" id="wrModalTabs"></div><div class="modal-content" id="wrModalContent"></div></div></div>
 <div class="cal-popover" id="calPopover">
   <div class="widget-card cal-card">
     <div class="cal-head">

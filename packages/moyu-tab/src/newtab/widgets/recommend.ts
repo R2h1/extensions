@@ -4,7 +4,7 @@ import { loadWereadKey, renderWereadKeySetup } from './weread-shared';
 const RC_CACHE = 'moyu_weread_recommend_cache';
 const RC_TTL = 30 * 60 * 1000;
 
-interface RCBook {
+export interface RCBook {
   bid: string;
   title: string;
   author: string;
@@ -12,7 +12,7 @@ interface RCBook {
   reason: string;
   deepLink: string;
 }
-interface RCCache {
+export interface RCCache {
   books: RCBook[];
   ts: number;
 }
@@ -34,7 +34,7 @@ export function renderRecommendCard(): string {
     </div>`;
 }
 
-function loadCache(): RCCache | null {
+export function loadCache(): RCCache | null {
   try {
     const r = localStorage.getItem(RC_CACHE);
     return r ? JSON.parse(r) : null;
@@ -42,7 +42,7 @@ function loadCache(): RCCache | null {
     return null;
   }
 }
-function saveCache(c: RCCache) {
+export function saveCache(c: RCCache) {
   try {
     localStorage.setItem(RC_CACHE, JSON.stringify(c));
   } catch {}
