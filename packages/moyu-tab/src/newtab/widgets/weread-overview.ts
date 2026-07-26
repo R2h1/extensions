@@ -8,9 +8,8 @@ import { loadCache as loadRC, saveCache as saveRC, type RCBook } from './recomme
 const OV_TTL = 60 * 60 * 1000;
 
 const CHIPS = [
-  { id: 'shelf', name: '书架' },
-  { id: 'notes', name: '笔记' },
-  { id: 'review', name: '书评' },
+  { id: 'shelf', name: '我的书架' },
+  { id: 'notes', name: '我的笔记' },
 ];
 
 let ovLoading = false;
@@ -59,7 +58,7 @@ function renderHero(books: WRShelfBook[]): string {
   const author = cur.author ? `<span class="wr-ov-author">· ${esc(cur.author)}</span>` : '';
   const tag = cur.finished ? '<span class="weread-tag done">读完</span>' : '';
   const href = cur.deepLink ? ` href="${esc(cur.deepLink)}" target="_blank" rel="noopener"` : '';
-  return `<a class="wr-ov-hero"${href}><span class="wr-ov-label">${label}</span><span class="wr-ov-book">《${esc(cur.title)}》</span>${author}${tag}</a>`;
+  return `<div class="wr-ov-hero"><a class="wr-ov-hero-link"${href}><span class="wr-ov-label">${label}</span><span class="wr-ov-book">《${esc(cur.title)}》</span>${author}${tag}</a><button class="wr-ov-review-btn" data-tab="review" type="button" title="这本书的书评">书评</button></div>`;
 }
 
 function renderRecommend(books: RCBook[]): string {

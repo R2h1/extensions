@@ -287,7 +287,7 @@ export const watchlistTab: MarketTab = {
         <span class="market-subtitle">自选</span>
         <button class="wl-add-btn" id="wlAddBtn">+ 添加</button>
       </div>
-      <div class="mkt-grid" id="${GRID_ID}"><div class="mkt-empty">加载中…</div></div>
+      <div class="mkt-grid mkt-grid-5" id="${GRID_ID}"><div class="mkt-empty">加载中…</div></div>
     </section>`,
   init: async () => {
     await migrate();

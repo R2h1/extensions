@@ -8,6 +8,7 @@ export interface RCBook {
   bid: string;
   title: string;
   author: string;
+  cover: string;
   rating: number;
   reason: string;
   deepLink: string;
@@ -73,17 +74,20 @@ async function renderRC(error?: string) {
     return;
   }
   list.onclick = null;
-  list.innerHTML = c.books
-    .map((b, i) => {
-      const rank = i + 1;
-      const top = rank <= 3 ? ' top' : '';
-      const author = b.author ? ` <span class="weread-author">· ${esc(b.author)}</span>` : '';
+  list.innerHTML = `<div class="wr-rec-grid">${c.books
+    .map((b) => {
       const rating = fmtRating(b.rating);
-      const num = rating ? `<span class="hot-num">${rating}</span>` : '';
+      const ratingStr = rating ? `<span class="wr-rec-rating">★ ${rating}</span>` : '';
+      const cover = b.cover
+        ? `<img src="${esc(b.cover)}" alt="" loading="lazy" referrerpolicy="no-referrer"/>`
+        : `<div class="wr-rec-cover-ph">📖</div>`;
+      const author = b.author
+        ? `<span class="wr-rec-author">${esc(b.author)}</span>`
+        : '<span></span>';
       const reason = b.reason ? ` title="${esc(b.reason)}"` : '';
-      return `<a class="hot-row" href="${esc(b.deepLink)}" target="_blank" rel="noopener"${reason}><span class="hot-rank${top}">${rank}</span><span class="hot-title">${esc(b.title)}${author}</span>${num}</a>`;
+      return `<a class="wr-rec-item" href="${esc(b.deepLink)}" target="_blank" rel="noopener"${reason}><div class="wr-rec-cover">${cover}</div><div class="wr-rec-title">${esc(b.title)}</div><div class="wr-rec-meta">${author}${ratingStr}</div></a>`;
     })
-    .join('');
+    .join('')}</div>`;
   if (upd) upd.textContent = fmtTime(c.ts);
 }
 

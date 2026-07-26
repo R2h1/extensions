@@ -821,6 +821,7 @@ interface WereadRecommendBook {
   bid: string;
   title: string;
   author: string;
+  cover: string;
   rating: number;
   reason: string;
   deepLink: string;
@@ -859,6 +860,7 @@ async function handleWereadRecommendFetch(apiKey: string): Promise<WereadRecomme
           bid,
           title: String(info.title ?? b.title ?? ''),
           author: String(info.author ?? b.author ?? ''),
+          cover: String(info.cover ?? b.cover ?? ''),
           rating: Number(info.newRating ?? b.newRating ?? 0),
           reason: String(b.reason ?? info.reason ?? ''),
           deepLink: dl || wereadBookUrl(bid),
@@ -869,7 +871,7 @@ async function handleWereadRecommendFetch(apiKey: string): Promise<WereadRecomme
     // recommend 接口不返回 deepLink，逐本调 /book/info 补 book-detail 链接（并发，失败保留兜底）
     const enriched = await Promise.all(
       books.map(async (b) => {
-        if (b.deepLink && b.deepLink !== wereadBookUrl(b.bid)) return b;
+        if (b.deepLink && b.deepLink !== wereadBookUrl(b.bid) && b.cover) return b;
         try {
           const r = await fetch('https://i.weread.qq.com/api/agent/gateway', {
             method: 'POST',
@@ -881,7 +883,8 @@ async function handleWereadRecommendFetch(apiKey: string): Promise<WereadRecomme
             const ji = await r.json();
             if (!ji?.errcode || ji.errcode === 0) {
               const dl = String(ji?.deepLink ?? '');
-              if (dl) return { ...b, deepLink: dl };
+              const cover = String(ji?.cover ?? '');
+              if (dl || cover) return { ...b, deepLink: dl || b.deepLink, cover: cover || b.cover };
             }
           }
         } catch {}

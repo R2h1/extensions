@@ -3,7 +3,6 @@ import 'aplayer/dist/APlayer.min.css';
 import { renderMarketCard, initMarket } from './widgets/market';
 import { initHoliday } from './widgets/holiday';
 import { initWeread, renderWereadCard } from './widgets/weread';
-import { initReaddata, renderReaddataCard } from './widgets/readdata';
 import { initRecommend, renderRecommendCard } from './widgets/recommend';
 import { initNotes, renderNotesCard } from './widgets/notes';
 import { initReview, renderReviewCard } from './widgets/review';
@@ -429,42 +428,34 @@ tk.addEventListener('click', (e) => {
   if (e.target === tk) tk.classList.remove('open');
 });
 
-// ── 微信读书弹窗（6 视图 tab，单 pane 挂载，复用各 widget 的 render/init）──
-const WR_MODAL_TABS = [
-  { id: 'shelf', name: '书架', render: renderWereadCard, init: initWeread },
-  { id: 'readdata', name: '统计', render: renderReaddataCard, init: initReaddata },
-  { id: 'notes', name: '笔记', render: renderNotesCard, init: initNotes },
+// ── 微信读书弹窗（单视图：点什么看什么，无 tab 切换，复用各 widget 的 render/init）──
+const WR_VIEWS = [
+  { id: 'shelf', name: '我的书架', render: renderWereadCard, init: initWeread },
+  { id: 'notes', name: '我的笔记', render: renderNotesCard, init: initNotes },
   { id: 'review', name: '书评', render: renderReviewCard, init: initReview },
   { id: 'recommend', name: '推荐', render: renderRecommendCard, init: initRecommend },
   { id: 'search', name: '搜书', render: renderSearchCard, init: () => { const q = pendingSearchQuery; pendingSearchQuery = ''; void initSearch(q); } },
 ];
 const wrModal = document.getElementById('wereadModal')!;
 let wrModalCur = 'shelf';
-function renderWrTabs() {
-  const tabs = document.getElementById('wrModalTabs')!;
-  tabs.innerHTML = WR_MODAL_TABS.map(
-    (t) => `<button class="wm-tab${t.id === wrModalCur ? ' active' : ''}" data-tab="${t.id}">${t.name}</button>`,
-  ).join('');
-  tabs.querySelectorAll('.wm-tab').forEach((b) =>
-    b.addEventListener('click', () => {
-      wrModalCur = (b as HTMLElement).dataset.tab!;
-      renderWrTabs();
-      renderWrPane();
-    }),
-  );
-}
-function renderWrPane() {
-  const t = WR_MODAL_TABS.find((x) => x.id === wrModalCur);
-  const c = document.getElementById('wrModalContent');
-  if (!t || !c) return;
-  c.innerHTML = t.render();
-  t.init();
-}
 let pendingSearchQuery = '';
+function renderWrPane() {
+  const v = WR_VIEWS.find((x) => x.id === wrModalCur);
+  const c = document.getElementById('wrModalContent');
+  const title = document.getElementById('wrModalTitle');
+  const mh = document.querySelector('#wereadModal .mh');
+  if (!v || !c) return;
+  if (title) title.textContent = v.name;
+  mh?.querySelector('.hot-swap')?.remove();
+  c.innerHTML = v.render();
+  v.init();
+  // 把刷新按钮移到标题后面（更新时间留在卡片内不展示）
+  const swap = c.querySelector('.hot-swap');
+  if (swap && title?.parentNode) title.parentNode.insertBefore(swap, title.nextSibling);
+}
 function openWereadModal(tab?: string, query?: string) {
   if (tab) wrModalCur = tab;
   if (tab === 'search' && query) pendingSearchQuery = query;
-  renderWrTabs();
   renderWrPane();
   wrModal.classList.add('open');
 }
