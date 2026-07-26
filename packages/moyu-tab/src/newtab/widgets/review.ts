@@ -79,10 +79,10 @@ async function renderRV(error?: string) {
   const cover = c.bookCover
     ? `<img src="${esc(c.bookCover)}" alt="" loading="lazy" referrerpolicy="no-referrer"/>`
     : '<div class="wr-rec-cover-ph">📖</div>';
-  const titleHtml = c.bookDeepLink
-    ? `<a class="wr-rv-title" href="${esc(c.bookDeepLink)}" target="_blank" rel="noopener">《${esc(c.bookTitle)}》</a>`
-    : `<div class="wr-rv-title">《${esc(c.bookTitle)}》</div>`;
-  const head = `<div class="wr-rv-book"><div class="wr-rec-cover wr-rv-cover">${cover}</div><div class="wr-rv-info">${titleHtml}<div class="wr-rv-meta">${c.total} 条书评</div></div></div>`;
+  const openLink = c.bookDeepLink
+    ? `<a class="wr-notes-open" href="${esc(c.bookDeepLink)}" target="_blank" rel="noopener">在微信读书打开 ↗</a>`
+    : '';
+  const head = `<div class="wr-rv-book"><div class="wr-rec-cover wr-rv-cover">${cover}</div><div class="wr-rv-info"><div class="wr-rv-title">《${esc(c.bookTitle)}》</div>${openLink}<div class="wr-rv-meta">${c.total} 条书评</div></div></div>`;
   const rows = c.reviews
     .map((r) => {
       const star = fmtStar(r.star);

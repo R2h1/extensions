@@ -91,11 +91,94 @@ async function renderNB(error?: string) {
         ? `<span class="wr-rec-author">${esc(b.author)}</span>`
         : '<span></span>';
       const num = b.noteCount ? `<span class="wr-rec-rating">${b.noteCount}条</span>` : '';
-      return `<a class="wr-rec-item" href="${esc(b.deepLink)}" target="_blank" rel="noopener"><div class="wr-rec-cover">${cover}${badge}</div><div class="wr-rec-title">${esc(b.title)}</div><div class="wr-rec-meta">${author}${num}</div></a>`;
+      return `<a class="wr-rec-item" href="${esc(b.deepLink)}" target="_blank" rel="noopener" data-bid="${esc(b.bid)}" title="查看笔记详情"><div class="wr-rec-cover">${cover}${badge}</div><div class="wr-rec-title">${esc(b.title)}</div><div class="wr-rec-meta">${author}${num}</div></a>`;
     })
     .join('');
   list.innerHTML = `<div class="weread-total">${c.totalBooks} 本 · ${c.totalNotes} 条笔记</div><div class="wr-rec-grid">${items}</div>`;
   if (upd) upd.textContent = fmtTime(c.ts);
+  list.onclick = (e) => {
+    const item = (e.target as HTMLElement).closest('.wr-rec-item') as HTMLElement | null;
+    if (!item) return;
+    e.preventDefault();
+    const b = books.find((x) => x.bid === item.dataset.bid);
+    if (b) openBookNotes(b);
+  };
+}
+
+interface NBNoteContent {
+  highlights: { markText: string; chapterUid: number; createTime: number }[];
+  thoughts: {
+    content: string;
+    abstract: string;
+    chapterUid: number;
+    chapterName: string;
+    createTime: number;
+    star: number;
+  }[];
+  chapters: { chapterUid: number; title: string }[];
+}
+
+/** 下钻：单本书的笔记内容（划线 + 想法/点评，按章节分组） */
+async function openBookNotes(b: NBBook) {
+  const list = document.getElementById('notesList');
+  if (!list) return;
+  list.onclick = null;
+  list.innerHTML = '<div class="hot-empty">加载中…</div>';
+  const key = await loadWereadKey();
+  if (!key) {
+    renderWereadKeySetup(list, () => openBookNotes(b));
+    return;
+  }
+  try {
+    const res = (await chrome.runtime.sendMessage({
+      type: 'WEREAD_NOTES_CONTENT_FETCH',
+      apiKey: key,
+      bookId: b.bid,
+    })) as { success: boolean; data?: NBNoteContent; error?: string } | undefined;
+    if (res?.success && res.data) {
+      renderNotesContent(list, b, res.data);
+    } else {
+      list.innerHTML = `<div class="hot-empty">${
+        res?.error === 'invalid_key' ? 'API Key 无效' : '暂无笔记内容'
+      }</div>`;
+    }
+  } catch {
+    list.innerHTML = '<div class="hot-empty">加载失败 · 点击重试</div>';
+    list.onclick = () => openBookNotes(b);
+  }
+}
+
+function renderNotesContent(list: HTMLElement, b: NBBook, d: NBNoteContent) {
+  const chMap = new Map<number, string>();
+  d.chapters.forEach((c) => chMap.set(c.chapterUid, c.title));
+  const uids = new Set<number>();
+  d.highlights.forEach((h) => uids.add(h.chapterUid));
+  d.thoughts.forEach((t) => uids.add(t.chapterUid));
+  const sections = [...uids]
+    .sort((a, b2) => a - b2)
+    .map((uid) => {
+      const title = chMap.get(uid) || (uid ? '第 ' + uid + ' 节' : '未分组');
+      const hs = d.highlights.filter((h) => h.chapterUid === uid);
+      const ts = d.thoughts.filter((t) => t.chapterUid === uid);
+      const hHtml = hs
+        .map((h) => `<div class="wr-note-hl">${esc(h.markText)}</div>`)
+        .join('');
+      const tHtml = ts
+        .map((t) => {
+          const abs = t.abstract ? `<div class="wr-note-abs">${esc(t.abstract)}</div>` : '';
+          return `<div class="wr-note-th">${abs}<div class="wr-note-th-content">${esc(t.content)}</div></div>`;
+        })
+        .join('');
+      return `<div class="wr-note-chap"><div class="wr-note-chap-title">${esc(title)}</div>${hHtml}${tHtml}</div>`;
+    })
+    .join('');
+  const cover = b.cover
+    ? `<img src="${esc(b.cover)}" alt="" loading="lazy" referrerpolicy="no-referrer"/>`
+    : '<div class="wr-rec-cover-ph">📖</div>';
+  list.innerHTML = `<button class="wr-notes-back" type="button" id="notesBack">‹ 返回</button>
+      <div class="wr-notes-head"><div class="wr-rec-cover wr-notes-cover">${cover}</div><div class="wr-notes-info"><div class="wr-notes-title">《${esc(b.title)}》</div><a class="wr-notes-open" href="${esc(b.deepLink)}" target="_blank" rel="noopener">在微信读书打开 ↗</a></div></div>
+      <div class="wr-notes-body">${sections || '<div class="hot-empty">暂无笔记内容</div>'}</div>`;
+  document.getElementById('notesBack')?.addEventListener('click', () => renderNB());
 }
 
 async function refreshNB() {

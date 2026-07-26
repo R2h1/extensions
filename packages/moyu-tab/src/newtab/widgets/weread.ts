@@ -88,7 +88,7 @@ async function renderWR(error?: string) {
       const author = b.author
         ? `<span class="wr-rec-author">${esc(b.author)}</span>`
         : '<span></span>';
-      return `<a class="wr-rec-item" href="${esc(b.deepLink)}" target="_blank" rel="noopener"><div class="wr-rec-cover">${cover}${badge}</div><div class="wr-rec-title">${esc(b.title)}</div><div class="wr-rec-meta">${author}</div></a>`;
+      return `<a class="wr-rec-item" href="${esc(b.deepLink)}" target="_blank" rel="noopener" title="在微信读书打开"><div class="wr-rec-cover">${cover}${badge}</div><div class="wr-rec-title">${esc(b.title)}</div><div class="wr-rec-meta">${author}</div></a>`;
     })
     .join('');
   body.innerHTML = `<div class="weread-total">书架 ${c.total} 个条目 · 最近在读</div><div class="wr-rec-grid">${items}</div>`;

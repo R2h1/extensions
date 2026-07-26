@@ -976,6 +976,102 @@ async function handleWereadNotesFetch(apiKey: string): Promise<WereadNotesRespon
   }
 }
 
+// ─── Weread Notes Content (单本笔记内容) ────────────────
+
+interface WereadNotesContent {
+  highlights: { markText: string; chapterUid: number; createTime: number }[];
+  thoughts: {
+    content: string;
+    abstract: string;
+    chapterUid: number;
+    chapterName: string;
+    createTime: number;
+    star: number;
+  }[];
+  chapters: { chapterUid: number; title: string }[];
+}
+interface WereadNotesContentResponse {
+  success: boolean;
+  data?: WereadNotesContent;
+  error?: string;
+}
+
+/** 微信读书单本笔记内容：/book/bookmarklist（划线）+ /review/list/mine（想法/点评）合并。需 API Key。 */
+async function handleWereadNotesContentFetch(
+  apiKey: string,
+  bookId: string,
+): Promise<WereadNotesContentResponse> {
+  if (!apiKey) return { success: false, error: 'no_key' };
+  if (!bookId) return { success: false, error: 'no_bookid' };
+  const ctrl = new AbortController();
+  const to = setTimeout(() => ctrl.abort(), 12000);
+  const headers = { Authorization: 'Bearer ' + apiKey, 'Content-Type': 'application/json' };
+  const url = 'https://i.weread.qq.com/api/agent/gateway';
+  try {
+    const [bmRes, rvRes] = await Promise.all([
+      fetch(url, {
+        method: 'POST',
+        headers,
+        body: JSON.stringify({ api_name: '/book/bookmarklist', bookId, skill_version: '1.0.4' }),
+        cache: 'no-store',
+        signal: ctrl.signal,
+      }),
+      fetch(url, {
+        method: 'POST',
+        headers,
+        body: JSON.stringify({
+          api_name: '/review/list/mine',
+          bookid: bookId,
+          count: 50,
+          skill_version: '1.0.4',
+        }),
+        cache: 'no-store',
+        signal: ctrl.signal,
+      }),
+    ]);
+    if (bmRes.status === 401 || rvRes.status === 401) return { success: false, error: 'invalid_key' };
+    const bm = bmRes.ok ? await bmRes.json() : {};
+    const rv = rvRes.ok ? await rvRes.json() : {};
+    if ((bm?.errcode && bm.errcode !== 0) || (rv?.errcode && rv.errcode !== 0))
+      return { success: false, error: String(bm?.errmsg || rv?.errmsg || bm?.errcode || rv?.errcode) };
+    const highlights = ((bm?.updated ?? []) as unknown[])
+      .map((it) => {
+        const b = it as Record<string, unknown>;
+        return {
+          markText: String(b.markText ?? ''),
+          chapterUid: Number(b.chapterUid ?? 0),
+          createTime: Number(b.createTime ?? 0),
+        };
+      })
+      .filter((h) => h.markText);
+    const thoughts = ((rv?.reviews ?? []) as unknown[])
+      .map((it) => {
+        const r = ((it as { review?: Record<string, unknown> })?.review) ?? {};
+        return {
+          content: String(r.content ?? ''),
+          abstract: String(r.abstract ?? ''),
+          chapterUid: Number(r.chapterUid ?? 0),
+          chapterName: String(r.chapterName ?? ''),
+          createTime: Number(r.createTime ?? 0),
+          star: Number(r.star ?? 0),
+        };
+      })
+      .filter((t) => t.content);
+    const chapters = ((bm?.chapters ?? []) as unknown[])
+      .map((it) => {
+        const c = it as Record<string, unknown>;
+        return { chapterUid: Number(c.chapterUid ?? 0), title: String(c.title ?? '') };
+      })
+      .filter((c) => c.title);
+    if (!highlights.length && !thoughts.length) return { success: false, error: 'empty' };
+    return { success: true, data: { highlights, thoughts, chapters } };
+  } catch (e) {
+    return { success: false, error: e instanceof Error ? e.message : String(e) };
+  } finally {
+    clearTimeout(to);
+  }
+}
+
 // ─── Weread Review (书评) ───────────────────────────────
 
 interface WereadReviewItem {
@@ -1278,6 +1374,9 @@ chrome.runtime.onMessage.addListener((message: { type: string }, _sender, sendRe
     handleWereadNotesFetch((message as unknown as { apiKey?: string }).apiKey ?? '').then(
       sendResponse,
     );
+  } else if (message?.type === 'WEREAD_NOTES_CONTENT_FETCH') {
+    const m = message as unknown as { apiKey?: string; bookId?: string };
+    handleWereadNotesContentFetch(m.apiKey ?? '', m.bookId ?? '').then(sendResponse);
   } else if (message?.type === 'WEREAD_REVIEW_FETCH') {
     handleWereadReviewFetch((message as unknown as { apiKey?: string }).apiKey ?? '').then(
       sendResponse,
