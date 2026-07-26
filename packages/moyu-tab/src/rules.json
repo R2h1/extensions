@@ -27,5 +27,19 @@
       "urlFilter": "api.juejin.cn",
       "resourceTypes": ["xmlhttprequest", "other"]
     }
+  },
+  {
+    "id": 3,
+    "priority": 1,
+    "action": {
+      "type": "modifyHeaders",
+      "requestHeaders": [
+        { "header": "Referer", "operation": "set", "value": "https://fund.eastmoney.com/" }
+      ]
+    },
+    "condition": {
+      "urlFilter": "fundgz.1234567.com.cn",
+      "resourceTypes": ["xmlhttprequest", "other"]
+    }
   }
 ]

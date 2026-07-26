@@ -86,7 +86,7 @@ function fmtPct(pct: number): string {
   return `${sign}${pct.toFixed(2)}%`;
 }
 function renderTile(item: WatchItem, cache: WLCache | null, error: boolean): string {
-  const del = `<button class="mkt-del" data-type="${item.type}" data-code="${esc(item.code)}" title="删除">×</button>`;
+  const del = `<button class="mkt-del" data-type="${item.type}" data-code="${esc(item.code)}" title="移除"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><line x1="6" y1="6" x2="18" y2="18"/><line x1="18" y1="6" x2="6" y2="18"/></svg></button>`;
   if (item.type === 'stock') {
     const q = cache?.stock?.[item.code];
     if (q) {
@@ -115,6 +115,32 @@ function renderTile(item: WatchItem, cache: WLCache | null, error: boolean): str
     <div class="mkt-chg flat">${error ? '⚠ 失败' : '加载中'}</div>
   </div>`;
 }
+function confirmRemove(name: string): Promise<boolean> {
+  return new Promise((resolve) => {
+    const overlay = document.createElement('div');
+    overlay.className = 'mo open';
+    overlay.innerHTML = `<div class="ms" style="max-width:300px">
+      <div class="mh"><span class="mt">移除自选</span></div>
+      <div class="modal-content" style="padding:16px 20px 20px">
+        <div style="font-size:13px;color:var(--text);margin-bottom:16px;line-height:1.5">确定移除「${esc(name)}」?</div>
+        <div style="display:flex;gap:8px">
+          <button data-act="cancel" style="flex:1;padding:8px;font-size:13px;border:none;border-radius:var(--radius-xs);background:rgba(0,0,0,0.05);color:var(--text-secondary);cursor:pointer;font-family:inherit">取消</button>
+          <button data-act="ok" style="flex:1;padding:8px;font-size:13px;border:none;border-radius:var(--radius-xs);background:#dc2626;color:#fff;cursor:pointer;font-family:inherit;font-weight:600">移除</button>
+        </div>
+      </div>
+    </div>`;
+    document.body.appendChild(overlay);
+    const done = (ok: boolean) => {
+      overlay.remove();
+      resolve(ok);
+    };
+    overlay.querySelector('[data-act=cancel]')!.addEventListener('click', () => done(false));
+    overlay.querySelector('[data-act=ok]')!.addEventListener('click', () => done(true));
+    overlay.addEventListener('click', (e) => {
+      if (e.target === overlay) done(false);
+    });
+  });
+}
 function paint(error: boolean) {
   const grid = document.getElementById(GRID_ID);
   if (!grid) return;
@@ -130,6 +156,9 @@ function paint(error: boolean) {
       const el = b as HTMLElement;
       const code = el.dataset.code!,
         type = el.dataset.type as WType;
+      const c0 = loadCache();
+      const q0 = type === 'stock' ? c0?.stock?.[code] : c0?.fund?.[code];
+      if (!(await confirmRemove(q0?.name || code))) return;
       items = items.filter((x) => !(x.code === code && x.type === type));
       await setItems(items);
       const c = loadCache();
@@ -189,40 +218,77 @@ async function refresh() {
     paint(true);
   }
 }
+function promptAdd(): Promise<string | null> {
+  return new Promise((resolve) => {
+    const overlay = document.createElement('div');
+    overlay.className = 'mo open';
+    overlay.innerHTML = `<div class="ms" style="max-width:300px">
+      <div class="mh"><span class="mt">添加自选</span></div>
+      <div class="modal-content" style="padding:16px 20px 20px">
+        <input data-act="input" placeholder="股票 sh600519 / 基金 001186" style="width:100%;padding:8px 10px;font-size:13px;border:none;border-radius:var(--radius-xs);background:rgba(0,0,0,0.05);color:var(--text);outline:none;font-family:inherit;box-sizing:border-box" />
+        <div data-act="err" style="font-size:11px;color:#dc2626;margin-top:6px;min-height:14px;line-height:1.4"></div>
+        <div style="display:flex;gap:8px;margin-top:8px">
+          <button data-act="cancel" style="flex:1;padding:8px;font-size:13px;border:none;border-radius:var(--radius-xs);background:rgba(0,0,0,0.05);color:var(--text-secondary);cursor:pointer;font-family:inherit">取消</button>
+          <button data-act="ok" style="flex:1;padding:8px;font-size:13px;border:none;border-radius:var(--radius-xs);background:var(--accent);color:#fff;cursor:pointer;font-family:inherit;font-weight:600">添加</button>
+        </div>
+      </div>
+    </div>`;
+    document.body.appendChild(overlay);
+    const input = overlay.querySelector('[data-act=input]') as HTMLInputElement;
+    const errEl = overlay.querySelector('[data-act=err]') as HTMLElement;
+    input.focus();
+    const done = (val: string | null) => {
+      overlay.remove();
+      resolve(val);
+    };
+    const submit = () => {
+      const code = input.value.trim();
+      if (!code) {
+        errEl.textContent = '请输入代码';
+        return;
+      }
+      if (!/^(sh|sz|bj)\d{6}$/.test(code) && !/^\d{5,6}$/.test(code)) {
+        errEl.textContent = '格式不对：股票 sh/sz/bj+6位，基金 5-6位数字';
+        return;
+      }
+      done(code);
+    };
+    overlay.querySelector('[data-act=cancel]')!.addEventListener('click', () => done(null));
+    overlay.querySelector('[data-act=ok]')!.addEventListener('click', submit);
+    input.addEventListener('keydown', (e) => {
+      const k = (e as KeyboardEvent).key;
+      if (k === 'Enter') submit();
+      else if (k === 'Escape') done(null);
+    });
+    overlay.addEventListener('click', (e) => {
+      if (e.target === overlay) done(null);
+    });
+  });
+}
 async function add() {
-  const input = document.getElementById('wlInput') as HTMLInputElement | null;
-  if (!input) return;
-  const code = input.value.trim();
-  let type: WType | null = null;
-  if (/^(sh|sz|bj)\d{6}$/.test(code)) type = 'stock';
-  else if (/^\d{5,6}$/.test(code)) type = 'fund';
-  if (!type) {
-    input.classList.add('err');
-    setTimeout(() => input.classList.remove('err'), 600);
-    return;
-  }
-  if (items.some((x) => x.code === code && x.type === type)) {
-    input.value = '';
-    return;
-  }
+  const code = await promptAdd();
+  if (!code) return;
+  const type: WType = /^(sh|sz|bj)\d{6}$/.test(code) ? 'stock' : 'fund';
+  if (items.some((x) => x.code === code && x.type === type)) return;
   items = [...items, { type, code }];
   await setItems(items);
-  input.value = '';
   paint(false);
   refresh();
 }
 function bind() {
-  document.getElementById('wlAdd')?.addEventListener('click', add);
-  document.getElementById('wlInput')?.addEventListener('keydown', (e) => {
-    if ((e as KeyboardEvent).key === 'Enter') add();
-  });
+  document.getElementById('wlAddBtn')?.addEventListener('click', add);
 }
 export const watchlistTab: MarketTab = {
   id: 'watchlist',
   name: '自选',
   render: () =>
-    `<div class="mkt-grid" id="${GRID_ID}"><div class="mkt-empty">加载中…</div></div>` +
-    `<div class="wl-add"><input id="wlInput" placeholder="股票 sh600519 / 基金 001186" /><button id="wlAdd">+</button></div>`,
+    `<section class="market-section">
+      <div class="market-subtitle-row">
+        <span class="market-subtitle">自选</span>
+        <button class="wl-add-btn" id="wlAddBtn">+ 添加</button>
+      </div>
+      <div class="mkt-grid" id="${GRID_ID}"><div class="mkt-empty">加载中…</div></div>
+    </section>`,
   init: async () => {
     await migrate();
     paint(false);

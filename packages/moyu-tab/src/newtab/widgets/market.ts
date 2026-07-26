@@ -1,5 +1,4 @@
-/** 行情卡编排器：Tab 栏 / 切换 / 统一刷新节奏。各 Tab 实现 MarketTab 接口。 */
-import { goldTab } from './gold';
+/** 行情卡编排器：A股/行业/全球 tab 切换 + 自选常驻，统一刷新节奏。各分区实现 MarketTab 接口。 */
 import { stockTab, globalTab } from './quotes';
 import { sectorTab } from './sectors';
 import { watchlistTab } from './watchlist';
@@ -12,35 +11,39 @@ export interface MarketTab {
   refresh(): Promise<void>;
 }
 
-const TABS: MarketTab[] = [stockTab, sectorTab, globalTab, goldTab, watchlistTab];
+const TABS: MarketTab[] = [stockTab, sectorTab, globalTab];
 const TAB_KEY = 'moyu_market_tab';
 const REFRESH_MS = 60000;
 
 let activeId = TABS[0].id;
-const lastRefresh: Record<string, number> = {};
+let lastRefresh = 0;
 let cadenceStarted = false;
 
 export function renderMarketCard(): string {
   return `<div class="widget-card market-card">
       <div class="market-head">
-        <div class="market-title">◆ 行情</div>
-        <div class="market-tabs" id="marketTabs"></div>
+        <div class="market-title"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="7" y1="4" x2="7" y2="20"/><rect x="5" y="8" width="4" height="6" rx="1"/><line x1="17" y1="4" x2="17" y2="20"/><rect x="15" y="11" width="4" height="5" rx="1"/></svg>行情</div>
         <button class="market-refresh" id="marketRefresh" title="刷新">↻</button>
       </div>
+      <div class="market-tabs" id="marketTabs"></div>
       <div class="market-body" id="marketBody"></div>
+      ${watchlistTab.render()}
     </div>`;
+}
+
+function activeTab(): MarketTab {
+  return TABS.find((t) => t.id === activeId) ?? TABS[0];
 }
 
 function renderTabs() {
   const bar = document.getElementById('marketTabs');
   if (!bar) return;
   bar.innerHTML = TABS.map(
-    (t) =>
-      `<button class="market-tab${t.id === activeId ? ' active' : ''}" data-tab="${t.id}">${t.name}</button>`,
+    (t) => `<button class="market-tab${t.id === activeId ? ' active' : ''}" data-tab="${t.id}">${t.name}</button>`,
   ).join('');
-  bar
-    .querySelectorAll('.market-tab')
-    .forEach((b) => b.addEventListener('click', () => switchTab((b as HTMLElement).dataset.tab!)));
+  bar.querySelectorAll('.market-tab').forEach((b) =>
+    b.addEventListener('click', () => switchTab((b as HTMLElement).dataset.tab!)),
+  );
 }
 
 async function switchTab(id: string) {
@@ -52,19 +55,15 @@ async function switchTab(id: string) {
   const body = document.getElementById('marketBody');
   if (body) body.innerHTML = tab.render();
   await tab.init();
-  if (!lastRefresh[id] || Date.now() - lastRefresh[id] > REFRESH_MS) {
-    void refreshMarket();
-  }
+  void refreshMarket();
 }
 
 export async function refreshMarket() {
-  const tab = TABS.find((t) => t.id === activeId);
-  if (!tab) return;
   const btn = document.getElementById('marketRefresh');
   btn?.classList.add('spin');
   try {
-    await tab.refresh();
-    lastRefresh[activeId] = Date.now();
+    await Promise.all([activeTab().refresh(), watchlistTab.refresh()]);
+    lastRefresh = Date.now();
   } finally {
     btn?.classList.remove('spin');
   }
@@ -72,7 +71,7 @@ export async function refreshMarket() {
 
 function onVis() {
   if (document.visibilityState !== 'visible') return;
-  if (!lastRefresh[activeId] || Date.now() - lastRefresh[activeId] > REFRESH_MS) {
+  if (!lastRefresh || Date.now() - lastRefresh > REFRESH_MS) {
     void refreshMarket();
   }
 }
@@ -81,8 +80,12 @@ export async function initMarket() {
   const saved = localStorage.getItem(TAB_KEY);
   if (saved && TABS.some((t) => t.id === saved)) activeId = saved;
   renderTabs();
+  const tab = activeTab();
+  const body = document.getElementById('marketBody');
+  if (body) body.innerHTML = tab.render();
+  await Promise.all([tab.init(), watchlistTab.init()]);
   document.getElementById('marketRefresh')?.addEventListener('click', refreshMarket);
-  await switchTab(activeId);
+  void refreshMarket();
   if (!cadenceStarted) {
     cadenceStarted = true;
     setInterval(() => {

@@ -123,39 +123,6 @@ async function showNotification(title: string, message: string) {
   }
 }
 
-// ─── Gold Price ────────────────────────────────────────
-
-interface GoldPrice {
-  ounce: string;
-  gram: string;
-  tola: string;
-}
-interface GoldResponse {
-  success: boolean;
-  data?: { cny: GoldPrice; usd: GoldPrice };
-  error?: string;
-}
-const GOLD_API = 'https://goldprice.today/api.php?data=live';
-
-/** 抓取实时金价。接口无 CORS 头，凭 host_permissions 在 SW 内绕过跨域。 */
-async function handleGoldFetch(): Promise<GoldResponse> {
-  const ctrl = new AbortController();
-  const to = setTimeout(() => ctrl.abort(), 12000);
-  try {
-    const res = await fetch(GOLD_API, { cache: 'no-store', signal: ctrl.signal });
-    if (!res.ok) return { success: false, error: 'HTTP ' + res.status };
-    const data = await res.json();
-    const cny = data?.CNY as GoldPrice | undefined;
-    const usd = data?.USD as GoldPrice | undefined;
-    if (!cny?.gram || !usd?.ounce) return { success: false, error: 'bad data' };
-    return { success: true, data: { cny, usd } };
-  } catch (e) {
-    return { success: false, error: e instanceof Error ? e.message : String(e) };
-  } finally {
-    clearTimeout(to);
-  }
-}
-
 // ─── Fund Estimate ─────────────────────────────────────
 
 interface FundQuote {
@@ -171,8 +138,8 @@ interface FundResponse {
   error?: string;
 }
 
-/** 抓取单只基金实时估值。返回 jsonpgz({...}); 格式，正则提取后解析。 */
-async function fetchOneFund(code: string): Promise<FundQuote | null> {
+/** fundgz 实时估值（A 股基金盘中估算）。返回 jsonpgz({...}); 格式，正则提取后解析。QDII 等无实时估值的基金返回 null。 */
+async function fetchFundgz(code: string): Promise<FundQuote | null> {
   const ctrl = new AbortController();
   const to = setTimeout(() => ctrl.abort(), 12000);
   try {
@@ -200,6 +167,45 @@ async function fetchOneFund(code: string): Promise<FundQuote | null> {
   }
 }
 
+/** pingzhongdata 最新净值（兜底：QDII / 新基金等 fundgz 无实时估值时）。fS_name=名称，Data_netWorthTrend 末条=最新净值（y=净值 equityReturn=涨跌幅 x=日期）。接口不校验 Referer。 */
+async function fetchFundDetail(code: string): Promise<FundQuote | null> {
+  const ctrl = new AbortController();
+  const to = setTimeout(() => ctrl.abort(), 12000);
+  try {
+    const res = await fetch(`https://fund.eastmoney.com/pingzhongdata/${code}.js`, {
+      cache: 'no-store',
+      signal: ctrl.signal,
+    });
+    if (!res.ok) return null;
+    const text = await res.text();
+    const nameM = text.match(/fS_name\s*=\s*"([^"]*)"/);
+    const nwM = text.match(/Data_netWorthTrend\s*=\s*(\[[\s\S]*?\]);/);
+    if (!nwM) return null;
+    const arr = JSON.parse(nwM[1]) as { x?: number; y?: number; equityReturn?: number }[];
+    const last = arr[arr.length - 1];
+    if (!last || last.y == null) return null;
+    const gztime = last.x ? new Date(last.x).toISOString().slice(0, 10) : '';
+    return {
+      name: nameM?.[1] ?? '',
+      dwjz: String(last.y),
+      gsz: String(last.y),
+      gszzl: String(last.equityReturn ?? ''),
+      gztime,
+    };
+  } catch {
+    return null;
+  } finally {
+    clearTimeout(to);
+  }
+}
+
+/** 抓取单只基金：先 fundgz 实时估值，拿不到（QDII 等）回退 pingzhongdata 最新净值。 */
+async function fetchOneFund(code: string): Promise<FundQuote | null> {
+  const gz = await fetchFundgz(code);
+  if (gz && gz.gsz) return gz;
+  return fetchFundDetail(code);
+}
+
 async function handleFundFetch(codes: string[]): Promise<FundResponse> {
   const data: Record<string, FundQuote | null> = {};
   await Promise.all(
@@ -210,7 +216,7 @@ async function handleFundFetch(codes: string[]): Promise<FundResponse> {
   return { success: true, data };
 }
 
-// ─── Stock / Index Quotes (腾讯 qt.gtimg.cn) ─────────
+// ─── A股 / 个股行情（东财 qt/stock/get）───────────────
 
 interface StockQuote {
   name: string;
@@ -225,41 +231,58 @@ interface StockResponse {
   error?: string;
 }
 
-/** 批量抓取股票/指数行情。腾讯返回 v_CODE="~分隔字段~"; 格式，字段 1=名称 3=现价 4=昨收，涨跌自算（对 A 股指数、全球指数、个股通用）。 */
+/** 代码 -> 东财 secid：sh->1. sz/bj->0. */
+function toEastSecid(code: string): string {
+  const m = code.match(/^([a-z]+)(\w+)$/i);
+  if (!m) return code;
+  const p = m[1].toLowerCase();
+  const rest = m[2];
+  if (p === 'sh') return '1.' + rest;
+  if (p === 'sz' || p === 'bj') return '0.' + rest;
+  return code;
+}
+
+/** A股/全球指数/个股批量（东财 ulist.np，单请求拿全部 secid，规避逐只并发触发 IP 限流）。fltt=2=实际小数价；字段 f2=现价 f3=涨跌幅% f4=涨跌额 f14=名称 f18=昨收。 */
 async function handleStockFetch(codes: string[]): Promise<StockResponse> {
   if (!codes.length) return { success: true, data: {} };
+  const secidToCode = new Map<string, string>();
+  const secids = codes.map((c) => {
+    const secid = toEastSecid(c);
+    secidToCode.set(secid, c);
+    return secid;
+  });
   const ctrl = new AbortController();
   const to = setTimeout(() => ctrl.abort(), 12000);
   try {
-    const res = await fetch(`https://qt.gtimg.cn/q=${codes.join(',')}`, {
-      cache: 'no-store',
-      signal: ctrl.signal,
-    });
+    const res = await fetch(
+      `https://push2.eastmoney.com/api/qt/ulist.np/get?secids=${secids.join(',')}&fields=f12,f13,f2,f3,f4,f14,f18&fltt=2`,
+      { cache: 'no-store', signal: ctrl.signal },
+    );
     if (!res.ok) return { success: false, error: 'HTTP ' + res.status };
-    const text = await res.text();
+    const j = await res.json();
+    const diff = (j?.data?.diff ?? []) as Record<string, unknown>[];
     const data: Record<string, StockQuote | null> = {};
-    for (const code of codes) {
-      const m = text.match(new RegExp('v_' + code + '="([^"]*)"'));
-      if (!m) {
+    for (const d of diff) {
+      const secid = d.f13 + '.' + d.f12;
+      const code = secidToCode.get(secid);
+      if (!code) continue;
+      const current = Number(d.f2);
+      if (isNaN(current)) {
         data[code] = null;
         continue;
       }
-      const f = m[1].split('~');
-      const current = parseFloat(f[3]);
-      const prevClose = parseFloat(f[4]);
-      if (isNaN(current) || isNaN(prevClose)) {
-        data[code] = null;
-        continue;
-      }
-      const change = current - prevClose;
+      const prevClose = Number(d.f18);
+      const change = Number(d.f4);
+      const changePct = Number(d.f3);
       data[code] = {
-        name: String(f[1] || ''),
+        name: String(d.f14 ?? ''),
         current,
-        prevClose,
-        change,
-        changePct: prevClose > 0 ? (change / prevClose) * 100 : 0,
+        prevClose: isNaN(prevClose) ? 0 : prevClose,
+        change: isNaN(change) ? 0 : change,
+        changePct: isNaN(changePct) ? 0 : changePct,
       };
     }
+    for (const c of codes) if (!(c in data)) data[c] = null;
     return { success: true, data };
   } catch (e) {
     return { success: false, error: e instanceof Error ? e.message : String(e) };
@@ -1210,9 +1233,7 @@ async function handleAihotFetch(): Promise<AihotResponse> {
 }
 
 chrome.runtime.onMessage.addListener((message: { type: string }, _sender, sendResponse) => {
-  if (message?.type === 'GOLD_FETCH') {
-    handleGoldFetch().then(sendResponse);
-  } else if (message?.type === 'FUND_FETCH') {
+  if (message?.type === 'FUND_FETCH') {
     handleFundFetch((message as unknown as { codes?: string[] }).codes ?? []).then(sendResponse);
   } else if (message?.type === 'STOCK_FETCH') {
     handleStockFetch((message as unknown as { codes?: string[] }).codes ?? []).then(sendResponse);

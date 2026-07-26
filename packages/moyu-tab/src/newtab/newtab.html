@@ -163,17 +163,21 @@ html.locked .sub-filter{display:none}
 .market-card{padding:12px 14px}
 .market-head{display:flex;align-items:center;gap:10px;margin-bottom:10px}
 .market-title{flex-shrink:0;font-size:14px;font-weight:600;color:var(--text-secondary);letter-spacing:.5px;display:flex;align-items:center;gap:6px}
-.market-refresh{flex-shrink:0;width:26px;height:26px;border-radius:50%;border:none;background:var(--nm-surface);box-shadow:var(--nm-out),0 2px 4px rgba(0,0,0,0.1);color:var(--text-tertiary);cursor:pointer;font-size:13px;display:flex;align-items:center;justify-content:center;transition:color .15s,box-shadow .15s;font-family:inherit}
+.market-refresh{flex-shrink:0;margin-left:auto;width:26px;height:26px;border-radius:50%;border:none;background:var(--nm-surface);box-shadow:var(--nm-out),0 2px 4px rgba(0,0,0,0.1);color:var(--text-tertiary);cursor:pointer;font-size:13px;display:flex;align-items:center;justify-content:center;transition:color .15s,box-shadow .15s;font-family:inherit}
 .market-refresh:hover{color:var(--accent)}
 .market-refresh:active{box-shadow:var(--nm-in-sm)}
 .market-refresh.spin{color:var(--accent);animation:goldspin 1s linear infinite}
 @keyframes goldspin{to{transform:rotate(360deg)}}
-.market-tabs{flex:1;min-width:0;display:flex;gap:4px;overflow-x:auto;scrollbar-width:none}
+.market-tabs{display:flex;gap:2px;margin-bottom:10px;overflow-x:auto;scrollbar-width:none}
 .market-tabs::-webkit-scrollbar{display:none}
-.market-tab{flex-shrink:0;padding:4px 10px;font-size:12px;border:none;border-radius:var(--radius-xs);background:var(--nm-surface);box-shadow:var(--nm-out);color:var(--text-tertiary);cursor:pointer;font-family:inherit;transition:color .15s,background .15s}
+.market-tab{padding:4px 8px;border:none;background:transparent;border-radius:var(--radius-xs);font-size:11px;font-weight:500;color:var(--text-tertiary);cursor:pointer;transition:all .15s;user-select:none;font-family:inherit}
 .market-tab:hover{color:var(--text-secondary)}
-.market-tab.active{background:var(--glass-accent);color:var(--accent);font-weight:600}
+.market-tab.active{background:var(--nm-surface);color:var(--accent);box-shadow:2px 2px 6px rgba(174,174,178,.3),-2px -2px 6px rgba(255,255,255,.8);font-weight:600}
 .market-body{min-height:80px}
+.market-section{margin-top:10px;margin-bottom:10px}
+.market-section:last-child{margin-bottom:0}
+.market-subtitle{font-size:12px;font-weight:600;color:var(--text-secondary);letter-spacing:.5px}
+.market-subtitle-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:5px}
 /* 小卡片网格（红涨绿跌，每行 6 个） */
 .mkt-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:8px}
 @media (max-width:600px){.mkt-grid{grid-template-columns:repeat(4,1fr)}}
@@ -185,18 +189,19 @@ html.locked .sub-filter{display:none}
 .mkt-tile.flat{background:var(--nm-surface)}
 .mkt-name{font-size:11px;color:var(--text-secondary);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .mkt-price{font-size:15px;font-weight:700;color:var(--text);font-variant-numeric:tabular-nums;font-family:'Courier New',ui-monospace,monospace;line-height:1.2}
+.mkt-cny{display:block;font-size:11px;font-weight:500;color:var(--text-secondary);font-variant-numeric:tabular-nums;font-family:'Courier New',ui-monospace,monospace}
+.mkt-unit{font-size:11px;font-weight:500;color:var(--text-secondary)}
 .mkt-chg{font-size:11px;font-weight:600;font-variant-numeric:tabular-nums}
 .mkt-chg.up{color:#dc2626}
 .mkt-chg.down{color:#16a34a}
 .mkt-chg.flat{color:var(--text-tertiary)}
 .mkt-leader{font-size:10px;color:var(--text-tertiary);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.mkt-del{position:absolute;top:1px;right:4px;background:none;border:none;color:var(--text-tertiary);cursor:pointer;font-size:13px;padding:0 2px;opacity:0;transition:opacity .15s;line-height:1}
+.mkt-del{position:absolute;top:4px;right:4px;width:18px;height:18px;border-radius:50%;border:none;background:#dc2626;color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;opacity:0;transition:opacity .15s;padding:0;box-shadow:0 1px 3px rgba(0,0,0,.25)}
 .mkt-tile:hover .mkt-del{opacity:1}
+.mkt-del:hover{background:#b91c1c}
 /* 自选添加 */
-.wl-add{display:flex;gap:6px;margin-top:10px}
-.wl-add input{flex:1;padding:8px 10px;font-size:12px;border:none;border-radius:var(--radius-xs);background:var(--nm-surface);color:var(--text);outline:none;font-family:inherit;box-shadow:var(--nm-in);min-width:0}
-.wl-add input.err{box-shadow:var(--nm-in),0 0 0 1.5px #ef4444}
-.wl-add button{padding:8px 14px;font-size:12px;border:none;border-radius:var(--radius-xs);background:var(--glass-accent);color:var(--accent);cursor:pointer;font-family:inherit;font-weight:600}
+.wl-add-btn{padding:4px 10px;font-size:11px;border:none;border-radius:var(--radius-xs);background:rgba(0,0,0,0.05);color:var(--text-secondary);cursor:pointer;font-family:inherit;transition:background .15s}
+.wl-add-btn:hover{background:rgba(0,0,0,0.08)}
 /* 金价段（黄金 Tab，红涨绿跌） */
 .gold-upd{font-size:10px;color:var(--text-tertiary);font-variant-numeric:tabular-nums}
 .gold-main{display:flex;align-items:baseline;gap:8px;margin-bottom:8px}

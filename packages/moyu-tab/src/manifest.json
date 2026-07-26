@@ -23,8 +23,8 @@
   ],
 
   "host_permissions": [
-    "https://goldprice.today/*",
     "https://fundgz.1234567.com.cn/*",
+    "https://fund.eastmoney.com/*",
     "https://api.open-meteo.com/*",
     "https://geocoding-api.open-meteo.com/*",
     "https://air-quality-api.open-meteo.com/*",
@@ -41,7 +41,6 @@
     "https://i.weread.qq.com/*",
     "https://open.er-api.com/*",
     "https://aihot.virxact.com/*",
-    "https://qt.gtimg.cn/*",
     "https://push2.eastmoney.com/*"
   ],
   "declarative_net_request": {
