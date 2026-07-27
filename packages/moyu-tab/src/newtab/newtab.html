@@ -642,6 +642,28 @@ html.locked .sub-filter{display:none}
 .qr-btn-pri:not(:disabled):active{box-shadow:var(--nm-in-sm)}
 .qr-btn-ghost{background:var(--glass-accent);color:var(--accent)}
 .qr-btn-ghost:not(:disabled):active{box-shadow:var(--nm-in-sm)}
+/* 两步验证器 */
+.otp-list{display:flex;flex-direction:column;gap:6px;margin-bottom:8px;max-height:300px;overflow-y:auto}
+.otp-list::-webkit-scrollbar{width:5px}
+.otp-list::-webkit-scrollbar-thumb{background:rgba(0,0,0,0.12);border-radius:3px}
+.otp-item{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:var(--radius-xs);background:var(--nm-surface);box-shadow:var(--nm-out-sm)}
+.otp-info{flex:1;min-width:0;display:flex;flex-direction:column;gap:1px}
+.otp-issuer{font-size:12px;font-weight:600;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.otp-account{font-size:10px;color:var(--text-tertiary);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.otp-code{font-size:19px;font-weight:700;color:var(--accent);font-variant-numeric:tabular-nums;font-family:'Courier New',ui-monospace,monospace;letter-spacing:1px;cursor:pointer;flex-shrink:0;user-select:none;transition:opacity .15s,color .15s}
+.otp-code:hover{opacity:.65}
+.otp-code.copied{color:#10b981;opacity:1}
+.otp-timer{font-size:11px;color:var(--text-tertiary);font-variant-numeric:tabular-nums;font-family:'Courier New',ui-monospace,monospace;min-width:20px;text-align:center;flex-shrink:0}
+.otp-timer.warn{color:#ef4444;font-weight:600}
+.otp-next{width:30px;height:30px;border:none;border-radius:var(--radius-xs);background:var(--glass-accent);color:var(--accent);cursor:pointer;font-size:12px;flex-shrink:0;font-family:inherit;display:flex;align-items:center;justify-content:center;transition:background .15s,color .15s}
+.otp-next:hover{background:var(--accent);color:#fff}
+.otp-next:active{box-shadow:var(--nm-in-sm)}
+.otp-del{width:24px;height:24px;border:none;border-radius:50%;background:transparent;color:var(--text-tertiary);cursor:pointer;font-size:11px;flex-shrink:0;font-family:inherit;display:flex;align-items:center;justify-content:center;transition:color .15s,background .15s}
+.otp-del:hover{color:#ef4444;background:rgba(239,68,68,.1)}
+.otp-add{display:flex;gap:6px}
+.otp-add .qr-btn{flex:0 0 auto;padding:8px 16px;white-space:nowrap}
+.otp-input{flex:1;min-width:0;padding:8px 10px;font-size:12px;border:0.5px solid var(--glass-border-h);border-radius:var(--radius-xs);background:var(--nm-surface);color:var(--text);outline:none;font-family:inherit;transition:border-color .15s,box-shadow .15s}
+.otp-input:focus{border-color:var(--accent);box-shadow:0 0 0 1.5px var(--accent)}
 /* 书签同步卡片 */
 .bm-card{padding:12px 14px}
 .bm-head{display:flex;align-items:center;gap:8px;margin-bottom:8px}

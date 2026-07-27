@@ -11,6 +11,7 @@ import { initTax, renderTaxCard } from './widgets/tax';
 import { initMortgage, renderMortgageCard } from './widgets/mortgage';
 import { initBmi, renderBmiCard } from './widgets/bmi';
 import { initQr, renderQrCard } from './widgets/qrcode';
+import { initAuthenticator, renderAuthenticatorCard } from './widgets/authenticator';
 import { initCurrency, renderCurrencyCard } from './widgets/currency';
 import { initBookmarks, renderBookmarksCard } from './widgets/bookmarks';
 import { initWeather } from './widgets/weather';
@@ -80,6 +81,14 @@ const TOOLKIT: {
     ),
     render: renderQrCard,
     init: initQr,
+  },
+  {
+    id: 'authenticator',
+    title: '验证器',
+    desc: '两步验证动态码',
+    icon: tkSvg('<rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/>'),
+    render: renderAuthenticatorCard,
+    init: initAuthenticator,
   },
 ];
 
