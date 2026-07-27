@@ -1,5 +1,4 @@
 /** 汇率换算：SW 代理取 open.er-api（base USD），1h 缓存 */
-import { pad } from '../utils';
 
 const CUR_KEY = 'moyu_currency_cache';
 const CUR_INPUT = 'moyu_currency_input';
@@ -32,10 +31,6 @@ const CURRENCIES: { code: string; name: string }[] = [
   { code: 'THB', name: '泰铢' },
   { code: 'MYR', name: '林吉特' },
 ];
-
-/** 线性图标：双向箭头，表"换算"（替代 💱 表情） */
-const CUR_ICON =
-  '<svg class="cur-ic" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 3 4 7l4 4"/><path d="M4 7h16"/><path d="m16 21 4-4-4-4"/><path d="M20 17H4"/></svg>';
 
 let curLoading = false;
 let curInited = false;
@@ -74,23 +69,11 @@ function curLabel(code: string): string {
   const c = CURRENCIES.find((x) => x.code === code);
   return c ? `${c.code} ${c.name}` : code;
 }
-function fmtTime(ts: number) {
-  const d = new Date(ts);
-  return pad(d.getHours()) + ':' + pad(d.getMinutes());
-}
-
 export function renderCurrencyCard(): string {
   const d = loadInput();
   curFrom = d.from;
   curTo = d.to;
   return `<div class="widget-card currency-card">
-      <div class="cur-head">
-        <div class="cur-title">${CUR_ICON} 汇率换算</div>
-        <div class="cur-meta">
-          <span class="cur-upd" id="curUpd">加载中…</span>
-          <button class="cur-refresh" id="curRefresh" title="刷新">↻</button>
-        </div>
-      </div>
       <div class="cur-form">
         <input id="curAmount" type="number" inputmode="decimal" min="0" value="${d.amount}" />
         <div class="cur-row">
@@ -203,7 +186,7 @@ async function refresh(): Promise<void> {
       const ts = res.data.ts || Date.now();
       saveCache({ rates: res.data.rates, ts });
       curLastFetch = Date.now();
-      if (upd) upd.textContent = fmtTime(ts) + ' 更新';
+      if (upd) upd.textContent = '';
       compute();
     } else {
       if (upd) upd.textContent = '⚠ 失败 · 点刷新重试';
@@ -249,10 +232,6 @@ export async function initCurrency(): Promise<void> {
   });
   document.getElementById('curRefresh')?.addEventListener('click', refresh);
   const c = loadCache();
-  if (c) {
-    const upd = document.getElementById('curUpd');
-    if (upd) upd.textContent = fmtTime(c.ts) + ' 更新';
-  }
   if (curInited) return;
   curInited = true;
   if (!c || Date.now() - c.ts > TTL) refresh();

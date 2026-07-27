@@ -577,6 +577,7 @@ html.locked .sub-filter{display:none}
 .cur-title{font-size:14px;font-weight:600;color:var(--text-secondary);letter-spacing:.5px;display:flex;align-items:center;gap:6px}
 .cur-meta{display:flex;align-items:center;gap:8px}
 .cur-upd{font-size:10px;color:var(--text-tertiary);font-variant-numeric:tabular-nums;min-height:12px}
+.cur-upd:empty{display:none}
 .cur-refresh{width:26px;height:26px;border-radius:50%;border:none;background:var(--nm-surface);box-shadow:var(--nm-out),0 2px 4px rgba(0,0,0,0.1);color:var(--text-tertiary);cursor:pointer;font-size:13px;display:flex;align-items:center;justify-content:center;transition:color .15s,box-shadow .15s;font-family:inherit}
 .cur-refresh:hover{color:var(--accent)}
 .cur-refresh:active{box-shadow:var(--nm-in-sm)}
@@ -739,8 +740,7 @@ html.locked .sub-filter{display:none}
 #toolkitModal .mh .mc:hover{color:var(--accent)}
 #tkContent .widget-card{background:transparent;box-shadow:none;padding:0}
 #tkContent .calc-head{display:none}
-#tkContent .cur-title{display:none}
-#tkContent .cur-head{justify-content:flex-end}
+#toolkitModal .mh .cur-meta{margin-left:8px;margin-right:auto}
 @keyframes tklocate{0%,30%{box-shadow:0 0 0 2px var(--accent),var(--card-shadow-h)}100%{box-shadow:var(--card-shadow)}}
 .toolkit-card.tk-locate{animation:tklocate .9s ease-out}
 .widget-card.locate{animation:tklocate .9s ease-out}

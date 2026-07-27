@@ -414,7 +414,17 @@ function renderTkContent() {
   const title = document.getElementById('tkTitle');
   if (!t || !c) return;
   if (title) title.textContent = t.title;
+  // 清理上一个工具留在头部的额外控件
+  document.querySelectorAll('#toolkitModal .mh .tk-mh-extra').forEach((e) => e.remove());
   c.innerHTML = t.render();
+  // 汇率换算：刷新按钮 + 状态提示放到头部标题后（贴标题，远离关闭按钮）
+  if (tkCur === 'currency' && title) {
+    const extra = document.createElement('div');
+    extra.className = 'tk-mh-extra cur-meta';
+    extra.innerHTML =
+      '<span class="cur-upd" id="curUpd"></span><button class="cur-refresh" id="curRefresh" title="刷新">↻</button>';
+    title.after(extra);
+  }
   t.init();
 }
 function openToolkit(tool?: string) {
