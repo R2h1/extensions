@@ -652,6 +652,50 @@ function initClock() {
   updT();
 }
 
+// ── 屏幕常亮（chrome.power，由 SW 全局保持显示）──
+let keepOnState = { on: false, since: 0 };
+function fmtKeepOnElapsed(ms: number): string {
+  const s = Math.max(0, Math.floor(ms / 1000));
+  const h = Math.floor(s / 3600);
+  const m = Math.floor((s % 3600) / 60);
+  const sec = s % 60;
+  const p = (n: number) => String(n).padStart(2, '0');
+  return h > 0 ? `${h}:${p(m)}:${p(sec)}` : `${p(m)}:${p(sec)}`;
+}
+function tickKeepOn(): void {
+  const btn = document.getElementById('keepOnBtn');
+  if (!btn) return;
+  if (keepOnState.on && keepOnState.since) {
+    btn.setAttribute('title', `屏幕常亮 · ${fmtKeepOnElapsed(Date.now() - keepOnState.since)}`);
+  } else {
+    btn.setAttribute('title', '屏幕常亮');
+  }
+}
+async function initKeepOn(): Promise<void> {
+  const btn = document.getElementById('keepOnBtn');
+  if (!btn) return;
+  try {
+    const res = (await chrome.runtime.sendMessage({ type: 'SCREENON_STATUS' })) as
+      | { success: boolean; state?: { on: boolean; since: number } };
+    if (res?.state) keepOnState = res.state;
+  } catch {}
+  btn.classList.toggle('on', keepOnState.on);
+  tickKeepOn();
+  btn.addEventListener('click', async () => {
+    const next = !keepOnState.on;
+    try {
+      const res = (await chrome.runtime.sendMessage({ type: next ? 'SCREENON_ON' : 'SCREENON_OFF' })) as
+        | { success: boolean; state?: { on: boolean; since: number } };
+      if (res?.state) keepOnState = res.state;
+      btn.classList.toggle('on', keepOnState.on);
+      tickKeepOn();
+      showMessage(keepOnState.on ? '屏幕已常亮' : '已关闭屏幕常亮', keepOnState.on ? 'success' : 'info');
+    } catch {
+      showMessage('操作失败，请重试', 'error');
+    }
+  });
+}
+
 const LUNAR_MONTH = ['正', '二', '三', '四', '五', '六', '七', '八', '九', '十', '冬', '腊'];
 const LUNAR_DAY = [
   '',
@@ -1777,6 +1821,7 @@ async function init() {
   );
   loadWallpaper();
   initClock();
+  initKeepOn();
   initCalendarPopover();
   initWeatherPopover();
   initWebSearch();
@@ -1787,6 +1832,7 @@ async function init() {
   await renderPanel();
   setInterval(() => {
     updT();
+    tickKeepOn();
     tickSalary();
   }, 1000);
 }

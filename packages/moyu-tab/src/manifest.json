@@ -19,7 +19,8 @@
     "notifications",
     "declarativeNetRequestWithHostAccess",
     "bookmarks",
-    "favicon"
+    "favicon",
+    "power"
   ],
 
   "host_permissions": [

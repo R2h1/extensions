@@ -1344,6 +1344,42 @@ async function handleAihotFetch(): Promise<AihotResponse> {
   }
 }
 
+// ─── Keep Screen On (chrome.power) ─────────────────────
+
+interface ScreenOnState {
+  on: boolean;
+  since: number; // 开启时刻（epoch ms），用于前端显示已开启时长
+}
+
+const SCREENON_KEY = 'moyu_screenon';
+const DEFAULT_SCREENON: ScreenOnState = { on: false, since: 0 };
+
+async function getScreenOn(): Promise<ScreenOnState> {
+  const r = await chrome.storage.local.get(SCREENON_KEY);
+  return { ...DEFAULT_SCREENON, ...(r[SCREENON_KEY] || {}) };
+}
+
+/** 开启屏幕常亮：chrome.power 从 SW 调用，全局生效——任意标签页在前都保持显示不灭、不暗、系统不睡。比网页 Wake Lock（仅页面可见时有效）更强。 */
+async function screenOnEnable(): Promise<{ success: boolean; state: ScreenOnState }> {
+  chrome.power.requestKeepAwake('display');
+  const state: ScreenOnState = { on: true, since: Date.now() };
+  await chrome.storage.local.set({ [SCREENON_KEY]: state });
+  return { success: true, state };
+}
+
+async function screenOnDisable(): Promise<{ success: boolean; state: ScreenOnState }> {
+  chrome.power.releaseKeepAwake();
+  const state: ScreenOnState = { on: false, since: 0 };
+  await chrome.storage.local.set({ [SCREENON_KEY]: state });
+  return { success: true, state };
+}
+
+/** 浏览器重启后 power 锁会丢失，按存储的状态重新申请。 */
+async function restoreScreenOn(): Promise<void> {
+  const s = await getScreenOn();
+  if (s.on) chrome.power.requestKeepAwake('display');
+}
+
 chrome.runtime.onMessage.addListener((message: { type: string }, _sender, sendResponse) => {
   if (message?.type === 'FUND_FETCH') {
     handleFundFetch((message as unknown as { codes?: string[] }).codes ?? []).then(sendResponse);
@@ -1392,6 +1428,12 @@ chrome.runtime.onMessage.addListener((message: { type: string }, _sender, sendRe
     handleExchangeFetch().then(sendResponse);
   } else if (message?.type === 'AIHOT_FETCH') {
     handleAihotFetch().then(sendResponse);
+  } else if (message?.type === 'SCREENON_ON') {
+    screenOnEnable().then(sendResponse);
+  } else if (message?.type === 'SCREENON_OFF') {
+    screenOnDisable().then(sendResponse);
+  } else if (message?.type === 'SCREENON_STATUS') {
+    getScreenOn().then((state) => sendResponse({ success: true, state }));
   } else {
     handlePomodoroMessage(message as PomodoroMessage).then(sendResponse);
   }
@@ -1489,8 +1531,11 @@ async function handlePomodoroMessage(msg: PomodoroMessage): Promise<PomodoroResp
 
 // ─── Boot ───────────────────────────────────────────────
 
+chrome.runtime.onStartup.addListener(restoreScreenOn);
+
 chrome.runtime.onInstalled.addListener(async () => {
   await loadState();
   chrome.alarms.clear(ALARM_TICK);
   chrome.alarms.clear(ALARM_COMPLETE);
+  await restoreScreenOn();
 });
