@@ -10,6 +10,7 @@ import { openBookReviewIn, renderWereadKeySetup, setWereadSettingsOpener } from 
 import { initTax, renderTaxCard } from './widgets/tax';
 import { initMortgage, renderMortgageCard } from './widgets/mortgage';
 import { initBmi, renderBmiCard } from './widgets/bmi';
+import { initQr, renderQrCard } from './widgets/qrcode';
 import { initCurrency, renderCurrencyCard } from './widgets/currency';
 import { initBookmarks, renderBookmarksCard } from './widgets/bookmarks';
 import { initWeather } from './widgets/weather';
@@ -69,6 +70,16 @@ const TOOLKIT: {
     ),
     render: renderCurrencyCard,
     init: initCurrency,
+  },
+  {
+    id: 'qrcode',
+    title: '二维码生成器',
+    desc: '文本/链接转二维码',
+    icon: tkSvg(
+      '<rect x="3" y="3" width="7" height="7"/><rect x="5" y="5" width="3" height="3"/><rect x="14" y="3" width="7" height="7"/><rect x="16" y="5" width="3" height="3"/><rect x="3" y="14" width="7" height="7"/><rect x="5" y="16" width="3" height="3"/><rect x="14" y="14" width="3" height="3"/><rect x="18" y="18" width="3" height="3"/>',
+    ),
+    render: renderQrCard,
+    init: initQr,
   },
 ];
 

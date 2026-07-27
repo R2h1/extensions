@@ -607,6 +607,41 @@ html.locked .sub-filter{display:none}
 .cur-unit{font-size:13px;color:var(--text-tertiary);font-weight:500}
 .cur-rate{font-size:12px;color:var(--text-secondary);margin-top:6px}
 .cur-rate-sub{font-size:10px;color:var(--text-tertiary);margin-top:3px}
+/* 二维码生成器 */
+.qr-card .calc-form{gap:8px}
+.qr-text-wrap{position:relative}
+.qr-text{width:100%;box-sizing:border-box;padding:9px 10px;font-size:13px;border:0.5px solid var(--glass-border-h);border-radius:var(--radius-xs);background:var(--nm-surface);color:var(--text);outline:none;font-family:inherit;resize:vertical;min-height:60px;transition:border-color .15s,box-shadow .15s}
+.qr-text:focus{border-color:var(--accent);box-shadow:0 0 0 1.5px var(--accent)}
+.qr-paste{position:absolute;top:6px;right:6px;border:none;border-radius:5px;background:var(--glass-accent);color:var(--accent);font-size:11px;padding:3px 8px;cursor:pointer;font-family:inherit;transition:background .15s,color .15s}
+.qr-paste:hover{background:var(--accent);color:#fff}
+.qr-row{display:flex;align-items:center;gap:8px}
+.qr-label{font-size:11px;color:var(--text-tertiary);width:32px;flex-shrink:0}
+.qr-dd-row{display:flex;gap:8px}
+.qr-dd-field{flex:1;min-width:0}
+.qr-dd .cal-dd-btn{width:100%;justify-content:space-between;padding:7px 10px;font-size:12px;font-weight:500;color:var(--text);border:0.5px solid var(--glass-border-h);box-shadow:none}
+.qr-dd .cal-dd-btn:hover{color:var(--accent)}
+.qr-dd.open .cal-dd-btn{color:var(--accent);border-color:var(--accent);box-shadow:none}
+.qr-dd .cal-dd-list{left:0;transform:none;min-width:100%}
+.qr-colors{display:flex;align-items:center;gap:10px;flex:1}
+.qr-color{display:flex;align-items:center;gap:5px;cursor:pointer}
+.qr-color input{width:24px;height:24px;padding:0;border:0.5px solid var(--glass-border-h);border-radius:6px;background:none;cursor:pointer}
+.qr-color input::-webkit-color-swatch-wrapper{padding:0}
+.qr-color input::-webkit-color-swatch{border:none;border-radius:4px}
+.qr-color span{font-size:10px;color:var(--text-tertiary);font-family:'Courier New',ui-monospace,monospace;min-width:46px}
+.qr-swap{width:28px;height:24px;border:none;border-radius:5px;background:var(--glass-accent);color:var(--accent);cursor:pointer;font-size:13px;font-family:inherit;transition:background .15s,color .15s}
+.qr-swap:hover{background:var(--accent);color:#fff}
+.qr-stage{margin-top:10px;background:var(--nm-surface);border-radius:var(--radius-sm);padding:14px;display:flex;align-items:center;justify-content:center;min-height:180px;position:relative}
+.qr-canvas{max-width:100%;height:auto;display:block;border-radius:4px}
+.qr-canvas[hidden]{display:none}
+.qr-empty,.qr-err{position:absolute;font-size:12px;color:var(--text-tertiary);text-align:center}
+.qr-err{color:#ef4444}
+.qr-actions{display:flex;gap:8px;margin-top:10px}
+.qr-btn{flex:1;padding:8px;font-size:12px;font-weight:600;border:none;border-radius:var(--radius-xs);cursor:pointer;font-family:inherit;transition:opacity .15s,box-shadow .15s}
+.qr-btn:disabled{opacity:.45;cursor:not-allowed}
+.qr-btn-pri{background:var(--accent);color:#fff}
+.qr-btn-pri:not(:disabled):active{box-shadow:var(--nm-in-sm)}
+.qr-btn-ghost{background:var(--glass-accent);color:var(--accent)}
+.qr-btn-ghost:not(:disabled):active{box-shadow:var(--nm-in-sm)}
 /* 书签同步卡片 */
 .bm-card{padding:12px 14px}
 .bm-head{display:flex;align-items:center;gap:8px;margin-bottom:8px}
