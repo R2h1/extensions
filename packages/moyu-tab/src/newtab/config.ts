@@ -67,7 +67,7 @@ export const CAT_TREE: TopCat[] = [
     id: 'bookmark',
     name: '书签',
     icon: ICONS.bookmark,
-    subs: [{ id: 'nav', name: '导航' }],
+    subs: [{ id: 'nav', name: '导航' }, { id: 'cloud', name: '云平台' }],
   },
 ];
 
@@ -75,5 +75,6 @@ export const ALL_WIDGETS: WID[] = [
   { id: 'hot', name: '热搜', desc: '微博/B站/百度/掘金热榜', cat: 'news', sub: 'hot' },
   { id: 'news', name: '资讯', desc: 'AI精选/知乎日报/财经快讯', cat: 'news', sub: 'news' },
   { id: 'weread', name: '微信读书', desc: '书架/统计/笔记/书评/推荐/搜书', cat: 'study', sub: 'read' },
+  { id: 'cloud', name: '云平台', desc: '七牛/华为/腾讯/阿里/百度', cat: 'bookmark', sub: 'cloud' },
   { id: 'bookmarks', name: '书签同步', desc: '浏览器书签栏', cat: 'bookmark', sub: 'nav' },
 ];

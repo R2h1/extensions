@@ -717,6 +717,21 @@ html.locked .sub-filter{display:none}
 .bm-empty{grid-column:1/-1;font-size:12px;color:var(--text-tertiary);text-align:center;padding:14px 0}
 .bm-grid::-webkit-scrollbar,.bm-list::-webkit-scrollbar{width:5px}
 .bm-grid::-webkit-scrollbar-thumb,.bm-list::-webkit-scrollbar-thumb{background:rgba(0,0,0,0.12);border-radius:3px}
+/* 云平台卡片 */
+.cloud-card{padding:12px 14px}
+.cloud-head{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:8px}
+.cloud-title{font-size:14px;font-weight:600;color:var(--text-secondary);letter-spacing:.5px;display:flex;align-items:center;gap:6px}
+.cloud-add-btn{padding:4px 10px;font-size:11px;border:none;border-radius:var(--radius-xs);background:rgba(0,0,0,0.05);color:var(--text-secondary);cursor:pointer;font-family:inherit;transition:background .15s}
+.cloud-add-btn:hover{background:rgba(0,0,0,0.08)}
+.cloud-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:6px}
+.cloud-tile{position:relative;display:flex;flex-direction:column;align-items:center;gap:4px;padding:8px 2px;border-radius:var(--radius-xs);background:transparent;border:none;cursor:pointer;text-decoration:none;transition:background .15s;font-family:inherit}
+.cloud-tile:hover{background:var(--glass-accent)}
+.cloud-fav{width:28px;height:28px;border-radius:7px;object-fit:contain;flex-shrink:0}
+.cloud-name{font-size:10px;color:var(--text-secondary);text-align:center;line-height:1.2;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.cloud-letter{width:28px;height:28px;border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:600;color:#fff;flex-shrink:0}
+.cloud-del{position:absolute;top:2px;right:2px;width:16px;height:16px;border-radius:50%;border:none;background:#dc2626;color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;opacity:0;transition:opacity .15s;padding:0;box-shadow:0 1px 3px rgba(0,0,0,.25)}
+.cloud-tile:hover .cloud-del{opacity:1}
+.cloud-del:hover{background:#b91c1c}
 /* AI资讯卡片 */
 .aihot-card{padding:12px 14px}
 .aihot-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;gap:8px}

@@ -15,6 +15,7 @@ import { initWifi, renderWifiCard } from './widgets/wifi';
 import { initAuthenticator, renderAuthenticatorCard } from './widgets/authenticator';
 import { initCurrency, renderCurrencyCard } from './widgets/currency';
 import { initBookmarks, renderBookmarksCard } from './widgets/bookmarks';
+import { initCloud, renderCloudCard } from './widgets/cloud';
 import { initWeather } from './widgets/weather';
 import { renderHotCard, initHotCard } from './widgets/hot';
 import { renderNewsCard, initNewsCard } from './widgets/news';
@@ -270,6 +271,7 @@ async function renderPanel() {
 function getCard(w: WID): string {
   if (w.id === 'weread') return renderWereadOverviewCard();
   if (w.id === 'bookmarks') return renderBookmarksCard();
+  if (w.id === 'cloud') return renderCloudCard();
   if (w.id === 'hot') return renderHotCard();
   if (w.id === 'news') return renderNewsCard();
   return `<div class="widget-card clickable" data-widget="${w.id}"><div class="widget-entry"><span>${w.desc}</span><span class="arrow">→</span></div></div>`;
@@ -299,6 +301,9 @@ async function initW(id: string) {
       break;
     case 'bookmarks':
       initBookmarks();
+      break;
+    case 'cloud':
+      initCloud();
       break;
   }
 }
