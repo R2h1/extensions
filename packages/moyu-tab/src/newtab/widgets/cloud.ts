@@ -255,7 +255,7 @@ async function add() {
 export function renderCloudCard(): string {
   return `<div class="widget-card cloud-card">
       <div class="cloud-head">
-        <div class="cloud-title">☁️ 云平台</div>
+        <div class="cloud-title"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 10h-1.26A8 8 0 1 0 9 20h9a5 5 0 0 0 0-10z"/></svg>云平台</div>
         <button class="cloud-add-btn" id="cloudAddBtn" title="添加云平台">+ 添加</button>
       </div>
       <div class="cloud-grid" id="cloudGrid"></div>
