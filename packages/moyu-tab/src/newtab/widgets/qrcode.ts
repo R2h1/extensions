@@ -1,6 +1,15 @@
 /** 二维码生成器：文本/链接 -> Canvas，可调容错/尺寸/颜色，下载 PNG / 复制图片 */
 import qrcode from 'qrcode-generator';
 import { esc, escAttr } from '../utils';
+import {
+  ensureQrUtf8Bytes,
+  makeQr,
+  renderQrToCanvas,
+  downloadCanvasPng,
+  copyCanvasImage,
+} from './qr-render';
+
+ensureQrUtf8Bytes();
 
 const QR_KEY = 'moyu_qrcode_input';
 
@@ -67,30 +76,6 @@ function saveInput(d: QrInput) {
     localStorage.setItem(QR_KEY, JSON.stringify(d));
   } catch {}
 }
-
-/** UTF-8 编码：库默认仅取低字节（c & 0xff），会损坏中文等多字节字符 */
-function utf8Bytes(s: string): number[] {
-  const b: number[] = [];
-  for (let i = 0; i < s.length; i++) {
-    const c = s.charCodeAt(i);
-    if (c < 0x80) b.push(c);
-    else if (c < 0x800) b.push(0xc0 | (c >> 6), 0x80 | (c & 0x3f));
-    else if (c >= 0xd800 && c <= 0xdbff) {
-      // 高位代理：拼成 4 字节
-      const c2 = s.charCodeAt(++i);
-      const cp = 0x10000 + ((c & 0x3ff) << 10) + (c2 & 0x3ff);
-      b.push(
-        0xf0 | (cp >> 18),
-        0x80 | ((cp >> 12) & 0x3f),
-        0x80 | ((cp >> 6) & 0x3f),
-        0x80 | (cp & 0x3f),
-      );
-    } else b.push(0xe0 | (c >> 12), 0x80 | ((c >> 6) & 0x3f), 0x80 | (c & 0x3f));
-  }
-  return b;
-}
-// 覆盖库默认 Latin-1 编码，使中文/Emoji 正确编码进二维码
-qrcode.stringToBytes = utf8Bytes;
 
 export function renderQrCard(): string {
   const d = loadInput();
@@ -212,27 +197,6 @@ function setBtn(id: string, on: boolean): void {
   if (b) b.disabled = !on;
 }
 
-/** 把已生成的 qr 渲染到 canvas，targetPx 为目标像素边长（cell 取整保证模块锐利） */
-function renderTo(canvas: HTMLCanvasElement, targetPx: number, fg: string, bg: string): void {
-  if (!lastQr) return;
-  const count = lastQr.getModuleCount();
-  const margin = 4; // 静默区，保证可扫描
-  const total = count + margin * 2;
-  const cell = Math.max(1, Math.floor(targetPx / total));
-  const dim = cell * total;
-  canvas.width = dim;
-  canvas.height = dim;
-  const ctx = canvas.getContext('2d')!;
-  ctx.fillStyle = bg;
-  ctx.fillRect(0, 0, dim, dim);
-  ctx.fillStyle = fg;
-  for (let r = 0; r < count; r++) {
-    for (let c = 0; c < count; c++) {
-      if (lastQr.isDark(r, c)) ctx.fillRect((c + margin) * cell, (r + margin) * cell, cell, cell);
-    }
-  }
-}
-
 function generate(): void {
   const tEl = document.getElementById('qrText') as HTMLTextAreaElement | null;
   const canvas = document.getElementById('qrCanvas') as HTMLCanvasElement | null;
@@ -258,13 +222,8 @@ function generate(): void {
     setBtn('qrCopy', false);
     return;
   }
-  try {
-    const qr = qrcode(0, ec);
-    qr.addData(text);
-    qr.make();
-    lastQr = qr;
-  } catch {
-    lastQr = null;
+  lastQr = makeQr(text, ec);
+  if (!lastQr) {
     canvas.hidden = true;
     if (empty) empty.style.display = 'none';
     if (err) err.style.display = '';
@@ -274,7 +233,7 @@ function generate(): void {
   }
   // 预览：固定显示尺寸，按 dpr 提高内部分辨率保持清晰；与尺寸选项无关
   const dpr = window.devicePixelRatio || 1;
-  renderTo(canvas, PREVIEW_CSS * dpr, qrFg, qrBg);
+  renderQrToCanvas(canvas, lastQr, PREVIEW_CSS * dpr, qrFg, qrBg);
   canvas.style.width = PREVIEW_CSS + 'px';
   canvas.hidden = false;
   if (empty) empty.style.display = 'none';
@@ -287,38 +246,21 @@ function generate(): void {
 function exportCanvas(): HTMLCanvasElement | null {
   if (!lastQr) return null;
   const tmp = document.createElement('canvas');
-  renderTo(tmp, currentSize(), qrFg, qrBg);
+  renderQrToCanvas(tmp, lastQr, currentSize(), qrFg, qrBg);
   return tmp;
 }
 
 function download(): void {
   const tmp = exportCanvas();
   if (!tmp) return;
-  const a = document.createElement('a');
-  a.download = 'qrcode.png';
-  a.href = tmp.toDataURL('image/png');
-  a.click();
+  downloadCanvasPng(tmp, 'qrcode.png');
 }
 
 async function copyImage(): Promise<void> {
   const tmp = exportCanvas();
   const btn = document.getElementById('qrCopy') as HTMLButtonElement | null;
-  if (!tmp) return;
-  const blob = await new Promise<Blob | null>((res) => tmp.toBlob(res, 'image/png'));
-  if (!blob) return;
-  const ok = await (async () => {
-    try {
-      if (navigator.clipboard && typeof ClipboardItem !== 'undefined') {
-        await navigator.clipboard.write([new ClipboardItem({ 'image/png': blob })]);
-        return true;
-      }
-    } catch {}
-    return false;
-  })();
-  if (!btn) return;
-  const old = btn.textContent;
-  btn.textContent = ok ? '✓ 已复制' : '复制失败';
-  setTimeout(() => (btn.textContent = old), 1500);
+  if (!tmp || !btn) return;
+  await copyCanvasImage(tmp, btn);
 }
 
 async function paste(): Promise<void> {

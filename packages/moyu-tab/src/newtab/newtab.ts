@@ -11,6 +11,7 @@ import { initTax, renderTaxCard } from './widgets/tax';
 import { initMortgage, renderMortgageCard } from './widgets/mortgage';
 import { initBmi, renderBmiCard } from './widgets/bmi';
 import { initQr, renderQrCard } from './widgets/qrcode';
+import { initWifi, renderWifiCard } from './widgets/wifi';
 import { initAuthenticator, renderAuthenticatorCard } from './widgets/authenticator';
 import { initCurrency, renderCurrencyCard } from './widgets/currency';
 import { initBookmarks, renderBookmarksCard } from './widgets/bookmarks';
@@ -81,6 +82,16 @@ const TOOLKIT: {
     ),
     render: renderQrCard,
     init: initQr,
+  },
+  {
+    id: 'wifi',
+    title: 'WiFi 二维码',
+    desc: '扫码即连 WiFi',
+    icon: tkSvg(
+      '<path d="M5 12.55a11 11 0 0 1 14 0"/><path d="M8.5 16.1a6 6 0 0 1 7 0"/><path d="M12 20h.01"/>',
+    ),
+    render: renderWifiCard,
+    init: initWifi,
   },
   {
     id: 'authenticator',

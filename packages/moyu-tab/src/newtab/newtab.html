@@ -642,6 +642,26 @@ html.locked .sub-filter{display:none}
 .qr-btn-pri:not(:disabled):active{box-shadow:var(--nm-in-sm)}
 .qr-btn-ghost{background:var(--glass-accent);color:var(--accent)}
 .qr-btn-ghost:not(:disabled):active{box-shadow:var(--nm-in-sm)}
+/* WiFi 二维码 */
+.wifi-card .calc-form{gap:8px}
+.wf-pw-wrap{position:relative;display:flex;align-items:center}
+.wf-pw-wrap .wf-input{padding-right:34px;flex:1;width:100%;box-sizing:border-box}
+.wf-eye{position:absolute;right:4px;top:50%;transform:translateY(-50%);display:flex;align-items:center;justify-content:center;width:26px;height:26px;border:none;border-radius:5px;background:transparent;color:var(--text-tertiary);cursor:pointer;font-family:inherit;transition:color .15s,background .15s}
+.wf-eye:hover{color:var(--accent);background:var(--glass-accent)}
+.wf-eye.on{color:var(--accent)}
+.wf-dd .cal-dd-btn{width:100%;justify-content:space-between;padding:7px 10px;font-size:12px;font-weight:500;color:var(--text);border:0.5px solid var(--glass-border-h);box-shadow:none}
+.wf-dd .cal-dd-btn:hover{color:var(--accent)}
+.wf-dd.open .cal-dd-btn{color:var(--accent);border-color:var(--accent);box-shadow:none}
+.wf-dd .cal-dd-list{left:0;transform:none;min-width:100%}
+.wf-hidden{display:flex;align-items:center;gap:8px;cursor:pointer;user-select:none;padding:2px 0;position:relative}
+.wf-hidden input{position:absolute;opacity:0;width:0;height:0;margin:0}
+.wf-switch{width:34px;height:18px;border-radius:9px;background:var(--nm-surface);border:0.5px solid var(--glass-border-h);position:relative;flex-shrink:0;transition:background .15s,border-color .15s}
+.wf-switch-knob{position:absolute;top:1px;left:1px;width:14px;height:14px;border-radius:50%;background:var(--text-tertiary);transition:transform .15s,background .15s}
+.wf-hidden input:checked + .wf-switch{background:var(--accent);border-color:var(--accent)}
+.wf-hidden input:checked + .wf-switch .wf-switch-knob{transform:translateX(16px);background:#fff}
+.wf-hidden-txt{font-size:12px;color:var(--text-secondary)}
+.wf-stage{min-height:200px}
+.wf-note{margin:8px 0 0;text-align:center;color:var(--text-tertiary);font-size:11px;line-height:1.5}
 /* 两步验证器 */
 .otp-list{display:flex;flex-direction:column;gap:6px;margin-bottom:8px;max-height:300px;overflow-y:auto}
 .otp-list::-webkit-scrollbar{width:5px}
