@@ -18,6 +18,7 @@ import { initBookmarks, renderBookmarksCard } from './widgets/bookmarks';
 import { initCloud, renderCloudCard } from './widgets/cloud';
 import { initTranslate, renderTranslateCard } from './widgets/translate';
 import { initWeather } from './widgets/weather';
+import { initTyphoon } from './widgets/typhoon';
 import { renderHotCard, initHotCard } from './widgets/hot';
 import { renderNewsCard, initNewsCard } from './widgets/news';
 import { CAT_TREE, ALL_WIDGETS, TopCat, WID } from './config';
@@ -1867,6 +1868,7 @@ async function init() {
   initWeatherPopover();
   initWebSearch();
   initMedia();
+  initTyphoon();
   await loadSch();
   await loadSal();
   initSalaryPopover();

@@ -42,7 +42,8 @@
     "https://i.weread.qq.com/*",
     "https://open.er-api.com/*",
     "https://aihot.virxact.com/*",
-    "https://push2.eastmoney.com/*"
+    "https://push2.eastmoney.com/*",
+    "https://typhoon.slt.zj.gov.cn/*"
   ],
   "declarative_net_request": {
     "rule_resources": [

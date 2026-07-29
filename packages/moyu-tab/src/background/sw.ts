@@ -663,6 +663,51 @@ async function handleSinaFlashFetch(): Promise<SinaFlashResponse> {
   }
 }
 
+// ─── Typhoon Activity (浙江水利厅台风网实时活跃台风) ────
+
+interface ActiveTyphoon {
+  tfid: string;
+  name: string;
+  enname?: string;
+  strong: string; // 超强台风 / 强台风 / 台风 ...
+  power: string; // 风力等级 "17"
+  speed: string; // 中心附近最大风速 m/s "60"
+  pressure: string; // 中心最低气压 hPa "920"
+  lat: string;
+  lng: string;
+  movedirection: string; // 西北西
+  movespeed: string; // 移速 km/h "21"
+  radius7?: string; // 七级风圈半径
+  radius10?: string; // 十级风圈半径
+  warnlevel?: string | null; // white/blue/yellow/orange/red
+  timeformate: string; // "7月29日20时"
+}
+interface TyphoonActivityResponse {
+  success: boolean;
+  data?: ActiveTyphoon[];
+  error?: string;
+}
+
+/** 浙江水利厅台风网 /Api/TyhoonActivity：当前活跃台风实时位置（官方接口名少一个 r，照抄）。无需 Referer。 */
+async function handleTyphoonActivityFetch(): Promise<TyphoonActivityResponse> {
+  const ctrl = new AbortController();
+  const to = setTimeout(() => ctrl.abort(), 12000);
+  try {
+    const res = await fetch('https://typhoon.slt.zj.gov.cn/Api/TyhoonActivity', {
+      cache: 'no-store',
+      signal: ctrl.signal,
+    });
+    if (!res.ok) return { success: false, error: 'HTTP ' + res.status };
+    const j = await res.json();
+    const arr = (Array.isArray(j) ? j : []) as ActiveTyphoon[];
+    return { success: true, data: arr };
+  } catch (e) {
+    return { success: false, error: e instanceof Error ? e.message : String(e) };
+  } finally {
+    clearTimeout(to);
+  }
+}
+
 // ─── Message Router ─────────────────────────────────────
 
 // ─── Weread Shelf (微信读书书架) ────────────────────────
@@ -1399,6 +1444,8 @@ chrome.runtime.onMessage.addListener((message: { type: string }, _sender, sendRe
     handleZhihuFetch().then(sendResponse);
   } else if (message?.type === 'SINA_FLASH_FETCH') {
     handleSinaFlashFetch().then(sendResponse);
+  } else if (message?.type === 'TYPHOON_FETCH') {
+    handleTyphoonActivityFetch().then(sendResponse);
   } else if (message?.type === 'WEREAD_SHELF_FETCH') {
     handleWereadShelfFetch((message as unknown as { apiKey?: string }).apiKey ?? '').then(
       sendResponse,
