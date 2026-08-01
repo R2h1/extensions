@@ -21,6 +21,7 @@ import { initWeather } from './widgets/weather';
 import { initTyphoon } from './widgets/typhoon';
 import { renderHotCard, initHotCard } from './widgets/hot';
 import { renderNewsCard, initNewsCard } from './widgets/news';
+import { renderFoodCard, initFood, renderFoodSettings } from './widgets/food';
 import { CAT_TREE, ALL_WIDGETS, TopCat, WID } from './config';
 
 // 实用工具：3 个计算器整合为弹窗，入口卡片始终渲染在 #panel 第一行
@@ -240,8 +241,11 @@ async function renderPanel() {
   const rightIds: string[] = [];
   for (const w of ALL_WIDGETS) {
     if (!enabled.has(w.id)) continue;
-    (w.id === 'hot' || w.id === 'news' ? leftIds : rightIds).push(w.id);
+    (w.id === 'hot' || w.id === 'news' || w.id === 'food' ? leftIds : rightIds).push(w.id);
   }
+  // 左列顺序：今天吃什么 → 热搜 → 资讯
+  const leftOrder = ['food', 'hot', 'news'];
+  leftIds.sort((a, b) => leftOrder.indexOf(a) - leftOrder.indexOf(b));
   const feedCol = document.getElementById('feedCol');
   const cardsCol = document.getElementById('cardsCol');
   rendered = {};
@@ -277,6 +281,7 @@ function getCard(w: WID): string {
   if (w.id === 'translate') return renderTranslateCard();
   if (w.id === 'hot') return renderHotCard();
   if (w.id === 'news') return renderNewsCard();
+  if (w.id === 'food') return renderFoodCard();
   return `<div class="widget-card clickable" data-widget="${w.id}"><div class="widget-entry"><span>${w.desc}</span><span class="arrow">→</span></div></div>`;
 }
 function renderToolkitCard(): string {
@@ -310,6 +315,9 @@ async function initW(id: string) {
       break;
     case 'translate':
       initTranslate();
+      break;
+    case 'food':
+      initFood();
       break;
   }
 }
@@ -565,6 +573,7 @@ document.querySelectorAll('#smSidebar .msb').forEach((b) =>
     this.classList.add('active');
     if (this.dataset.s === 'time') renderSetTime();
     else if (this.dataset.s === 'weread') renderSetWeread();
+    else if (this.dataset.s === 'food') renderSetFood();
     else renderSetSalary();
   }),
 );
@@ -580,6 +589,13 @@ function renderSetWeread() {
   renderWereadKeySetup(body, async () => {
     sm.classList.remove('open');
     refreshWereadOverview();
+  });
+}
+function renderSetFood() {
+  const body = document.getElementById('settingsBody');
+  if (!body) return;
+  renderFoodSettings(body, () => {
+    showMessage('清单已保存', 'success');
   });
 }
 function openSettingsWeread() {

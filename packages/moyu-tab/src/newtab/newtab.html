@@ -284,6 +284,31 @@ html.locked .sub-filter{display:none}
 .hot-swap{display:flex;align-items:center;gap:4px;padding:3px 9px;font-size:11px;font-weight:500;border:0.5px solid var(--glass-border);border-radius:var(--radius-xs);background:transparent;color:var(--text-secondary);cursor:pointer;font-family:inherit;transition:all .15s}
 .hot-swap:hover{border-color:var(--accent);color:var(--accent)}
 .hot-swap i{font-style:normal;font-size:10px;color:var(--text-tertiary)}
+/* 今天吃什么卡片 */
+.food-card{padding:12px 14px}
+.food-head{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.food-title{font-size:14px;font-weight:600;color:var(--text-secondary);letter-spacing:.5px;display:flex;align-items:center;gap:6px}
+.food-title svg{width:16px;height:16px}
+.food-tabs{display:flex;gap:4px;margin-left:auto}
+.food-tab{padding:4px 10px;border:none;background:transparent;border-radius:var(--radius-xs);font-size:12px;font-weight:500;color:var(--text-tertiary);cursor:pointer;transition:all .15s;font-family:inherit}
+.food-tab.active{background:var(--glass-accent);color:var(--accent)}
+.food-tab:hover:not(.active){color:var(--text-secondary)}
+.food-stage{position:relative;overflow:hidden;border-radius:var(--radius);height:140px;background:#fff;border:0.5px solid var(--glass-border);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px}
+.food-name{font-size:26px;font-weight:700;color:#E6A23C;letter-spacing:1px;text-shadow:0 1px 2px rgba(0,0,0,.12);transition:opacity .2s;z-index:2;max-width:90%;text-align:center}
+.food-name.prompt{color:var(--text-tertiary);font-size:18px;font-weight:500;text-shadow:none}
+.food-name.pop{animation:foodPop .4s ease-out}
+@keyframes foodPop{from{opacity:0;transform:scale(.6)}to{opacity:1;transform:scale(1)}}
+@keyframes foodFade{0%{opacity:0}30%{opacity:.6}100%{opacity:0}}
+.food-swap{position:relative;z-index:2;background:#fff;color:#4996EE;border:none;border-radius:40px;padding:7px 20px;font-size:13px;font-weight:500;font-family:inherit;cursor:pointer;box-shadow:0 2px 6px rgba(96,196,246,.5);transition:transform .15s,box-shadow .15s}
+.food-swap:hover{box-shadow:0 4px 10px rgba(96,196,246,.6)}
+.food-swap:active{transform:scale(.95)}
+.food-swap:disabled{opacity:.6;cursor:default}
+.food-swap.is-spinning{color:#dc2626}
+.food-floater{position:absolute;z-index:1;color:rgba(63,63,63,.5);font-weight:600;white-space:nowrap;pointer-events:none;animation:foodFade 1.2s ease forwards}
+.food-edit-row{margin-bottom:12px}
+.food-edit-label{font-size:12px;font-weight:600;color:var(--text-secondary);margin-bottom:4px}
+.food-edit-area{width:100%;min-height:100px;resize:vertical;box-sizing:border-box;padding:8px 10px;border:0.5px solid var(--glass-border);border-radius:var(--radius-xs);background:transparent;color:var(--text-primary);font-size:13px;font-family:inherit;line-height:1.5;outline:none}
+.food-edit-area:focus{border-color:var(--accent)}
 /* 日历卡片 */
 .cal-card{padding:14px}
 .cal-wkend{opacity:.55}
@@ -949,7 +974,7 @@ html.locked .sub-filter{display:none}
 </div>
 <div class="ctx-menu" id="ctxMenu"><button id="ctxWidgets">组件库</button><button id="ctxWallpaper">更换壁纸</button></div>
 <div class="mo" id="widgetModal"><div class="ms"><div class="mh"><span class="mt">组件库</span><button class="mc" id="wmClose">x</button></div><div class="modal-split"><div class="wm-sidebar" id="wmSidebar"></div><div class="modal-content"><div class="wm-tabs" id="wmTabs"></div><div id="widgetList"></div></div></div></div></div>
-<div class="mo" id="settingsModal"><div class="ms"><div class="mh"><span class="mt">设置</span><button class="mc" id="smClose">x</button></div><div class="modal-split"><div class="modal-sidebar" id="smSidebar"><button class="msb active" data-s="time">时间</button><button class="msb" data-s="salary">发薪日</button><button class="msb" data-s="weread">微信读书</button></div><div class="modal-content" id="settingsBody"></div></div></div></div>
+<div class="mo" id="settingsModal"><div class="ms"><div class="mh"><span class="mt">设置</span><button class="mc" id="smClose">x</button></div><div class="modal-split"><div class="modal-sidebar" id="smSidebar"><button class="msb active" data-s="time">时间</button><button class="msb" data-s="salary">发薪日</button><button class="msb" data-s="weread">微信读书</button><button class="msb" data-s="food">今天吃什么</button></div><div class="modal-content" id="settingsBody"></div></div></div></div>
 <div class="mo" id="wallpaperModal"><div class="ms" style="max-width:600px"><div class="mh"><span class="mt">更换壁纸</span><button class="mc" id="wpClose">x</button></div><div class="modal-content" id="wpBody" style="padding:16px 20px 20px"></div></div></div>
 <div class="mo" id="toolkitModal"><div class="ms"><div class="mh"><span class="mt" id="tkTitle">实用工具</span><button class="mc" id="tkClose">✕</button></div><div class="modal-content" id="tkContent"></div></div></div>
 <div class="mo" id="wereadModal"><div class="ms" style="max-width:560px"><div class="mh"><span class="mt" id="wrModalTitle">微信读书</span><button class="mc" id="wrModalClose">✕</button></div><div class="modal-content" id="wrModalContent"></div></div></div>

@@ -69,6 +69,12 @@ export const CAT_TREE: TopCat[] = [
     icon: ICONS.bookmark,
     subs: [{ id: 'nav', name: '导航' }, { id: 'cloud', name: '云平台' }, { id: 'translate', name: '翻译' }],
   },
+  {
+    id: 'life',
+    name: '生活',
+    icon: ICONS.life,
+    subs: [{ id: 'food', name: '今天吃什么' }],
+  },
 ];
 
 export const ALL_WIDGETS: WID[] = [
@@ -78,4 +84,5 @@ export const ALL_WIDGETS: WID[] = [
   { id: 'cloud', name: '云平台', desc: '七牛/华为/腾讯/阿里/百度', cat: 'bookmark', sub: 'cloud' },
   { id: 'translate', name: '翻译平台', desc: '有道/DeepL/彩云/搜狗/金山词霸/CNKI', cat: 'bookmark', sub: 'translate' },
   { id: 'bookmarks', name: '书签同步', desc: '浏览器书签栏', cat: 'bookmark', sub: 'nav' },
+  { id: 'food', name: '今天吃什么', desc: '随机推荐一道菜', cat: 'life', sub: 'food' },
 ];
