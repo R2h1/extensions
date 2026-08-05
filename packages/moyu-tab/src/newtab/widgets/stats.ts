@@ -22,9 +22,6 @@ let statsLastFetch = 0;
 const ICON =
   '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2.5 2.5"/><path d="M9 2h6"/></svg>';
 
-function pad(n: number): string {
-  return String(n).padStart(2, '0');
-}
 function fmtStatsTime(ms: number): string {
   const totalSec = Math.floor(ms / 1000);
   const h = Math.floor(totalSec / 3600);
@@ -43,11 +40,6 @@ function fmtShort(ms: number): string {
   if (m > 0) return `${m}分${s}秒`;
   return `${s}秒`;
 }
-function fmtTs(ts: number): string {
-  const d = new Date(ts);
-  return pad(d.getHours()) + ':' + pad(d.getMinutes());
-}
-
 function loadCache(): StatsCache | null {
   try {
     const r = localStorage.getItem(ST_KEY);
@@ -67,7 +59,6 @@ export function renderStatsCard(): string {
       <div class="stats-head">
         <div class="stats-title">${ICON}网站统计</div>
         <div class="stats-meta">
-          <span class="stats-upd" id="statsUpd"></span>
           <button class="stats-refresh" id="statsRefresh" title="刷新">↻</button>
         </div>
       </div>
@@ -77,17 +68,14 @@ export function renderStatsCard(): string {
 
 function renderBody(error: boolean) {
   const body = document.getElementById('statsBody');
-  const upd = document.getElementById('statsUpd');
   if (!body) return;
   const c = loadCache();
   if (!c || !c.rows.length) {
     body.innerHTML = `<div class="stats-empty">${error ? '⚠ 获取失败 · 点刷新重试' : '暂无数据，多逛逛再来看看'}</div>`;
-    if (upd) upd.textContent = error ? '⚠ 失败' : '';
     return;
   }
   const total = c.rows.reduce((s, r) => s + r.time, 0);
   const top = c.rows.slice(0, 5);
-  const maxPct = Math.max(1, ...top.map((r) => r.percentage));
   body.innerHTML = `<div class="stats-total">今日 <b>${fmtStatsTime(total)}</b></div>
     <div class="stats-list">${top
       .map(
@@ -95,12 +83,11 @@ function renderBody(error: boolean) {
           `<div class="stats-row">
             <span class="stats-rank r${i + 1}">${i + 1}</span>
             <span class="stats-name" title="${esc(r.domain)}">${esc(r.name)}</span>
-            <span class="stats-bar"><i style="width:${Math.max(4, Math.round((r.percentage / maxPct) * 100))}%"></i></span>
             <span class="stats-time">${fmtShort(r.time)}</span>
+            <span class="stats-bar"><i style="width:${Math.max(6, r.percentage)}%"></i></span>
           </div>`,
       )
       .join('')}</div>`;
-  if (upd) upd.textContent = (error ? '⚠ ' : '') + fmtTs(c.ts) + ' 更新';
 }
 
 async function refreshStats() {

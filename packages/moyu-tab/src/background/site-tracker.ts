@@ -101,17 +101,9 @@ let isSaving = false;
 
 function normalizeDomain(raw: string): string {
   if (KNOWN_SITES[raw]) return raw;
+  // 只对已知平台的父域做归并（如 v.qq.com → qq.com）；未知域名保留完整子域，避免误合并（如 r2h1.github.io）
   for (const parent of PARENT_DOMAINS) {
     if (raw.endsWith('.' + parent)) return parent;
-  }
-  const parts = raw.split('.');
-  if (parts.length > 2) {
-    const tld2 = parts.slice(-2).join('.');
-    if (['com.cn', 'co.jp', 'org.cn', 'net.cn'].includes(tld2)) {
-      if (parts.length > 3) return parts.slice(-3).join('.');
-      return raw;
-    }
-    return parts.slice(-2).join('.');
   }
   return raw;
 }
@@ -200,6 +192,7 @@ function tick() {
 let tabSeq = 0; // 切换竞态防护：忽略乱序返回的过期 tab 信息
 async function onTabActivated(activeInfo: chrome.tabs.TabActiveInfo) {
   tick();
+  await flushData(); // 切 tab 立即落盘，保证查询读到最新时长（避免 interval 未 flush 时读到旧数据）
   activeTabId = activeInfo.tabId;
   const seq = ++tabSeq;
   try {
@@ -215,6 +208,7 @@ async function onTabActivated(activeInfo: chrome.tabs.TabActiveInfo) {
       }
     }
     sessionStart = Date.now();
+    await saveSessionMeta(); // 就地更新 meta，让 SW 休眠后的缺口恢复落到当前活跃站
   } catch {
     if (seq !== tabSeq) return;
     activeDomain = null;
@@ -225,10 +219,12 @@ async function onTabUpdated(tabId: number, changeInfo: chrome.tabs.TabChangeInfo
   if (tabId !== activeTabId) return;
   if (changeInfo.url) {
     tick();
+    await flushData(); // 页面导航立即落盘
     const domain = extractDomain(changeInfo.url);
     activeDomain = domain;
     if (domain) countVisit(domain);
     sessionStart = Date.now();
+    await saveSessionMeta(); // 导航后同步 meta
   }
   if (changeInfo.title && activeDomain) {
     const record = ensureTodayRecord(activeDomain);
@@ -240,6 +236,7 @@ function onWindowFocusChanged(windowId: number) {
     // 浏览器整体失焦：先把失焦前的时长落地，暂停累计
     if (!isPaused) {
       tick();
+      void flushData(); // 失焦落地
       isPaused = true;
     }
   } else if (isPaused) {
@@ -274,6 +271,7 @@ function dateRange(period: 'day' | 'week' | 'month'): string[] {
   return dates;
 }
 export async function getSiteRankings(period: 'day' | 'week' | 'month'): Promise<SiteRankingItem[]> {
+  await flushData(); // 先把内存最新时长落盘，再读回，避免读到旧数据
   await loadData();
   const keys = dateRange(period);
   const agg: Record<string, { time: number; visits: number }> = {};
