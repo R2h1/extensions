@@ -26,17 +26,22 @@ function pad(n: number): string {
   return String(n).padStart(2, '0');
 }
 function fmtStatsTime(ms: number): string {
-  const totalMin = Math.floor(ms / 60000);
-  const h = Math.floor(totalMin / 60);
-  const m = totalMin % 60;
-  return h > 0 ? `${h} 小时 ${m} 分` : `${m} 分`;
+  const totalSec = Math.floor(ms / 1000);
+  const h = Math.floor(totalSec / 3600);
+  const m = Math.floor((totalSec % 3600) / 60);
+  const s = totalSec % 60;
+  if (h > 0) return s ? `${h} 小时 ${m} 分 ${s} 秒` : `${h} 小时 ${m} 分`;
+  if (m > 0) return `${m} 分 ${s} 秒`;
+  return `${s} 秒`;
 }
 function fmtShort(ms: number): string {
-  const min = Math.round(ms / 60000);
-  if (min < 60) return `${min}分`;
-  const h = Math.floor(min / 60);
-  const m = min % 60;
-  return m ? `${h}时${m}分` : `${h}小时`;
+  const totalSec = Math.floor(ms / 1000);
+  const h = Math.floor(totalSec / 3600);
+  const m = Math.floor((totalSec % 3600) / 60);
+  const s = totalSec % 60;
+  if (h > 0) return m || s ? `${h}时${m}分${s}秒` : `${h}小时`;
+  if (m > 0) return `${m}分${s}秒`;
+  return `${s}秒`;
 }
 function fmtTs(ts: number): string {
   const d = new Date(ts);
