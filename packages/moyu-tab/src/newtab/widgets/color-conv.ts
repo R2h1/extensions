@@ -92,11 +92,17 @@ function compute(): void {
   const rgb = `rgb(${p.r}, ${p.g}, ${p.b})`;
   const rgba = `rgba(${p.r}, ${p.g}, ${p.b}, ${p.a01.toFixed(2)})`;
   const bg = p.a01 < 1 ? hexA : hex;
-  out.innerHTML = `<div class="col-swatch" style="background:${bg}"></div>
-    <div class="col-hex" data-copy="${hex}" title="点击复制">${hex}</div>
-    <div class="col-hex" data-copy="${hexA}" title="点击复制">${hexA}</div>
-    <div class="col-hex" data-copy="${rgb}" title="点击复制">${rgb}</div>
-    <div class="col-hex" data-copy="${rgba}" title="点击复制">${rgba}</div>`;
+  const row = (label: string, val: string) =>
+    `<div class="col-hex" data-copy="${val}" title="点击复制 ${val}"><span class="col-k">${label}</span><span class="col-v">${val}</span></div>`;
+  out.innerHTML = `<div class="col-main">
+    <div class="col-swatch" style="background:${bg}"></div>
+    <div class="col-list">
+      ${row('HEX', hex)}
+      ${row('HEXA', hexA)}
+      ${row('RGB', rgb)}
+      ${row('RGBA', rgba)}
+    </div>
+  </div>`;
 }
 
 export function initColorConv(): void {
@@ -107,12 +113,12 @@ export function initColorConv(): void {
     const t = (e.target as HTMLElement).closest('.col-hex') as HTMLElement | null;
     if (!t) return;
     const val = t.dataset.copy || '';
+    if (!val) return;
     navigator.clipboard?.writeText(val).then(() => {
-      const orig = t.textContent;
-      t.textContent = '已复制 ✓';
-      setTimeout(() => {
-        if (t.textContent === '已复制 ✓') t.textContent = orig;
-      }, 900);
+      // 聚焦反馈：只高亮被点的那一行，其余清除
+      out.querySelectorAll('.col-hex.copied').forEach((x) => x.classList.remove('copied'));
+      t.classList.add('copied');
+      setTimeout(() => t.classList.remove('copied'), 1000);
     });
   });
 }
