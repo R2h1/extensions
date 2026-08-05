@@ -6,8 +6,9 @@ interface Cloud {
   url: string;
 }
 
-/** 写死的五大云平台 */
+/** 写死的六大云平台 */
 const CLOUDS: Cloud[] = [
+  { name: '火山引擎', url: 'https://www.volcengine.com' },
   { name: '七牛云', url: 'https://www.qiniu.com' },
   { name: '华为云', url: 'https://www.huaweicloud.com' },
   { name: '腾讯云', url: 'https://cloud.tencent.com' },
