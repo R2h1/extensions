@@ -144,10 +144,21 @@ function toggleFs() {
   const fs = modal.classList.toggle('fs');
   syncFsBtn(fs);
 }
+function refreshTyphoonModal() {
+  const btn = document.getElementById('typhoonRefresh');
+  if (btn) {
+    btn.classList.add('spin');
+    setTimeout(() => btn.classList.remove('spin'), 600);
+  }
+  refreshTyphoon(); // 刷新右上角气泡摘要
+  const frame = document.getElementById('typhoonFrame') as HTMLIFrameElement | null;
+  if (frame && frame.src) frame.src = frame.src; // 重新加载内嵌的台风网页面
+}
 
 export async function initTyphoon() {
   renderTy(false);
   document.getElementById('headerTyphoon')?.addEventListener('click', openTyphoonModal);
+  document.getElementById('typhoonRefresh')?.addEventListener('click', refreshTyphoonModal);
   document.getElementById('typhoonFsBtn')?.addEventListener('click', toggleFs);
   document.getElementById('typhoonModalClose')?.addEventListener('click', closeTyphoonModal);
   document.getElementById('typhoonModal')?.addEventListener('click', (e) => {

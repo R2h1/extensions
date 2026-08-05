@@ -870,6 +870,9 @@ html.locked .sub-filter{display:none}
 #typhoonModal .vm-card{width:min(1280px,96vw);max-height:95vh}
 #typhoonModal .vm-frame{height:min(84vh,820px)}
 #typhoonModal .vm-actions{display:flex;align-items:center;gap:8px}
+#typhoonModal .vm-actions .hot-swap{width:28px;height:28px;border-radius:50%;padding:0;border:none;background:var(--nm-surface);box-shadow:var(--nm-out),0 2px 4px rgba(0,0,0,0.1);color:var(--text-tertiary);font-size:13px;justify-content:center}
+#typhoonModal .vm-actions .hot-swap:hover{color:var(--accent)}
+#typhoonModal .vm-actions .hot-swap.spin{animation:goldspin 1s linear infinite;color:var(--accent)}
 #typhoonModal.fs .vm-card{width:100vw;max-width:none;height:100vh;max-height:100vh;border-radius:0}
 #typhoonModal.fs .vm-frame{height:auto;flex:1}
 #typhoonModal.fs .vm-open{display:none}
@@ -1068,6 +1071,7 @@ html.locked .sub-filter{display:none}
     <div class="vm-head">
       <a class="vm-open" href="https://typhoon.slt.zj.gov.cn/" target="_blank" rel="noopener">浙江水利厅台风网 ↗</a>
       <div class="vm-actions">
+        <button class="hot-swap" id="typhoonRefresh" type="button" title="刷新">↻</button>
         <button class="vm-close" id="typhoonFsBtn" type="button" title="全屏"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3H5a2 2 0 0 0-2 2v3"/><path d="M21 8V5a2 2 0 0 0-2-2h-3"/><path d="M3 16v3a2 2 0 0 0 2 2h3"/><path d="M16 21h3a2 2 0 0 0 2-2v-3"/></svg></button>
         <button class="vm-close" id="typhoonModalClose" title="关闭">✕</button>
       </div>
