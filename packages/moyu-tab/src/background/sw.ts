@@ -4,6 +4,8 @@
  * 管理番茄钟持久化状态、alarms 定时检查、通知发送。
  */
 
+import { initSiteTracker, getSiteRankings } from './site-tracker';
+
 // ─── Types ──────────────────────────────────────────────
 
 interface PomodoroState {
@@ -1475,6 +1477,9 @@ chrome.runtime.onMessage.addListener((message: { type: string }, _sender, sendRe
     handleExchangeFetch().then(sendResponse);
   } else if (message?.type === 'AIHOT_FETCH') {
     handleAihotFetch().then(sendResponse);
+  } else if (message?.type === 'TRACKER_RANKINGS') {
+    const m = message as unknown as { period?: string };
+    getSiteRankings((m.period as 'day' | 'week' | 'month') || 'day').then(sendResponse);
   } else if (message?.type === 'SCREENON_ON') {
     screenOnEnable().then(sendResponse);
   } else if (message?.type === 'SCREENON_OFF') {
@@ -1586,3 +1591,6 @@ chrome.runtime.onInstalled.addListener(async () => {
   chrome.alarms.clear(ALARM_COMPLETE);
   await restoreScreenOn();
 });
+
+// 网站使用时长统计：SW 每次唤醒模块重载，需在顶层注册监听（幂等，saveTimer 已防重）
+void initSiteTracker();

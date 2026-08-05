@@ -388,6 +388,26 @@ html.locked .sub-filter{display:none}
 .hot-refresh:hover{color:var(--accent)}
 .hot-refresh:active{box-shadow:var(--nm-in-sm)}
 .hot-refresh.spin{color:var(--accent);animation:goldspin 1s linear infinite}
+.stats-card{padding:12px 14px}
+.stats-head{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+.stats-title{font-size:14px;font-weight:600;color:var(--text-secondary);letter-spacing:.5px;display:flex;align-items:center;gap:6px}
+.stats-meta{display:flex;align-items:center;gap:6px;margin-left:auto}
+.stats-upd{font-size:10px;color:var(--text-tertiary);font-variant-numeric:tabular-nums;min-height:12px}
+.stats-refresh{width:26px;height:26px;border-radius:50%;border:none;background:var(--nm-surface);box-shadow:var(--nm-out),0 2px 4px rgba(0,0,0,0.1);color:var(--text-tertiary);cursor:pointer;font-size:13px;display:flex;align-items:center;justify-content:center;transition:color .15s,box-shadow .15s;font-family:inherit}
+.stats-refresh:hover{color:var(--accent)}
+.stats-refresh:active{box-shadow:var(--nm-in-sm)}
+.stats-refresh.spin{color:var(--accent);animation:goldspin 1s linear infinite}
+.stats-total{font-size:12px;color:var(--text-tertiary);margin:2px 0 8px}
+.stats-total b{color:var(--text-primary);font-size:16px;font-variant-numeric:tabular-nums}
+.stats-list{display:flex;flex-direction:column;gap:6px}
+.stats-row{display:flex;align-items:center;gap:8px;font-size:12px}
+.stats-rank{flex-shrink:0;width:16px;height:16px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:600;color:#fff;background:var(--text-tertiary)}
+.stats-rank.r1{background:#dc2626}.stats-rank.r2{background:#f97316}.stats-rank.r3{background:#eab308}
+.stats-name{flex-shrink:0;max-width:88px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--text-secondary)}
+.stats-bar{flex:1;height:6px;border-radius:3px;background:rgba(0,0,0,0.06)}
+.stats-bar i{display:block;height:100%;border-radius:3px;background:var(--accent);opacity:.75}
+.stats-time{flex-shrink:0;font-variant-numeric:tabular-nums;color:var(--text-tertiary);font-size:11px}
+.stats-empty{font-size:12px;color:var(--text-tertiary);text-align:center;padding:14px 0}
 .hot-list{display:flex;flex-direction:column}
 .hot-empty{font-size:12px;color:var(--text-tertiary);text-align:center;padding:14px 0}
 .hot-row{display:flex;align-items:center;gap:8px;padding:5px 2px;border-bottom:0.5px solid rgba(0,0,0,0.04);text-decoration:none;border-radius:4px}
@@ -560,6 +580,7 @@ html.locked .sub-filter{display:none}
 .calc-field input{padding:7px 10px;font-size:12px;border:0.5px solid var(--glass-border-h);border-radius:var(--radius-xs);background:var(--nm-surface);color:var(--text);outline:none;font-family:inherit;width:100%;transition:border-color .15s,box-shadow .15s}
 .calc-field input:focus{border-color:var(--accent);box-shadow:0 0 0 1.5px var(--accent)}
 .calc-row2{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.calc-row3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px}
 .calc-toggle{display:flex;background:var(--nm-surface);border-radius:var(--radius-xs);padding:2px;border:0.5px solid var(--glass-border-h);gap:2px}
 .calc-tb{flex:1;text-align:center;padding:6px 0;border-radius:5px;font-size:11px;font-weight:500;color:var(--text-tertiary);cursor:pointer;transition:all .15s;user-select:none}
 .calc-tb.active{background:var(--nm-surface);color:var(--accent);box-shadow:var(--nm-out-sm);font-weight:600}
@@ -569,6 +590,9 @@ html.locked .sub-filter{display:none}
 .calc-row span:first-child{color:var(--text-tertiary);font-size:11px}
 .calc-empty{font-size:12px;color:var(--text-tertiary);text-align:center;padding:6px 0}
 .calc-val{font-variant-numeric:tabular-nums;font-family:'Courier New',ui-monospace,monospace;font-weight:600}
+.color-card .col-swatch{height:44px;border-radius:var(--radius-sm);border:0.5px solid var(--glass-border-h);margin-bottom:8px}
+.color-card .col-hex{font-variant-numeric:tabular-nums;font-family:'Courier New',ui-monospace,monospace;font-size:13px;font-weight:600;color:var(--accent);cursor:pointer;padding:3px 6px;border-radius:5px;transition:background .15s}
+.color-card .col-hex:hover{background:var(--nm-surface)}
 .calc-val.tax{color:#ef4444}
 .calc-val.after{color:var(--accent)}
 .bmi-main{display:flex;align-items:baseline;gap:10px}

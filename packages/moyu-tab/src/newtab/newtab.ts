@@ -9,6 +9,8 @@ import { initWereadOverview, renderWereadOverviewCard, refreshWereadOverview } f
 import { openBookReviewIn, renderWereadKeySetup, setWereadSettingsOpener } from './widgets/weread-shared';
 import { initTax, renderTaxCard } from './widgets/tax';
 import { initMortgage, renderMortgageCard } from './widgets/mortgage';
+import { initMortgagePrepay, renderMortgagePrepayCard } from './widgets/mortgage-prepay';
+import { initColorConv, renderColorConvCard } from './widgets/color-conv';
 import { initBmi, renderBmiCard } from './widgets/bmi';
 import { initQr, renderQrCard } from './widgets/qrcode';
 import { initWifi, renderWifiCard } from './widgets/wifi';
@@ -22,6 +24,7 @@ import { initTyphoon } from './widgets/typhoon';
 import { renderHotCard, initHotCard } from './widgets/hot';
 import { renderNewsCard, initNewsCard } from './widgets/news';
 import { renderFoodCard, initFood, renderFoodSettings } from './widgets/food';
+import { renderStatsCard, initStats } from './widgets/stats';
 import { CAT_TREE, ALL_WIDGETS, TopCat, WID } from './config';
 
 // 实用工具：3 个计算器整合为弹窗，入口卡片始终渲染在 #panel 第一行
@@ -56,6 +59,24 @@ const TOOLKIT: {
     icon: tkSvg('<path d="M3 10 12 3l9 7"/><path d="M5 9.5V20h14V9.5"/><path d="M10 20v-5h4v5"/>'),
     render: renderMortgageCard,
     init: initMortgage,
+  },
+  {
+    id: 'mortgage-prepay',
+    title: '房贷提前还款',
+    desc: '缩短年限/减月供',
+    icon: tkSvg('<path d="M3 10 12 3l9 7"/><path d="M5 9.5V20h14V9.5"/><circle cx="12" cy="14" r="2.5"/><path d="M9.5 20v-3M14.5 20v-3"/>'),
+    render: renderMortgagePrepayCard,
+    init: initMortgagePrepay,
+  },
+  {
+    id: 'color',
+    title: '颜色转换',
+    desc: 'RGB/RGBA 转 hex',
+    icon: tkSvg(
+      '<circle cx="12" cy="12" r="9"/><path d="M12 3a9 9 0 0 1 0 18z" fill="currentColor" stroke="none"/><path d="M12 3a9 9 0 0 0-6.4 2.6"/>',
+    ),
+    render: renderColorConvCard,
+    init: initColorConv,
   },
   {
     id: 'bmi',
@@ -241,10 +262,10 @@ async function renderPanel() {
   const rightIds: string[] = [];
   for (const w of ALL_WIDGETS) {
     if (!enabled.has(w.id)) continue;
-    (w.id === 'hot' || w.id === 'news' || w.id === 'food' ? leftIds : rightIds).push(w.id);
+    (w.id === 'hot' || w.id === 'news' || w.id === 'food' || w.id === 'stats' ? leftIds : rightIds).push(w.id);
   }
-  // 左列顺序：今天吃什么 → 热搜 → 资讯
-  const leftOrder = ['food', 'hot', 'news'];
+  // 左列顺序：今天吃什么 → 网站统计 → 热搜 → 资讯
+  const leftOrder = ['food', 'stats', 'hot', 'news'];
   leftIds.sort((a, b) => leftOrder.indexOf(a) - leftOrder.indexOf(b));
   const feedCol = document.getElementById('feedCol');
   const cardsCol = document.getElementById('cardsCol');
@@ -282,6 +303,7 @@ function getCard(w: WID): string {
   if (w.id === 'hot') return renderHotCard();
   if (w.id === 'news') return renderNewsCard();
   if (w.id === 'food') return renderFoodCard();
+  if (w.id === 'stats') return renderStatsCard();
   return `<div class="widget-card clickable" data-widget="${w.id}"><div class="widget-entry"><span>${w.desc}</span><span class="arrow">→</span></div></div>`;
 }
 function renderToolkitCard(): string {
@@ -318,6 +340,9 @@ async function initW(id: string) {
       break;
     case 'food':
       initFood();
+      break;
+    case 'stats':
+      initStats();
       break;
   }
 }

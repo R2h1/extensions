@@ -20,10 +20,12 @@
     "declarativeNetRequestWithHostAccess",
     "bookmarks",
     "favicon",
-    "power"
+    "power",
+    "tabs"
   ],
 
   "host_permissions": [
+    "<all_urls>",
     "https://fundgz.1234567.com.cn/*",
     "https://fund.eastmoney.com/*",
     "https://api.open-meteo.com/*",

@@ -52,6 +52,7 @@ export const CAT_TREE: TopCat[] = [
     subs: [
       { id: 'hot', name: '热搜' },
       { id: 'news', name: '资讯' },
+      { id: 'stats', name: '网站统计' },
     ],
   },
   {
@@ -85,4 +86,5 @@ export const ALL_WIDGETS: WID[] = [
   { id: 'translate', name: '翻译平台', desc: '有道/DeepL/彩云/搜狗/金山词霸/CNKI', cat: 'bookmark', sub: 'translate' },
   { id: 'bookmarks', name: '书签同步', desc: '浏览器书签栏', cat: 'bookmark', sub: 'nav' },
   { id: 'food', name: '今天吃什么', desc: '随机推荐一道菜', cat: 'life', sub: 'food' },
+  { id: 'stats', name: '网站统计', desc: '今日上网时长排行', cat: 'news', sub: 'stats' },
 ];
