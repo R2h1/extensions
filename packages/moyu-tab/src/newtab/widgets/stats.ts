@@ -72,11 +72,11 @@ export function renderStatsCard(): string {
   return `<div class="widget-card stats-card">
       <div class="stats-head">
         <div class="stats-title">${ICON}网站统计</div>
-        <div class="stats-tabs">${tabs}</div>
         <div class="stats-meta">
           <button class="stats-refresh" id="statsRefresh" title="刷新">↻</button>
         </div>
       </div>
+      <div class="stats-tabs">${tabs}</div>
       <div class="stats-body" id="statsBody"><div class="stats-empty">加载中…</div></div>
     </div>`;
 }
