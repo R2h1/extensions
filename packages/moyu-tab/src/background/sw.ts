@@ -130,15 +130,15 @@ async function showNotification(title: string, message: string, emoji = '🍅') 
 }
 
 // ─── Water Reminder ────────────────────────────────────
-/** 到点提醒喝水；当天已达标则跳过 */
-async function onWaterReminder() {
+/** 到点提醒喝水；当天已达标则跳过（force=true 时无条件发送，用于设置里的「模拟提醒」） */
+async function onWaterReminder(force?: boolean) {
   try {
     const r = (await chrome.storage.local.get(WATER_KEY)) as Record<string, { date?: string; total?: number; goal?: number; cup?: number } | undefined>;
     const d = r?.[WATER_KEY];
     if (!d) return;
     const today = new Date();
     const cur = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
-    if (d.date === cur && (d.total ?? 0) >= (d.goal ?? 0)) return; // 已达标不再打扰
+    if (!force && d.date === cur && (d.total ?? 0) >= (d.goal ?? 0)) return; // 已达标不再打扰
     await showNotification(
       '💧 该喝水啦',
       `今日已喝 ${d.total ?? 0}ml / 目标 ${d.goal ?? 0}ml，起来喝一杯（${d.cup ?? 250}ml）润润喉~`,
@@ -1514,6 +1514,8 @@ chrome.runtime.onMessage.addListener((message: { type: string }, _sender, sendRe
       ? chrome.alarms.create(ALARM_WATER, { periodInMinutes: interval }).then(() => ({ success: true }))
       : chrome.alarms.clear(ALARM_WATER).then(() => ({ success: true }));
     p.then(sendResponse);
+  } else if (message?.type === 'WATER_SIMULATE') {
+    onWaterReminder(true).then(() => sendResponse({ success: true }));
   } else {
     handlePomodoroMessage(message as PomodoroMessage).then(sendResponse);
   }

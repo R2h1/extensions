@@ -1,4 +1,4 @@
-/** 喝水提醒：记录每日饮水量，按设定间隔定时提醒。
+/** 喝水提醒：右下角量杯图标 + 点击弹出简洁打水层；设置（目标/杯量/提醒间隔/模拟提醒）在「全局设置 → 喝水」里。
  *  数据存 chrome.storage.local（SW 的定时提醒闹钟也读同一份，跨天自动重置累计、保留设置）。 */
 const WATER_KEY = 'moyu_water';
 
@@ -45,106 +45,102 @@ async function save() {
     await chrome.storage.local.set({ [WATER_KEY]: data });
   } catch {}
 }
-/** 通知 SW 按当前间隔重建/清除提醒闹钟（页面每次打开也会同步一次，保证闹钟存在） */
+/** 通知 SW 按当前间隔重建/清除提醒闹钟 */
 function syncReminder() {
   void chrome.runtime
     .sendMessage({ type: 'WATER_SET_REMINDER', interval: data.interval })
     .catch(() => {});
 }
 
-const DROP =
-  '<svg width="54" height="54" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2.7S6 9.5 6 13.8a6 6 0 0 0 12 0C18 9.5 12 2.7 12 2.7z"/><path d="M9.5 14a3 3 0 0 0 2.5 3"/></svg>';
+const CUP_ICON =
+  '<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M7.5 3h9v1.5h-1.2V8a3.8 3.8 0 0 0 2.4 3.5V19a2 2 0 0 1-2 2h-7a2 2 0 0 1-2-2v-7.5A3.8 3.8 0 0 0 9 8V4.5H7.5z"/><path d="M9.5 12.5h5M9.5 15h5M9.5 17.5h5"/></svg>';
 
-function tg(id: string, cur: number): string {
-  const opts =
-    id === 'waterGoalTg'
-      ? GOALS.map((v) => ({ v, label: `${v / 1000}L` }))
-      : id === 'waterCupTg'
-        ? CUPS.map((v) => ({ v, label: `${v}ml` }))
-        : INTERVALS;
-  return `<div class="calc-toggle" id="${id}">${opts
+/** 分段选项 HTML（用于设置与弹层） */
+function tg(id: string, opts: { v: number; label: string }[], cur: number): string {
+  return `<div class="calc-toggle water-tg" id="${id}">${opts
     .map((o) => `<span class="calc-tb${o.v === cur ? ' active' : ''}" data-v="${o.v}">${o.label}</span>`)
     .join('')}</div>`;
 }
-
-export function renderWaterCard(): string {
-  const pct = Math.min(100, Math.round((data.total / data.goal) * 100));
-  return `<div class="widget-card calc-card water-card">
-      <div class="water-main">
-        <span class="water-ico">${DROP}</span>
-        <div class="water-num" id="waterNum">${data.total}</div>
-        <span class="water-unit">ml / 目标 ${data.goal}ml</span>
-      </div>
-      <div class="water-bar"><div class="water-fill" id="waterFill" style="width:${pct}%"></div></div>
-      <div class="water-meta" id="waterMeta"></div>
-      <div class="water-actions">
-        <button class="water-add" id="waterAdd" type="button">+ 一杯（${data.cup}ml）</button>
-        <button class="water-undo" id="waterUndo" type="button" title="撤回一杯">↺</button>
-      </div>
-      <div class="water-settings">
-        <div class="water-set"><span class="water-set-label">每日目标</span>${tg('waterGoalTg', data.goal)}</div>
-        <div class="water-set"><span class="water-set-label">单杯容量</span>${tg('waterCupTg', data.cup)}</div>
-        <div class="water-set"><span class="water-set-label">提醒间隔</span>${tg('waterIntTg', data.interval)}</div>
-      </div>
-    </div>`;
+function goalOpts() {
+  return GOALS.map((v) => ({ v, label: `${v / 1000}L` }));
 }
 
-function renderWater() {
-  const num = document.getElementById('waterNum');
-  const fill = document.getElementById('waterFill');
-  const meta = document.getElementById('waterMeta');
-  const add = document.getElementById('waterAdd') as HTMLButtonElement | null;
+/** 刷新右下角弹层内容 */
+function refreshWater() {
+  const num = document.getElementById('waterPopNum');
+  const goal = document.getElementById('waterPopGoal');
+  const fill = document.getElementById('waterPopFill');
+  const meta = document.getElementById('waterPopMeta');
+  const add = document.getElementById('waterPopAdd') as HTMLButtonElement | null;
   if (num) num.textContent = String(data.total);
+  if (goal) goal.textContent = `目标 ${data.goal}ml`;
   if (fill) fill.style.width = `${Math.min(100, Math.round((data.total / data.goal) * 100))}%`;
   if (meta) {
-    const cups = data.total / data.cup;
     const remain = Math.max(0, data.goal - data.total);
     meta.textContent =
       data.total >= data.goal
-        ? `🎉 已达标！今日 ${cups.toFixed(1)} 杯`
-        : `今日已喝 ${cups.toFixed(1)} 杯 · 还差 ${remain}ml`;
+        ? `🎉 已达标！今日 ${(data.total / data.cup).toFixed(1)} 杯`
+        : `已 ${(data.total / data.cup).toFixed(1)} 杯 · 还差 ${remain}ml`;
   }
   if (add) add.textContent = `+ 一杯（${data.cup}ml）`;
-  // 同步各设置项高亮
-  const syncTg = (id: string, cur: number) =>
-    document.getElementById(id)?.querySelectorAll('.calc-tb').forEach((b) => {
-      b.classList.toggle('active', Number((b as HTMLElement).dataset.v) === cur);
-    });
-  syncTg('waterGoalTg', data.goal);
-  syncTg('waterCupTg', data.cup);
-  syncTg('waterIntTg', data.interval);
 }
 
-function bindWater() {
-  document.getElementById('waterAdd')?.addEventListener('click', () => {
-    data.total += data.cup;
-    void save().then(() => {
-      renderWater();
-      syncReminder(); // 达标后让 SW 跳过后续提醒
-    });
-  });
-  document.getElementById('waterUndo')?.addEventListener('click', () => {
-    data.total = Math.max(0, data.total - data.cup);
-    void save().then(renderWater);
-  });
-  const bindTg = (id: string, apply: (v: number) => void) =>
-    document.getElementById(id)?.querySelectorAll('.calc-tb').forEach((b) =>
-      b.addEventListener('click', () => {
-        apply(Number((b as HTMLElement).dataset.v));
-        void save().then(() => {
-          renderWater();
-          syncReminder();
-        });
-      }),
-    );
-  bindTg('waterGoalTg', (v) => (data.goal = v));
-  bindTg('waterCupTg', (v) => (data.cup = v));
-  bindTg('waterIntTg', (v) => (data.interval = v));
+function togglePop(open?: boolean) {
+  const pop = document.getElementById('waterPop');
+  if (!pop) return;
+  const show = open ?? !pop.classList.contains('open');
+  pop.classList.toggle('open', show);
+  if (show) refreshWater();
 }
 
 export async function initWater() {
   data = await load();
-  renderWater();
-  bindWater();
+  refreshWater();
+  document.getElementById('waterFab')?.addEventListener('click', () => togglePop());
+  document.getElementById('waterPopAdd')?.addEventListener('click', () => {
+    data.total += data.cup;
+    void save().then(() => {
+      refreshWater();
+      syncReminder(); // 达标后让 SW 跳过后续提醒
+    });
+  });
+  document.getElementById('waterPopUndo')?.addEventListener('click', () => {
+    data.total = Math.max(0, data.total - data.cup);
+    void save().then(refreshWater);
+  });
+  document.addEventListener('click', (e) => {
+    if (!(e.target as HTMLElement).closest('#waterDock')) togglePop(false);
+  });
+  document.addEventListener('keydown', (e) => {
+    if ((e as KeyboardEvent).key === 'Escape') togglePop(false);
+  });
   syncReminder(); // 页面打开即确保闹钟存在（SW 重启/浏览器重启后重新拉起）
+}
+
+/** 全局设置 → 喝水：目标 / 杯量 / 间隔 + 模拟提醒 */
+export function renderWaterSettings(body: HTMLElement, onSaved: () => void) {
+  body.innerHTML = `
+    <div class="f"><label>每日目标</label>${tg('wsGoal', goalOpts(), data.goal)}</div>
+    <div class="f"><label>单杯容量（点一下 + 的量）</label>${tg('wsCup', CUPS.map((v) => ({ v, label: `${v}ml` })), data.cup)}</div>
+    <div class="f"><label>提醒间隔</label>${tg('wsInt', INTERVALS, data.interval)}</div>
+    <div class="f"><label>模拟提醒</label><button class="btn" id="wsSim" type="button">发送一条测试提醒</button></div>`;
+  const bind = (id: string, apply: (v: number) => void) =>
+    body.querySelectorAll(`#${id} .calc-tb`).forEach((b) =>
+      b.addEventListener('click', () => {
+        apply(Number((b as HTMLElement).dataset.v));
+        void save().then(() => {
+          syncReminder();
+          refreshWater();
+          onSaved();
+        });
+      }),
+    );
+  bind('wsGoal', (v) => (data.goal = v));
+  bind('wsCup', (v) => (data.cup = v));
+  bind('wsInt', (v) => (data.interval = v));
+  body.querySelector('#wsSim')?.addEventListener('click', () => {
+    void chrome.runtime
+      .sendMessage({ type: 'WATER_SIMULATE' })
+      .then(() => onSaved());
+  });
 }
