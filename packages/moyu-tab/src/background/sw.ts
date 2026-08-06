@@ -131,20 +131,29 @@ async function showNotification(title: string, message: string): Promise<string 
 }
 
 // ─── Water Reminder ────────────────────────────────────
-/** 到点提醒喝水；当天已达标则跳过（force=true 时无条件发送，用于设置里的「模拟提醒」） */
+/** 到点提醒喝水；当天累计达标则跳过，提醒文案带目标进度 */
 async function onWaterReminder() {
   try {
     const r = (await chrome.storage.local.get(WATER_KEY)) as Record<
       string,
-      { date?: string; total?: number; cup?: number } | undefined
+      { date?: string; total?: number; goal?: number; cup?: number } | undefined
     >;
     const d = r?.[WATER_KEY];
     if (!d) {
       console.log('[water] onWaterReminder: 无 moyu_water 数据，跳过');
       return;
     }
+    const total = d.total ?? 0;
+    const goal = typeof d.goal === 'number' && d.goal > 0 ? d.goal : 0;
+    // 设了目标且已达标 → 不再打扰
+    if (goal > 0 && total >= goal) {
+      console.log(`[water] 今日已达标 ${total}/${goal}ml，跳过提醒`);
+      return;
+    }
     const title = '💧 该喝水啦';
-    const message = `今日已喝 ${d.total ?? 0}ml，起来喝一杯（${d.cup ?? 250}ml）润润喉~`;
+    const message = goal > 0
+      ? `今日已喝 ${total}/${goal}ml，起来喝一杯（${d.cup ?? 250}ml）润润喉~`
+      : `今日已喝 ${total}ml，起来喝一杯（${d.cup ?? 250}ml）润润喉~`;
     console.log('[water] onWaterReminder 发送通知:', { title, message, iconUrl: chrome.runtime.getURL('icons/icon128.png') });
     const notifId = await showNotification(title, message);
     console.log('[water] notifications.create 返回 id:', notifId);

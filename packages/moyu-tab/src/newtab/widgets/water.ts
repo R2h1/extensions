@@ -7,6 +7,7 @@ const WATER_KEY = 'moyu_water';
 interface WaterData {
   date: string; // 'YYYY-MM-DD' 该累计归属的日期
   total: number; // 今日累计 ml（只通过「喝一口」增加）
+  goal: number; // 每日目标 ml，0=不设目标
   cupVolume: number; // 杯容量 ml（用户真实杯子，满杯时 level=cupVolume）
   level: number; // 当前杯内水量 ml（0 ~ cupVolume）
   interval: number; // 提醒间隔分钟，0=关闭
@@ -22,6 +23,7 @@ function todayStr(): string {
 const DEFAULTS: WaterData = {
   date: todayStr(),
   total: 0,
+  goal: 1500,
   cupVolume: 300,
   level: 300,
   interval: 60,
@@ -48,8 +50,9 @@ async function load(): Promise<WaterData> {
             : DEFAULTS.cupVolume;
       const level = isNewDay ? cupVolume : typeof d.level === 'number' ? d.level : cupVolume;
       return {
-        date: cur,
+        date: cur, // 目标跨天保留（是设置，不是当日累计）
         total: isNewDay ? 0 : typeof d.total === 'number' ? d.total : 0,
+        goal: typeof d.goal === 'number' && d.goal > 0 ? d.goal : DEFAULTS.goal,
         cupVolume,
         level,
         interval: typeof d.interval === 'number' ? d.interval : DEFAULTS.interval,
@@ -345,6 +348,13 @@ export function renderWaterSettings(body: HTMLElement, onSaved: () => void) {
   interval.style.cssText = inputStyle;
   row('提醒间隔（分钟，0=关闭）', interval);
 
+  const goal = document.createElement('input');
+  goal.type = 'number';
+  goal.min = '0';
+  goal.value = String(data.goal);
+  goal.style.cssText = inputStyle;
+  row('每日目标（ml，0=不设目标）', goal);
+
   const sim = document.createElement('button');
   sim.className = 'btn';
   sim.type = 'button';
@@ -363,6 +373,7 @@ export function renderWaterSettings(body: HTMLElement, onSaved: () => void) {
     data.level = Math.min(data.level, data.cupVolume); // 换小杯时水位不超过新杯量
     if (data.level <= 0) data.level = data.cupVolume; // 见底换杯则回满
     data.interval = Math.max(0, Math.round(Number(interval.value) || 0));
+    data.goal = Math.max(0, Math.round(Number(goal.value) || 0));
     void save().then(() => {
       syncReminder();
       refreshWater();
