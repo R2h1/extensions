@@ -114,37 +114,43 @@ async function onPhaseComplete() {
   }
 }
 
-async function showNotification(title: string, message: string, emoji = '🍅') {
+/** 发送系统通知。iconUrl 必须是扩展内真实 PNG（chrome.notifications 不支持 data: URL，否则报 "Unable to download all specified images"）。
+ *  icon128.png 是蓝色水滴图标，正好当喝水/番茄钟通知图标。 */
+async function showNotification(title: string, message: string): Promise<string | undefined> {
   try {
-    await chrome.notifications.create({
+    return await chrome.notifications.create({
       type: 'basic',
-      iconUrl:
-        `data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>${emoji}</text></svg>`,
+      iconUrl: chrome.runtime.getURL('icons/icon128.png'),
       title,
       message,
       priority: 2,
     });
-  } catch {
-    // 静默失败
+  } catch (e) {
+    console.error('通知发送失败', e);
   }
 }
 
 // ─── Water Reminder ────────────────────────────────────
 /** 到点提醒喝水；当天已达标则跳过（force=true 时无条件发送，用于设置里的「模拟提醒」） */
-async function onWaterReminder(force?: boolean) {
+async function onWaterReminder() {
   try {
-    const r = (await chrome.storage.local.get(WATER_KEY)) as Record<string, { date?: string; total?: number; goal?: number; cup?: number } | undefined>;
+    const r = (await chrome.storage.local.get(WATER_KEY)) as Record<
+      string,
+      { date?: string; total?: number; cup?: number } | undefined
+    >;
     const d = r?.[WATER_KEY];
-    if (!d) return;
-    const today = new Date();
-    const cur = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
-    if (!force && d.date === cur && (d.total ?? 0) >= (d.goal ?? 0)) return; // 已达标不再打扰
-    await showNotification(
-      '💧 该喝水啦',
-      `今日已喝 ${d.total ?? 0}ml / 目标 ${d.goal ?? 0}ml，起来喝一杯（${d.cup ?? 250}ml）润润喉~`,
-      '💧',
-    );
-  } catch {}
+    if (!d) {
+      console.log('[water] onWaterReminder: 无 moyu_water 数据，跳过');
+      return;
+    }
+    const title = '💧 该喝水啦';
+    const message = `今日已喝 ${d.total ?? 0}ml，起来喝一杯（${d.cup ?? 250}ml）润润喉~`;
+    console.log('[water] onWaterReminder 发送通知:', { title, message, iconUrl: chrome.runtime.getURL('icons/icon128.png') });
+    const notifId = await showNotification(title, message);
+    console.log('[water] notifications.create 返回 id:', notifId);
+  } catch (e) {
+    console.error('[water] onWaterReminder 异常:', e);
+  }
 }
 
 // ─── Fund Estimate ─────────────────────────────────────
@@ -1098,11 +1104,15 @@ async function handleWereadNotesContentFetch(
         signal: ctrl.signal,
       }),
     ]);
-    if (bmRes.status === 401 || rvRes.status === 401) return { success: false, error: 'invalid_key' };
+    if (bmRes.status === 401 || rvRes.status === 401)
+      return { success: false, error: 'invalid_key' };
     const bm = bmRes.ok ? await bmRes.json() : {};
     const rv = rvRes.ok ? await rvRes.json() : {};
     if ((bm?.errcode && bm.errcode !== 0) || (rv?.errcode && rv.errcode !== 0))
-      return { success: false, error: String(bm?.errmsg || rv?.errmsg || bm?.errcode || rv?.errcode) };
+      return {
+        success: false,
+        error: String(bm?.errmsg || rv?.errmsg || bm?.errcode || rv?.errcode),
+      };
     const highlights = ((bm?.updated ?? []) as unknown[])
       .map((it) => {
         const b = it as Record<string, unknown>;
@@ -1115,7 +1125,7 @@ async function handleWereadNotesContentFetch(
       .filter((h) => h.markText);
     const thoughts = ((rv?.reviews ?? []) as unknown[])
       .map((it) => {
-        const r = ((it as { review?: Record<string, unknown> })?.review) ?? {};
+        const r = (it as { review?: Record<string, unknown> })?.review ?? {};
         return {
           content: String(r.content ?? ''),
           abstract: String(r.abstract ?? ''),
@@ -1151,12 +1161,21 @@ interface WereadReviewItem {
 }
 interface WereadReviewResponse {
   success: boolean;
-  data?: { bookTitle: string; bookCover: string; bookDeepLink: string; reviews: WereadReviewItem[]; total: number };
+  data?: {
+    bookTitle: string;
+    bookCover: string;
+    bookDeepLink: string;
+    reviews: WereadReviewItem[];
+    total: number;
+  };
   error?: string;
 }
 
 /** 微信读书书评：默认取书架最近阅读书；传 bookId 则直接查该书。调 /review/list 显示公开点评。需 API Key。 */
-async function handleWereadReviewFetch(apiKey: string, bookId?: string): Promise<WereadReviewResponse> {
+async function handleWereadReviewFetch(
+  apiKey: string,
+  bookId?: string,
+): Promise<WereadReviewResponse> {
   if (!apiKey) return { success: false, error: 'no_key' };
   const ctrl = new AbortController();
   const to = setTimeout(() => ctrl.abort(), 15000);
@@ -1510,12 +1529,15 @@ chrome.runtime.onMessage.addListener((message: { type: string }, _sender, sendRe
     getScreenOn().then((state) => sendResponse({ success: true, state }));
   } else if (message?.type === 'WATER_SET_REMINDER') {
     const interval = (message as { interval?: number }).interval || 0;
-    const p = interval > 0
-      ? chrome.alarms.create(ALARM_WATER, { periodInMinutes: interval }).then(() => ({ success: true }))
-      : chrome.alarms.clear(ALARM_WATER).then(() => ({ success: true }));
+    const p =
+      interval > 0
+        ? chrome.alarms
+            .create(ALARM_WATER, { periodInMinutes: interval })
+            .then(() => ({ success: true }))
+        : chrome.alarms.clear(ALARM_WATER).then(() => ({ success: true }));
     p.then(sendResponse);
   } else if (message?.type === 'WATER_SIMULATE') {
-    onWaterReminder(true).then(() => sendResponse({ success: true }));
+    onWaterReminder().then(() => sendResponse({ success: true }));
   } else {
     handlePomodoroMessage(message as PomodoroMessage).then(sendResponse);
   }
@@ -1617,7 +1639,10 @@ chrome.runtime.onStartup.addListener(async () => {
   restoreScreenOn();
   // 浏览器重启后恢复喝水提醒闹钟（若用户开启过）
   try {
-    const r = (await chrome.storage.local.get(WATER_KEY)) as Record<string, { interval?: number } | undefined>;
+    const r = (await chrome.storage.local.get(WATER_KEY)) as Record<
+      string,
+      { interval?: number } | undefined
+    >;
     const iv = r?.[WATER_KEY]?.interval || 0;
     if (iv > 0) await chrome.alarms.create(ALARM_WATER, { periodInMinutes: iv });
   } catch {}

@@ -5,8 +5,16 @@ import { initHoliday } from './widgets/holiday';
 import { initWeread, renderWereadCard } from './widgets/weread';
 import { initNotes, renderNotesCard } from './widgets/notes';
 import { initSearch, renderSearchCard } from './widgets/search';
-import { initWereadOverview, renderWereadOverviewCard, refreshWereadOverview } from './widgets/weread-overview';
-import { openBookReviewIn, renderWereadKeySetup, setWereadSettingsOpener } from './widgets/weread-shared';
+import {
+  initWereadOverview,
+  renderWereadOverviewCard,
+  refreshWereadOverview,
+} from './widgets/weread-overview';
+import {
+  openBookReviewIn,
+  renderWereadKeySetup,
+  setWereadSettingsOpener,
+} from './widgets/weread-shared';
 import { initTax, renderTaxCard } from './widgets/tax';
 import { initMortgage, renderMortgageCard } from './widgets/mortgage';
 import { initMortgagePrepay, renderMortgagePrepayCard } from './widgets/mortgage-prepay';
@@ -15,7 +23,7 @@ import { initBmi, renderBmiCard } from './widgets/bmi';
 import { initQr, renderQrCard } from './widgets/qrcode';
 import { initWifi, renderWifiCard } from './widgets/wifi';
 import { initAuthenticator, renderAuthenticatorCard } from './widgets/authenticator';
-import { initWater, renderWaterSettings } from './widgets/water';
+import { initWater, renderWaterSettings, setWaterSettingsOpener } from './widgets/water';
 import { initCurrency, renderCurrencyCard } from './widgets/currency';
 import { initBookmarks, renderBookmarksCard } from './widgets/bookmarks';
 import { initCloud, renderCloudCard } from './widgets/cloud';
@@ -65,7 +73,9 @@ const TOOLKIT: {
     id: 'mortgage-prepay',
     title: '房贷提前还款',
     desc: '缩短年限/减月供',
-    icon: tkSvg('<path d="M3 10 12 3l9 7"/><path d="M5 9.5V20h14V9.5"/><circle cx="12" cy="14" r="2.5"/><path d="M9.5 20v-3M14.5 20v-3"/>'),
+    icon: tkSvg(
+      '<path d="M3 10 12 3l9 7"/><path d="M5 9.5V20h14V9.5"/><circle cx="12" cy="14" r="2.5"/><path d="M9.5 20v-3M14.5 20v-3"/>',
+    ),
     render: renderMortgagePrepayCard,
     init: initMortgagePrepay,
   },
@@ -123,7 +133,9 @@ const TOOLKIT: {
     id: 'authenticator',
     title: '验证器',
     desc: '两步验证动态码',
-    icon: tkSvg('<rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/>'),
+    icon: tkSvg(
+      '<rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/>',
+    ),
     render: renderAuthenticatorCard,
     init: initAuthenticator,
   },
@@ -263,7 +275,10 @@ async function renderPanel() {
   const rightIds: string[] = [];
   for (const w of ALL_WIDGETS) {
     if (!enabled.has(w.id)) continue;
-    (w.id === 'hot' || w.id === 'news' || w.id === 'food' || w.id === 'stats' ? leftIds : rightIds).push(w.id);
+    (w.id === 'hot' || w.id === 'news' || w.id === 'food' || w.id === 'stats'
+      ? leftIds
+      : rightIds
+    ).push(w.id);
   }
   // 左列顺序：今天吃什么 → 网站统计 → 热搜 → 资讯
   const leftOrder = ['food', 'stats', 'hot', 'news'];
@@ -517,13 +532,32 @@ tk.addEventListener('click', (e) => {
 const WR_VIEWS = [
   { id: 'shelf', name: '我的书架', render: renderWereadCard, init: initWeread },
   { id: 'notes', name: '我的笔记', render: renderNotesCard, init: initNotes },
-  { id: 'search', name: '搜书', render: renderSearchCard, init: () => { const q = pendingSearchQuery; pendingSearchQuery = ''; void initSearch(q); } },
-  { id: 'review', name: '书评', render: () => '<div class="hot-empty">加载中…</div>', init: () => { const b = pendingReviewBook; pendingReviewBook = null; if (b) void openBookReviewIn(document.getElementById('wrModalContent')!, b); } },
+  {
+    id: 'search',
+    name: '搜书',
+    render: renderSearchCard,
+    init: () => {
+      const q = pendingSearchQuery;
+      pendingSearchQuery = '';
+      void initSearch(q);
+    },
+  },
+  {
+    id: 'review',
+    name: '书评',
+    render: () => '<div class="hot-empty">加载中…</div>',
+    init: () => {
+      const b = pendingReviewBook;
+      pendingReviewBook = null;
+      if (b) void openBookReviewIn(document.getElementById('wrModalContent')!, b);
+    },
+  },
 ];
 const wrModal = document.getElementById('wereadModal')!;
 let wrModalCur = 'shelf';
 let pendingSearchQuery = '';
-let pendingReviewBook: { bid: string; title: string; cover: string; deepLink: string } | null = null;
+let pendingReviewBook: { bid: string; title: string; cover: string; deepLink: string } | null =
+  null;
 function renderWrPane() {
   const v = WR_VIEWS.find((x) => x.id === wrModalCur);
   const c = document.getElementById('wrModalContent');
@@ -548,7 +582,9 @@ function openReviewModal(book: { bid: string; title: string; cover: string; deep
   pendingReviewBook = book;
   openWereadModal('review');
 }
-document.getElementById('wrModalClose')!.addEventListener('click', () => wrModal.classList.remove('open'));
+document
+  .getElementById('wrModalClose')!
+  .addEventListener('click', () => wrModal.classList.remove('open'));
 wrModal.addEventListener('click', (e) => {
   if (e.target === wrModal) wrModal.classList.remove('open');
 });
@@ -640,6 +676,13 @@ function openSettingsWeread() {
   sm.classList.add('open');
 }
 setWereadSettingsOpener(openSettingsWeread);
+function openSettingsWater() {
+  document.querySelectorAll('#smSidebar .msb').forEach((b) => b.classList.remove('active'));
+  document.querySelector('#smSidebar [data-s="water"]')?.classList.add('active');
+  renderSetWater();
+  sm.classList.add('open');
+}
+setWaterSettingsOpener(openSettingsWater);
 async function renderSetTime() {
   const r = await chrome.storage.sync.get(SS);
   const s = { ...DS, ...(r[SS] || {}) };
@@ -767,8 +810,10 @@ async function initKeepOn(): Promise<void> {
   const btn = document.getElementById('keepOnBtn');
   if (!btn) return;
   try {
-    const res = (await chrome.runtime.sendMessage({ type: 'SCREENON_STATUS' })) as
-      | { success: boolean; state?: { on: boolean; since: number } };
+    const res = (await chrome.runtime.sendMessage({ type: 'SCREENON_STATUS' })) as {
+      success: boolean;
+      state?: { on: boolean; since: number };
+    };
     if (res?.state) keepOnState = res.state;
   } catch {}
   btn.classList.toggle('on', keepOnState.on);
@@ -776,12 +821,16 @@ async function initKeepOn(): Promise<void> {
   btn.addEventListener('click', async () => {
     const next = !keepOnState.on;
     try {
-      const res = (await chrome.runtime.sendMessage({ type: next ? 'SCREENON_ON' : 'SCREENON_OFF' })) as
-        | { success: boolean; state?: { on: boolean; since: number } };
+      const res = (await chrome.runtime.sendMessage({
+        type: next ? 'SCREENON_ON' : 'SCREENON_OFF',
+      })) as { success: boolean; state?: { on: boolean; since: number } };
       if (res?.state) keepOnState = res.state;
       btn.classList.toggle('on', keepOnState.on);
       tickKeepOn();
-      showMessage(keepOnState.on ? '屏幕已常亮' : '已关闭屏幕常亮', keepOnState.on ? 'success' : 'info');
+      showMessage(
+        keepOnState.on ? '屏幕已常亮' : '已关闭屏幕常亮',
+        keepOnState.on ? 'success' : 'info',
+      );
     } catch {
       showMessage('操作失败，请重试', 'error');
     }

@@ -11,12 +11,14 @@
     "clean": "rm -rf dist"
   },
   "devDependencies": {
+    "@types/three": "^0.185.4",
     "esbuild": "^0.28.1"
   },
   "dependencies": {
     "@types/crypto-js": "^4.2.2",
     "aplayer": "^1.10.1",
     "crypto-js": "^4.2.0",
-    "qrcode-generator": "^2.0.4"
+    "qrcode-generator": "^2.0.4",
+    "three": "^0.185.1"
   }
 }
