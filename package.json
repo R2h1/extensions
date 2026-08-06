@@ -12,16 +12,12 @@
     "format": "prettier --check \"packages/**/*.ts\"",
     "format:fix": "prettier --write \"packages/**/*.ts\"",
     "build:shared": "npm run build -w packages/shared",
-    "build:tracker": "npm run build -w packages/website-tracker",
-    "build:salary": "npm run build -w packages/salary-counter",
     "build:moyu": "npm run build -w packages/moyu-tab",
     "build:community": "npm run build -w packages/reading-community",
-    "build:all": "npm run build:shared && npm run build:tracker && npm run build:salary && npm run build:moyu && npm run build:community",
-    "pack:tracker": "node scripts/pack-zip.cjs website-tracker",
-    "pack:salary": "node scripts/pack-zip.cjs salary-counter",
+    "build:all": "npm run build:shared && npm run build:moyu && npm run build:community",
     "pack:moyu": "node scripts/pack-zip.cjs moyu-tab",
     "pack:community": "node scripts/pack-zip.cjs reading-community",
-    "pack:all": "npm run pack:tracker && npm run pack:salary && npm run pack:moyu && npm run pack:community",
+    "pack:all": "npm run pack:moyu && npm run pack:community",
     "icons": "node scripts/generate-icons.js"
   },
   "devDependencies": {

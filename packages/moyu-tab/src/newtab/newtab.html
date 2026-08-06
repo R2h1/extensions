@@ -605,6 +605,26 @@ html.locked .sub-filter{display:none}
 .color-card .col-hex.copied .col-v::after{content:' — 已复制';font-size:11px;font-weight:500}
 .calc-val.tax{color:#ef4444}
 .calc-val.after{color:var(--accent)}
+/* 喝水提醒 */
+.water-card .water-main{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+.water-card .water-ico{color:#3b82f6;flex-shrink:0;display:flex}
+.water-card .water-ico svg{width:40px;height:40px}
+.water-card .water-num{font-size:30px;font-weight:700;font-variant-numeric:tabular-nums;font-family:'Courier New',ui-monospace,monospace;letter-spacing:-1px;line-height:1;color:var(--accent)}
+.water-card .water-unit{font-size:11px;color:var(--text-tertiary)}
+.water-bar{height:8px;border-radius:5px;background:var(--nm-surface);box-shadow:var(--nm-in-sm);overflow:hidden;margin-bottom:6px}
+.water-fill{height:100%;border-radius:5px;background:linear-gradient(90deg,#60a5fa,#3b82f6);transition:width .3s ease}
+.water-meta{font-size:12px;color:var(--text-secondary);margin-bottom:10px}
+.water-actions{display:flex;gap:8px;margin-bottom:12px}
+.water-add{flex:1;padding:9px 0;border:none;border-radius:var(--radius-xs);background:var(--accent);color:#fff;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;transition:filter .15s,box-shadow .15s}
+.water-add:hover{filter:brightness(1.08)}
+.water-add:active{box-shadow:var(--nm-in-sm)}
+.water-undo{width:38px;flex-shrink:0;border:none;border-radius:var(--radius-xs);background:var(--nm-surface);box-shadow:var(--nm-out),0 2px 4px rgba(0,0,0,0.1);color:var(--text-tertiary);font-size:15px;cursor:pointer;font-family:inherit;transition:color .15s}
+.water-undo:hover{color:var(--accent)}
+.water-undo:active{box-shadow:var(--nm-in-sm)}
+.water-settings{display:flex;flex-direction:column;gap:8px}
+.water-set{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.water-set-label{font-size:11px;color:var(--text-tertiary);flex-shrink:0}
+.water-set .calc-toggle{flex:1;max-width:220px}
 .bmi-main{display:flex;align-items:baseline;gap:10px}
 .bmi-val{font-size:34px;font-weight:700;font-variant-numeric:tabular-nums;font-family:'Courier New',ui-monospace,monospace;letter-spacing:-1px;line-height:1}
 .bmi-tag{font-size:12px;font-weight:600;padding:2px 10px;border-radius:10px}

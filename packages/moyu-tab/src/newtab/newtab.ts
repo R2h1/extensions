@@ -15,6 +15,7 @@ import { initBmi, renderBmiCard } from './widgets/bmi';
 import { initQr, renderQrCard } from './widgets/qrcode';
 import { initWifi, renderWifiCard } from './widgets/wifi';
 import { initAuthenticator, renderAuthenticatorCard } from './widgets/authenticator';
+import { initWater, renderWaterCard } from './widgets/water';
 import { initCurrency, renderCurrencyCard } from './widgets/currency';
 import { initBookmarks, renderBookmarksCard } from './widgets/bookmarks';
 import { initCloud, renderCloudCard } from './widgets/cloud';
@@ -125,6 +126,16 @@ const TOOLKIT: {
     icon: tkSvg('<rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/>'),
     render: renderAuthenticatorCard,
     init: initAuthenticator,
+  },
+  {
+    id: 'water',
+    title: '喝水提醒',
+    desc: '记录饮水量 · 定时提醒',
+    icon: tkSvg(
+      '<path d="M12 2.7S6 9.5 6 13.8a6 6 0 0 0 12 0C18 9.5 12 2.7 12 2.7z"/><path d="M9.5 14a3 3 0 0 0 2.5 3"/>',
+    ),
+    render: renderWaterCard,
+    init: initWater,
   },
 ];
 

@@ -32,6 +32,8 @@ interface PomodoroResponse {
 const STORAGE_KEY = 'moyu_pomodoro';
 const ALARM_TICK = 'pomodoro_tick';
 const ALARM_COMPLETE = 'pomodoro_complete';
+const ALARM_WATER = 'water_reminder';
+const WATER_KEY = 'moyu_water';
 
 const DEFAULT_STATE: PomodoroState = {
   status: 'idle',
@@ -63,6 +65,8 @@ chrome.alarms.onAlarm.addListener(async (alarm) => {
     await tickCheck();
   } else if (alarm.name === ALARM_COMPLETE) {
     await onPhaseComplete();
+  } else if (alarm.name === ALARM_WATER) {
+    await onWaterReminder();
   }
 });
 
@@ -110,12 +114,12 @@ async function onPhaseComplete() {
   }
 }
 
-async function showNotification(title: string, message: string) {
+async function showNotification(title: string, message: string, emoji = '🍅') {
   try {
     await chrome.notifications.create({
       type: 'basic',
       iconUrl:
-        'data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🍅</text></svg>',
+        `data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>${emoji}</text></svg>`,
       title,
       message,
       priority: 2,
@@ -123,6 +127,24 @@ async function showNotification(title: string, message: string) {
   } catch {
     // 静默失败
   }
+}
+
+// ─── Water Reminder ────────────────────────────────────
+/** 到点提醒喝水；当天已达标则跳过 */
+async function onWaterReminder() {
+  try {
+    const r = (await chrome.storage.local.get(WATER_KEY)) as Record<string, { date?: string; total?: number; goal?: number; cup?: number } | undefined>;
+    const d = r?.[WATER_KEY];
+    if (!d) return;
+    const today = new Date();
+    const cur = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+    if (d.date === cur && (d.total ?? 0) >= (d.goal ?? 0)) return; // 已达标不再打扰
+    await showNotification(
+      '💧 该喝水啦',
+      `今日已喝 ${d.total ?? 0}ml / 目标 ${d.goal ?? 0}ml，起来喝一杯（${d.cup ?? 250}ml）润润喉~`,
+      '💧',
+    );
+  } catch {}
 }
 
 // ─── Fund Estimate ─────────────────────────────────────
@@ -1486,6 +1508,12 @@ chrome.runtime.onMessage.addListener((message: { type: string }, _sender, sendRe
     screenOnDisable().then(sendResponse);
   } else if (message?.type === 'SCREENON_STATUS') {
     getScreenOn().then((state) => sendResponse({ success: true, state }));
+  } else if (message?.type === 'WATER_SET_REMINDER') {
+    const interval = (message as { interval?: number }).interval || 0;
+    const p = interval > 0
+      ? chrome.alarms.create(ALARM_WATER, { periodInMinutes: interval }).then(() => ({ success: true }))
+      : chrome.alarms.clear(ALARM_WATER).then(() => ({ success: true }));
+    p.then(sendResponse);
   } else {
     handlePomodoroMessage(message as PomodoroMessage).then(sendResponse);
   }
@@ -1583,7 +1611,15 @@ async function handlePomodoroMessage(msg: PomodoroMessage): Promise<PomodoroResp
 
 // ─── Boot ───────────────────────────────────────────────
 
-chrome.runtime.onStartup.addListener(restoreScreenOn);
+chrome.runtime.onStartup.addListener(async () => {
+  restoreScreenOn();
+  // 浏览器重启后恢复喝水提醒闹钟（若用户开启过）
+  try {
+    const r = (await chrome.storage.local.get(WATER_KEY)) as Record<string, { interval?: number } | undefined>;
+    const iv = r?.[WATER_KEY]?.interval || 0;
+    if (iv > 0) await chrome.alarms.create(ALARM_WATER, { periodInMinutes: iv });
+  } catch {}
+});
 
 chrome.runtime.onInstalled.addListener(async () => {
   await loadState();

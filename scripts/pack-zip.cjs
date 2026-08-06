@@ -2,7 +2,7 @@
  * Pack a built extension's dist/ as a .zip file
  *
  * Usage: node scripts/pack-zip.cjs <package-name>
- * Example: node scripts/pack-zip.cjs website-tracker
+ * Example: node scripts/pack-zip.cjs moyu-tab
  *
  * Output: releases/<package-name>-v<version>.zip
  */
