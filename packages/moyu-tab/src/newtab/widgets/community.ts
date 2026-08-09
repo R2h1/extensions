@@ -1,4 +1,4 @@
-/** 社区/内容平台快捷入口：DEV/SO/36氪/公众号/B3log，点击新标签打开 */
+/** 社区/内容平台快捷入口：DEV/SO/36氪/B3log，点击新标签打开 */
 import { esc, escAttr } from '../utils';
 
 interface CommunitySite {
@@ -11,7 +11,6 @@ const COMMUNITIES: CommunitySite[] = [
   { name: 'DEV Community', url: 'https://dev.to/' },
   { name: 'Stack Overflow', url: 'https://stackoverflow.com/' },
   { name: '36氪', url: 'https://36kr.com/' },
-  { name: '微信公众平台', url: 'https://mp.weixin.qq.com/' },
   { name: 'B3log', url: 'https://b3log.org/' },
 ];
 

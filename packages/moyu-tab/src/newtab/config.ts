@@ -89,7 +89,7 @@ export const ALL_WIDGETS: WID[] = [
   {
     id: 'community',
     name: '社区',
-    desc: 'DEV/Stack Overflow/36氪/微信公众平台/B3log',
+    desc: 'DEV/Stack Overflow/36氪/B3log',
     cat: 'news',
     sub: 'community',
   },
