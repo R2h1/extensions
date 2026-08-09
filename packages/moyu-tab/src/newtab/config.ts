@@ -52,6 +52,7 @@ export const CAT_TREE: TopCat[] = [
     subs: [
       { id: 'hot', name: '热搜' },
       { id: 'news', name: '资讯' },
+      { id: 'community', name: '社区' },
       { id: 'stats', name: '网站统计' },
     ],
   },
@@ -68,7 +69,11 @@ export const CAT_TREE: TopCat[] = [
     id: 'bookmark',
     name: '书签',
     icon: ICONS.bookmark,
-    subs: [{ id: 'nav', name: '导航' }, { id: 'cloud', name: '云平台' }, { id: 'translate', name: '翻译' }],
+    subs: [
+      { id: 'nav', name: '导航' },
+      { id: 'cloud', name: '云平台' },
+      { id: 'translate', name: '翻译' },
+    ],
   },
   {
     id: 'life',
@@ -81,9 +86,28 @@ export const CAT_TREE: TopCat[] = [
 export const ALL_WIDGETS: WID[] = [
   { id: 'hot', name: '热搜', desc: '微博/B站/百度/掘金热榜', cat: 'news', sub: 'hot' },
   { id: 'news', name: '资讯', desc: 'AI精选/知乎日报/财经快讯', cat: 'news', sub: 'news' },
-  { id: 'weread', name: '微信读书', desc: '书架/统计/笔记/书评/推荐/搜书', cat: 'study', sub: 'read' },
+  {
+    id: 'community',
+    name: '社区',
+    desc: 'DEV/Stack Overflow/36氪/微信公众平台/B3log',
+    cat: 'news',
+    sub: 'community',
+  },
+  {
+    id: 'weread',
+    name: '微信读书',
+    desc: '书架/统计/笔记/书评/推荐/搜书',
+    cat: 'study',
+    sub: 'read',
+  },
   { id: 'cloud', name: '云平台', desc: '七牛/华为/腾讯/阿里/百度', cat: 'bookmark', sub: 'cloud' },
-  { id: 'translate', name: '翻译平台', desc: '有道/DeepL/彩云/搜狗/金山词霸/CNKI', cat: 'bookmark', sub: 'translate' },
+  {
+    id: 'translate',
+    name: '翻译平台',
+    desc: '有道/DeepL/彩云/搜狗/金山词霸/CNKI',
+    cat: 'bookmark',
+    sub: 'translate',
+  },
   { id: 'bookmarks', name: '书签同步', desc: '浏览器书签栏', cat: 'bookmark', sub: 'nav' },
   { id: 'food', name: '今天吃什么', desc: '随机推荐一道菜', cat: 'life', sub: 'food' },
   { id: 'stats', name: '网站统计', desc: '今日上网时长排行', cat: 'news', sub: 'stats' },

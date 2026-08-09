@@ -28,6 +28,7 @@ import { initCurrency, renderCurrencyCard } from './widgets/currency';
 import { initBookmarks, renderBookmarksCard } from './widgets/bookmarks';
 import { initCloud, renderCloudCard } from './widgets/cloud';
 import { initTranslate, renderTranslateCard } from './widgets/translate';
+import { initCommunity, renderCommunityCard } from './widgets/community';
 import { initWeather } from './widgets/weather';
 import { initTyphoon } from './widgets/typhoon';
 import { renderHotCard, initHotCard } from './widgets/hot';
@@ -316,6 +317,7 @@ function getCard(w: WID): string {
   if (w.id === 'bookmarks') return renderBookmarksCard();
   if (w.id === 'cloud') return renderCloudCard();
   if (w.id === 'translate') return renderTranslateCard();
+  if (w.id === 'community') return renderCommunityCard();
   if (w.id === 'hot') return renderHotCard();
   if (w.id === 'news') return renderNewsCard();
   if (w.id === 'food') return renderFoodCard();
@@ -353,6 +355,9 @@ async function initW(id: string) {
       break;
     case 'translate':
       initTranslate();
+      break;
+    case 'community':
+      initCommunity();
       break;
     case 'food':
       initFood();

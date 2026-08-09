@@ -838,6 +838,16 @@ html.locked .sub-filter{display:none}
 .translate-del{position:absolute;top:2px;right:2px;width:16px;height:16px;border-radius:50%;border:none;background:#dc2626;color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;opacity:0;transition:opacity .15s;padding:0;box-shadow:0 1px 3px rgba(0,0,0,.25)}
 .translate-tile:hover .translate-del{opacity:1}
 .translate-del:hover{background:#b91c1c}
+/* 社区卡片 */
+.community-card{padding:12px 14px}
+.community-head{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:8px}
+.community-title{font-size:14px;font-weight:600;color:var(--text-secondary);letter-spacing:.5px;display:flex;align-items:center;gap:6px}
+.community-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:6px}
+.community-tile{position:relative;display:flex;flex-direction:column;align-items:center;gap:4px;padding:8px 2px;border-radius:var(--radius-xs);background:transparent;border:none;cursor:pointer;text-decoration:none;transition:background .15s;font-family:inherit}
+.community-tile:hover{background:var(--glass-accent)}
+.community-fav{width:28px;height:28px;border-radius:7px;object-fit:contain;flex-shrink:0}
+.community-name{font-size:10px;color:var(--text-secondary);text-align:center;line-height:1.2;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.community-letter{width:28px;height:28px;border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:600;color:#fff;flex-shrink:0}
 /* AI资讯卡片 */
 .aihot-card{padding:12px 14px}
 .aihot-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;gap:8px}
