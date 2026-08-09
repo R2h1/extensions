@@ -1865,9 +1865,26 @@ function toggleMediaPanel() {
   if (willOpen) {
     panel.classList.add('open');
     document.getElementById('mediaFab')?.classList.add('active');
+    closeMePanel();
     ensureMusic();
   } else {
     closeMediaPanel();
+  }
+}
+function closeMePanel() {
+  document.getElementById('mePanel')?.classList.remove('open');
+  document.getElementById('meFab')?.classList.remove('active');
+}
+function toggleMePanel() {
+  const panel = document.getElementById('mePanel');
+  if (!panel) return;
+  const willOpen = !panel.classList.contains('open');
+  if (willOpen) {
+    panel.classList.add('open');
+    document.getElementById('meFab')?.classList.add('active');
+    closeMediaPanel();
+  } else {
+    closeMePanel();
   }
 }
 function openVideoModal() {
@@ -1883,6 +1900,7 @@ function closeVideoModal() {
   document.getElementById('videoModal')?.classList.remove('open');
 }
 function initMedia() {
+  document.getElementById('meFab')?.addEventListener('click', () => toggleMePanel());
   document.getElementById('mediaFab')?.addEventListener('click', () => toggleMediaPanel());
   document.getElementById('mbVideo')?.addEventListener('click', openVideoModal);
   document.getElementById('vmClose')?.addEventListener('click', closeVideoModal);
@@ -1890,15 +1908,23 @@ function initMedia() {
     if (e.target === document.getElementById('videoModal')) closeVideoModal();
   });
   document.addEventListener('click', (e) => {
-    const panel = document.getElementById('mediaPanel');
-    if (!panel?.classList.contains('open')) return;
+    const mp = document.getElementById('mediaPanel');
+    const mep = document.getElementById('mePanel');
     const t = e.target as HTMLElement | null;
-    if (t && (t.closest('.media-dock') || t.closest('.aplayer-lrc'))) return;
-    closeMediaPanel();
+    if (
+      mp?.classList.contains('open') &&
+      !(t && (t.closest('.media-dock') || t.closest('.aplayer-lrc')))
+    ) {
+      closeMediaPanel();
+    }
+    if (mep?.classList.contains('open') && !(t && t.closest('.media-dock'))) {
+      closeMePanel();
+    }
   });
   document.addEventListener('keydown', (e) => {
     if ((e as KeyboardEvent).key !== 'Escape') return;
     closeMediaPanel();
+    closeMePanel();
     closeVideoModal();
   });
 }
