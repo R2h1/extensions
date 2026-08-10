@@ -38,6 +38,9 @@ export const ICONS: Record<string, string> = {
   study: svg(
     '<path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>',
   ),
+  ai: svg(
+    '<path d="M12 3l1.9 4.6L18.5 9.5l-4.6 1.9L12 16l-1.9-4.6L5.5 9.5l4.6-1.9z"/><path d="M19 14l.8 2 2 .8-2 .8-.8 2-.8-2-2-.8 2-.8z"/>',
+  ),
   tools: svg(
     '<path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/>',
   ),
@@ -66,11 +69,18 @@ export const CAT_TREE: TopCat[] = [
     ],
   },
   {
+    id: 'ai',
+    name: 'AI',
+    icon: ICONS.ai,
+    subs: [{ id: 'ai', name: 'AI 全栈' }],
+  },
+  {
     id: 'bookmark',
     name: '书签',
     icon: ICONS.bookmark,
     subs: [
-      { id: 'nav', name: '导航' },
+      { id: 'devnav', name: '开发导航' },
+      { id: 'toolbox', name: '前端工具箱' },
       { id: 'cloud', name: '云平台' },
       { id: 'translate', name: '翻译' },
     ],
@@ -108,7 +118,27 @@ export const ALL_WIDGETS: WID[] = [
     cat: 'bookmark',
     sub: 'translate',
   },
-  { id: 'bookmarks', name: '书签同步', desc: '浏览器书签栏', cat: 'bookmark', sub: 'nav' },
+  {
+    id: 'ai',
+    name: 'AI 全栈',
+    desc: 'LLM/Agent/RAG/AIGC 导航',
+    cat: 'ai',
+    sub: 'ai',
+  },
+  {
+    id: 'devnav',
+    name: '开发导航',
+    desc: '语言/框架/样式/后端/面试 全量可搜',
+    cat: 'bookmark',
+    sub: 'devnav',
+  },
+  {
+    id: 'toolbox',
+    name: '前端工具箱',
+    desc: 'CSS 生成器 / 图片 / Playground',
+    cat: 'bookmark',
+    sub: 'toolbox',
+  },
   { id: 'food', name: '今天吃什么', desc: '随机推荐一道菜', cat: 'life', sub: 'food' },
   { id: 'stats', name: '网站统计', desc: '今日上网时长排行', cat: 'news', sub: 'stats' },
 ];

@@ -25,7 +25,12 @@ import { initWifi, renderWifiCard } from './widgets/wifi';
 import { initAuthenticator, renderAuthenticatorCard } from './widgets/authenticator';
 import { initWater, renderWaterSettings, setWaterSettingsOpener } from './widgets/water';
 import { initCurrency, renderCurrencyCard } from './widgets/currency';
-import { initBookmarks, renderBookmarksCard } from './widgets/bookmarks';
+import {
+  initNavCards,
+  renderAiCard,
+  renderToolboxCard,
+  renderNavHubCard,
+} from './widgets/nav-cards';
 import { initCloud, renderCloudCard } from './widgets/cloud';
 import { initTranslate, renderTranslateCard } from './widgets/translate';
 import { initCommunity, renderCommunityCard } from './widgets/community';
@@ -187,6 +192,11 @@ async function getWD(): Promise<WData> {
   const subs: Record<string, string[]> = {};
   const feed = (id: string) => {
     if (id === 'clock') return;
+    // 旧的「书签同步」卡已被三张策展导航卡取代
+    if (id === 'bookmarks') {
+      ['ai', 'toolbox', 'devnav'].forEach(feed);
+      return;
+    }
     const w = ALL_WIDGETS.find((x) => x.id === id);
     if (!w) return;
     const k = subKey(w.cat, w.sub);
@@ -314,7 +324,9 @@ async function renderPanel() {
 }
 function getCard(w: WID): string {
   if (w.id === 'weread') return renderWereadOverviewCard();
-  if (w.id === 'bookmarks') return renderBookmarksCard();
+  if (w.id === 'ai') return renderAiCard();
+  if (w.id === 'toolbox') return renderToolboxCard();
+  if (w.id === 'devnav') return renderNavHubCard();
   if (w.id === 'cloud') return renderCloudCard();
   if (w.id === 'translate') return renderTranslateCard();
   if (w.id === 'community') return renderCommunityCard();
@@ -347,8 +359,10 @@ async function initW(id: string) {
     case 'weread':
       initWereadOverview(openWereadModal, openReviewModal);
       break;
-    case 'bookmarks':
-      initBookmarks();
+    case 'ai':
+    case 'toolbox':
+    case 'devnav':
+      initNavCards();
       break;
     case 'cloud':
       initCloud();
