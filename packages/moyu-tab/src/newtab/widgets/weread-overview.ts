@@ -7,13 +7,14 @@ import { loadCache as loadRC, saveCache as saveRC, type RCBook } from './recomme
 
 const OV_TTL = 60 * 60 * 1000;
 
-/** 微信读书之外的延伸阅读站点（书源 / 阅读视频 / 公共书） */
+/** 微信读书之外的延伸阅读站点（书源 / 阅读视频 / 公共书 / 历史知识） */
 const EXTRA_READS = [
   { name: '楠悦读', url: 'https://www.nanyuedu.com/', color: '#0ea5e9', letter: '楠' },
   { name: '文书阁', url: 'https://www.wenshuoge.com/', color: '#64748b', letter: '文' },
   { name: 'Topbook', url: 'https://topbook.cc/overview', color: '#ef4444', letter: 'T' },
   { name: 'How To Cook', url: 'https://howtocook.aiursoft.com/', color: '#f59e0b', letter: 'H' },
   { name: 'Z-Library', url: 'https://zlib.2rdh.com/', color: '#6d28d9', letter: 'Z' },
+  { name: '全历史', url: 'https://www.allhistory.com/', color: '#b45309', letter: '全' },
 ];
 function renderExtraReads(): string {
   const chips = EXTRA_READS.map(
