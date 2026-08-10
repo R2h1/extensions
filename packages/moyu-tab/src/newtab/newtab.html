@@ -200,6 +200,11 @@ html.locked .sub-filter{display:none}
 @media (max-width:600px){.mkt-grid{grid-template-columns:repeat(4,1fr)}}
 @media (max-width:480px){.mkt-grid{grid-template-columns:repeat(3,1fr)}}
 .mkt-empty{grid-column:1/-1;font-size:12px;color:var(--text-tertiary);text-align:center;padding:14px 0}
+.mkt-links-sec{margin-top:8px;padding-top:8px;border-top:0.5px solid var(--glass-border)}
+.mkt-link-row{display:flex;flex-wrap:wrap;gap:6px}
+.mkt-link-chip{display:inline-flex;align-items:center;gap:5px;padding:4px 9px;border-radius:999px;background:var(--glass);text-decoration:none;font-size:11px;color:var(--text-secondary);transition:background .12s,color .12s}
+.mkt-link-chip:hover{background:var(--glass-accent);color:var(--text)}
+.mkt-link-letter{width:15px;height:15px;border-radius:4px;flex:none;display:flex;align-items:center;justify-content:center;color:#fff;font-size:9px;font-weight:700}
 .mkt-tile{position:relative;padding:8px;border-radius:var(--radius-xs);background:var(--nm-surface);box-shadow:var(--nm-out);display:flex;flex-direction:column;gap:2px;overflow:hidden}
 .mkt-tile.up{background:rgba(239,68,68,.10)}
 .mkt-tile.down{background:rgba(22,163,74,.10)}
@@ -935,6 +940,7 @@ html.locked .sub-filter{display:none}
 .me-row-main{min-width:0;display:flex;flex-direction:column}
 .me-row-title{font-size:12.5px;font-weight:500;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .me-row-host{font-size:10.5px;color:var(--text-tertiary)}
+.me-group-label{font-size:10px;font-weight:600;color:var(--text-tertiary);letter-spacing:1px;padding:8px 4px 3px;text-transform:uppercase}
 .media-panel{display:none;position:absolute;bottom:100%;left:0;width:min(360px,calc(100vw - 32px));margin-bottom:12px;background:var(--nm-surface);border-radius:var(--radius);box-shadow:var(--card-shadow-h);padding:12px;animation:calpop .16s ease-out}
 .media-panel.open{display:block}
 .media-fabs{display:flex;gap:8px}
@@ -1054,9 +1060,10 @@ html.locked .sub-filter{display:none}
         <span class="me-avatar">R</span>
         <div class="me-head-info">
           <div class="me-name">我的平台</div>
-          <div class="me-sub">薛定谔的猫96 · R2h</div>
+          <div class="me-sub">conan · R2h</div>
         </div>
       </div>
+      <div class="me-group-label">内容平台</div>
       <a class="me-row" href="https://r2h1.github.io/silver-bullet/" target="_blank" rel="noopener">
         <span class="me-ico" style="background:#3db2ff">S</span>
         <span class="me-row-main"><span class="me-row-title">Silver Bullet · 前端修炼</span><span class="me-row-host">r2h1.github.io</span></span>
@@ -1072,6 +1079,23 @@ html.locked .sub-filter{display:none}
       <a class="me-row" href="https://mp.weixin.qq.com/cgi-bin/home?t=home/index&amp;lang=zh_CN&amp;token=1632695261" target="_blank" rel="noopener">
         <span class="me-ico" style="background:#07c160">公</span>
         <span class="me-row-main"><span class="me-row-title">公众号</span><span class="me-row-host">mp.weixin.qq.com</span></span>
+      </a>
+      <div class="me-group-label">创作变现</div>
+      <a class="me-row" href="https://www.shortdramas.com/page/playlet-workspace" target="_blank" rel="noopener">
+        <span class="me-ico" style="background:#161823">短</span>
+        <span class="me-row-main"><span class="me-row-title">短剧创作者中心</span><span class="me-row-host">shortdramas.com</span></span>
+      </a>
+      <a class="me-row" href="https://fanqienovel.com/main/writer/?enter_from=author_zone" target="_blank" rel="noopener">
+        <span class="me-ico" style="background:#ff6b35">番</span>
+        <span class="me-row-main"><span class="me-row-title">番茄小说作家专区</span><span class="me-row-host">fanqienovel.com</span></span>
+      </a>
+      <a class="me-row" href="https://ufuwu.1688.com/page/fuwu_work_isv_container.htm?appkey=2839818" target="_blank" rel="noopener">
+        <span class="me-ico" style="background:#ff6a00">店</span>
+        <span class="me-row-main"><span class="me-row-title">优选工作台 · 店铺</span><span class="me-row-host">ufuwu.1688.com</span></span>
+      </a>
+      <a class="me-row" href="https://www.aitoearn.ai/zh-CN?role=creator" target="_blank" rel="noopener">
+        <span class="me-ico" style="background:#6d28d9">A</span>
+        <span class="me-row-main"><span class="me-row-title">AiToEarn · 推广</span><span class="me-row-host">aitoearn.ai</span></span>
       </a>
     </div>
     <div class="media-panel" id="mediaPanel">

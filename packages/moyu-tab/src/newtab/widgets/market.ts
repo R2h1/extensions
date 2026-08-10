@@ -2,6 +2,35 @@
 import { stockTab, globalTab } from './quotes';
 import { sectorTab } from './sectors';
 import { watchlistTab } from './watchlist';
+import { esc, escAttr } from '../utils';
+
+/** 研报/数据参考站：看行情时顺手查研报、评级、估值 */
+const RESEARCH_LINKS = [
+  { name: '行行查', url: 'https://www.hanghangcha.com/', color: '#0ea5e9', letter: '行' },
+  {
+    name: '晨星网',
+    url: 'https://www.morningstar.cn/main/default.aspx',
+    color: '#d97706',
+    letter: '晨',
+  },
+  { name: '洞见研报', url: 'https://www.djyanbao.com/index', color: '#059669', letter: '洞' },
+  {
+    name: '蛋卷指数',
+    url: 'https://danjuanapp.com/index-detail/SH000016',
+    color: '#ef4444',
+    letter: '蛋',
+  },
+];
+function researchRow(): string {
+  const chips = RESEARCH_LINKS.map(
+    (s) =>
+      `<a class="mkt-link-chip" href="${escAttr(s.url)}" target="_blank" rel="noopener" title="${escAttr(s.name)}"><span class="mkt-link-letter" style="background:${s.color}">${s.letter}</span><span>${esc(s.name)}</span></a>`,
+  ).join('');
+  return `<section class="market-section mkt-links-sec">
+    <div class="market-subtitle-row"><span class="market-subtitle">研报 · 数据</span></div>
+    <div class="mkt-link-row">${chips}</div>
+  </section>`;
+}
 
 export interface MarketTab {
   id: string;
@@ -28,6 +57,7 @@ export function renderMarketCard(): string {
       <div class="market-tabs" id="marketTabs"></div>
       <div class="market-body" id="marketBody"></div>
       ${watchlistTab.render()}
+      ${researchRow()}
     </div>`;
 }
 
@@ -39,11 +69,12 @@ function renderTabs() {
   const bar = document.getElementById('marketTabs');
   if (!bar) return;
   bar.innerHTML = TABS.map(
-    (t) => `<button class="market-tab${t.id === activeId ? ' active' : ''}" data-tab="${t.id}">${t.name}</button>`,
+    (t) =>
+      `<button class="market-tab${t.id === activeId ? ' active' : ''}" data-tab="${t.id}">${t.name}</button>`,
   ).join('');
-  bar.querySelectorAll('.market-tab').forEach((b) =>
-    b.addEventListener('click', () => switchTab((b as HTMLElement).dataset.tab!)),
-  );
+  bar
+    .querySelectorAll('.market-tab')
+    .forEach((b) => b.addEventListener('click', () => switchTab((b as HTMLElement).dataset.tab!)));
 }
 
 async function switchTab(id: string) {

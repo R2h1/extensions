@@ -7,13 +7,37 @@ import { loadCache as loadRC, saveCache as saveRC, type RCBook } from './recomme
 
 const OV_TTL = 60 * 60 * 1000;
 
+/** 微信读书之外的延伸阅读站点（书源 / 阅读视频 / 公共书） */
+const EXTRA_READS = [
+  { name: '楠悦读', url: 'https://www.nanyuedu.com/', color: '#0ea5e9', letter: '楠' },
+  { name: '文书阁', url: 'https://www.wenshuoge.com/', color: '#64748b', letter: '文' },
+  { name: 'Topbook', url: 'https://topbook.cc/overview', color: '#ef4444', letter: 'T' },
+  { name: 'How To Cook', url: 'https://howtocook.aiursoft.com/', color: '#f59e0b', letter: 'H' },
+  { name: 'Z-Library', url: 'https://zlib.2rdh.com/', color: '#6d28d9', letter: 'Z' },
+];
+function renderExtraReads(): string {
+  const chips = EXTRA_READS.map(
+    (s) =>
+      `<a class="mkt-link-chip" href="${esc(s.url)}" target="_blank" rel="noopener" title="${esc(s.name)}"><span class="mkt-link-letter" style="background:${s.color}">${s.letter}</span><span>${esc(s.name)}</span></a>`,
+  ).join('');
+  return `<div class="wr-ov-sec">
+    <div class="wr-ov-sec-head"><span class="wr-ov-sec-title">延伸阅读</span></div>
+    <div class="mkt-link-row">${chips}</div>
+  </div>`;
+}
+
 let ovLoading = false;
 let rcLoading = false;
 let ovInited = false;
 let ovLastFetch = 0;
 // 由 newtab.ts 注入：点入口/查看更多/搜索时打开弹窗
 let openModal: (tab: string, query?: string) => void = () => {};
-let reviewOpener: (book: { bid: string; title: string; cover: string; deepLink: string }) => void = () => {};
+let reviewOpener: (book: {
+  bid: string;
+  title: string;
+  cover: string;
+  deepLink: string;
+}) => void = () => {};
 
 export function renderWereadOverviewCard(): string {
   return `<div class="widget-card hot-card weread-ov-card">
@@ -70,7 +94,9 @@ function renderRecommend(books: RCBook[]): string {
       const cover = b.cover
         ? `<img src="${esc(b.cover)}" alt="" loading="lazy" referrerpolicy="no-referrer"/>`
         : '<div class="wr-rec-cover-ph">📖</div>';
-      const author = b.author ? `<span class="wr-rec-author">${esc(b.author)}</span>` : '<span></span>';
+      const author = b.author
+        ? `<span class="wr-rec-author">${esc(b.author)}</span>`
+        : '<span></span>';
       return `<a class="wr-rec-item" href="${esc(b.deepLink)}" target="_blank" rel="noopener" data-bid="${esc(b.bid)}" title="查看书评"><div class="wr-rec-cover">${cover}</div><div class="wr-rec-title">${esc(b.title)}</div><div class="wr-rec-meta">${author}${ratingStr}</div></a>`;
     })
     .join('');
@@ -114,7 +140,8 @@ async function renderOV(error?: string) {
     : '<div class="hot-empty" style="padding:6px 0">暂无统计数据</div>';
   const hero = shelf?.books?.length ? renderHero(shelf.books) : '';
   const recommend = rc?.books?.length ? renderRecommend(rc.books) : '';
-  body.innerHTML = stats + hero + recommend;
+  const extra = renderExtraReads();
+  body.innerHTML = stats + hero + recommend + extra;
   // 在读书名 / 推荐书封 -> 打开该书书评弹窗
   const heroLink = body.querySelector<HTMLElement>('.wr-ov-hero-link');
   heroLink?.addEventListener('click', (e) => {
@@ -150,10 +177,11 @@ async function refreshOV() {
       chrome.runtime.sendMessage({ type: 'WEREAD_READDATA_FETCH', apiKey: key }),
       chrome.runtime.sendMessage({ type: 'WEREAD_SHELF_FETCH', apiKey: key }),
     ])) as [
-      | { success: boolean; data?: RDStat; error?: string }
-      | undefined,
-      | { success: boolean; data?: { books: WRShelfBook[]; total: number }; error?: string }
-      | undefined,
+      { success: boolean; data?: RDStat; error?: string } | undefined,
+      (
+        | { success: boolean; data?: { books: WRShelfBook[]; total: number }; error?: string }
+        | undefined
+      ),
     ];
     if (rdRes?.success && rdRes.data) saveRD({ stat: rdRes.data, ts: Date.now() });
     if (shRes?.success && shRes.data?.books?.length)
@@ -220,9 +248,9 @@ export async function initWereadOverview(
   reviewOpener = reviewOpenerFn;
   await renderOV();
   document.getElementById('wrOvRefresh')?.addEventListener('click', refreshOV);
-  document.querySelectorAll<HTMLElement>('.weread-ov-card .hot-head [data-tab]').forEach((b) =>
-    b.addEventListener('click', () => openModal(b.dataset.tab!)),
-  );
+  document
+    .querySelectorAll<HTMLElement>('.weread-ov-card .hot-head [data-tab]')
+    .forEach((b) => b.addEventListener('click', () => openModal(b.dataset.tab!)));
   if (ovInited) return;
   ovInited = true;
   const key = await loadWereadKey();
