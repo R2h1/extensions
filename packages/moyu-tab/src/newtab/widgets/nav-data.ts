@@ -743,11 +743,6 @@ export const NAV_GROUPS: NavGroup[] = [
           { name: '一纸简历', url: 'https://cv.devtool.tech/', color: '#111' },
           { name: 'dnd-resume', url: 'https://dnd-resume.com/', color: '#4f46e5' },
           { name: '化简简历', url: 'https://huajian.smallpig.site/', color: '#16a34a' },
-          {
-            name: '牛客社招',
-            url: 'https://www.nowcoder.com/jobs/fulltime/center',
-            color: '#0cb856',
-          },
         ],
       },
       {
@@ -767,6 +762,26 @@ export const NAV_GROUPS: NavGroup[] = [
             url: 'https://github.com/easychen/one-person-businesses-methodology-v2.0',
             color: '#f59e0b',
           },
+        ],
+      },
+      {
+        title: '招聘入口 / 平台',
+        links: [
+          {
+            name: '牛客社招',
+            url: 'https://www.nowcoder.com/jobs/fulltime/center',
+            color: '#0cb856',
+          },
+          { name: '咪咕招聘', url: 'https://www.migu.cn/about/join/social/job/0/0/4.html', color: '#e60012' },
+          { name: '腾讯音乐招聘', url: 'https://join.tencentmusic.com/social', color: '#31c27c' },
+          { name: '豆瓣招聘', url: 'https://jobs.douban.com/jobs/social/', color: '#00b51d' },
+          { name: 'OPPO 招聘', url: 'https://career.oppo.com/pc/post/list', color: '#00a651' },
+          { name: 'TCL 招聘', url: 'https://sc.hotjob.cn/wt/TCL/mobweb/v8/position/list', color: '#1f78bf' },
+          { name: '快手招聘', url: 'https://zhaopin.kuaishou.cn/recruit/e/', color: '#ff4906' },
+          { name: '字节跳动招聘', url: 'https://jobs.bytedance.com/experienced/position', color: '#325ab4' },
+          { name: '百度招聘', url: 'https://talent.baidu.com/jobs/social-list', color: '#2932e1' },
+          { name: '拼多多招聘', url: 'https://m.zhipin.com/gongsir/ea9c5680f57d53d71HV90ty5.html', color: '#e02e24' },
+          { name: '喜马拉雅招聘', url: 'https://jobs.ximalaya.com/social', color: '#e6162d' },
         ],
       },
     ],
@@ -839,21 +854,6 @@ export const NAV_GROUPS: NavGroup[] = [
     name: '暂存·待整理',
     icon: '<path d="M21 8v13H3V8"/><path d="M1 3h22v5H1z"/><path d="M10 12h4"/>',
     sections: [
-      {
-        title: '过期招聘（2023，按需重搜）',
-        links: [
-          { name: '咪咕招聘', url: 'https://www.migu.cn/about/join/social/job/0/0/4.html', color: '#e60012' },
-          { name: '腾讯音乐招聘', url: 'https://join.tencentmusic.com/social', color: '#31c27c' },
-          { name: '豆瓣招聘', url: 'https://jobs.douban.com/jobs/social/', color: '#00b51d' },
-          { name: 'OPPO 招聘', url: 'https://career.oppo.com/pc/post/list', color: '#00a651' },
-          { name: 'TCL 招聘', url: 'https://sc.hotjob.cn/wt/TCL/mobweb/v8/position/list', color: '#1f78bf' },
-          { name: '快手招聘', url: 'https://zhaopin.kuaishou.cn/recruit/e/', color: '#ff4906' },
-          { name: '字节跳动招聘', url: 'https://jobs.bytedance.com/experienced/position', color: '#325ab4' },
-          { name: '百度招聘', url: 'https://talent.baidu.com/jobs/social-list', color: '#2932e1' },
-          { name: '拼多多招聘', url: 'https://m.zhipin.com/gongsir/ea9c5680f57d53d71HV90ty5.html', color: '#e02e24' },
-          { name: '喜马拉雅招聘', url: 'https://jobs.ximalaya.com/social', color: '#e6162d' },
-        ],
-      },
       {
         title: '量子计算（与当前方向无关，留档）',
         links: [
