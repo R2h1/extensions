@@ -61,13 +61,11 @@ const AI_FEATURED: NavLink[] = [
     letter: 'B',
   },
   { name: 'Stagehand', url: 'https://www.stagehand.dev/', color: '#7c3aed' },
-  { name: 'WaytoAGI', url: 'https://www.waytoagi.com/zh', color: '#16a34a' },
 ];
 const AI_CHIPS: NavLink[] = [
   { name: 'AIHOT', url: 'https://aihot.virxact.com/', color: '#ef4444' },
   { name: 'AI 工具集', url: 'https://ai-bot.cn/', color: '#0ea5e9' },
   { name: 'n8n 自动化', url: 'https://github.com/n8n-io/n8n', color: '#ea4b71' },
-  { name: 'Claude Code 模板', url: 'https://www.aitmpl.com/', color: '#d97706' },
 ];
 
 export function renderAiCard(): string {

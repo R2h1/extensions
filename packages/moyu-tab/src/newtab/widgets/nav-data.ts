@@ -85,12 +85,6 @@ export const NAV_GROUPS: NavGroup[] = [
           { name: 'ChatDOC', url: 'https://chatdoc.com/', color: '#0ea5e9' },
           { name: 'RuoYi AI', url: 'https://doc.pandarobot.chat/', color: '#16a34a' },
           {
-            name: 'awesome-design-md',
-            url: 'https://github.com/VoltAgent/awesome-design-md',
-            color: '#6d28d9',
-          },
-          { name: 'Claude Code Templates', url: 'https://www.aitmpl.com/', color: '#d97706' },
-          {
             name: 'Code Reviewer Skill',
             url: 'https://www.aitmpl.com/component/skill/development/code-reviewer',
             color: '#475569',
@@ -136,7 +130,6 @@ export const NAV_GROUPS: NavGroup[] = [
       {
         title: '导航 / 资讯 / 学习',
         links: [
-          { name: 'WaytoAGI', url: 'https://www.waytoagi.com/zh', color: '#16a34a' },
           { name: 'WaytoAGI 提示词', url: 'https://www.waytoagi.com/zh/prompts', color: '#16a34a' },
           { name: 'AIHOT', url: 'https://aihot.virxact.com/', color: '#ef4444' },
           { name: 'AI 工具集', url: 'https://ai-bot.cn/', color: '#0ea5e9' },
@@ -153,7 +146,6 @@ export const NAV_GROUPS: NavGroup[] = [
             url: 'https://github.com/quin95/KunTab-AI',
             color: '#16a34a',
           },
-          { name: 'DailyDawn', url: 'https://dailydawn.dev/', color: '#f59e0b' },
           { name: 'Datawhale', url: 'https://github.com/datawhalechina', color: '#2563eb' },
           { name: 'Jack Cui', url: 'https://cuijiahua.com/', color: '#dc2626' },
         ],
@@ -726,11 +718,6 @@ export const NAV_GROUPS: NavGroup[] = [
             color: '#111',
           },
           {
-            name: '前端 10 个场景题',
-            url: 'https://juejin.cn/post/7612495518645174323',
-            color: '#1e80ff',
-          },
-          {
             name: '反问面试官',
             url: 'https://github.com/perklet/reverse-interview-zh',
             color: '#111',
@@ -742,7 +729,6 @@ export const NAV_GROUPS: NavGroup[] = [
         links: [
           { name: '一纸简历', url: 'https://cv.devtool.tech/', color: '#111' },
           { name: 'dnd-resume', url: 'https://dnd-resume.com/', color: '#4f46e5' },
-          { name: '化简简历', url: 'https://huajian.smallpig.site/', color: '#16a34a' },
         ],
       },
       {
@@ -857,7 +843,6 @@ export const NAV_GROUPS: NavGroup[] = [
       {
         title: '量子计算（与当前方向无关，留档）',
         links: [
-          { name: '量桨 Paddle Quantum', url: 'https://qml.baidu.com/tutorials/overview.html', color: '#2932e1' },
           { name: '量桨 API 文档', url: 'https://qml.baidu.com/api/introduction.html', color: '#2932e1' },
           { name: 'QuTiP', url: 'https://qutip.org/', color: '#475569' },
           { name: 'QPanda-2 优化算法', url: 'https://pyqpanda-toturial.readthedocs.io/zh/latest/Optimizer.html', color: '#1f78bf' },
@@ -885,7 +870,6 @@ export const NAV_GROUPS: NavGroup[] = [
           { name: 'zTree (jQuery)', url: 'https://treejs.cn/v3/main.php', color: '#475569' },
           { name: 'React Desktop', url: 'http://reactdesktop.js.org/', color: '#149eca' },
           { name: 'Locofy 设计转码', url: 'https://www.locofy.ai/', color: '#7c3aed' },
-          { name: 'gogoday (空主页)', url: 'https://github.com/gogoday', color: '#111' },
           { name: 'vscode.dev 工作区', url: 'https://vscode.dev/', color: '#007acc' },
           { name: 'Jira (公司内网)', url: 'http://jira.ruixin.net/secure/Dashboard.jspa', color: '#0052cc' },
         ],
@@ -895,14 +879,9 @@ export const NAV_GROUPS: NavGroup[] = [
         links: [
           { name: '影速 影视采集测速', url: 'https://github.com/fish2018/yingsu', color: '#475569' },
           { name: '大麦抢票脚本', url: 'https://github.com/Guyungy/damaihelper', color: '#ff4906' },
-          { name: '2s0 VIP 解析', url: 'https://www.2s0.cn/', color: '#ef4444' },
           { name: 'TexhOcean 去水印', url: 'https://texhocean.com/watermark/watermark.html', color: '#0ea5e9' },
           { name: 'CamScanner 破解站', url: 'https://texhocean.com/712.html', color: '#dc2626' },
-          { name: '微信对话生成器', url: 'http://jnsii.com/fakewechat/', color: '#07c160' },
-          { name: 'MorphVOX 变声', url: 'https://www.bianyindashi.com/', color: '#475569' },
           { name: 'MotionGo PPT 动画', url: 'https://motion.yoo-ai.com/', color: '#ea4b71' },
-          { name: '快发卡', url: 'https://www.kuaifaka.net/categories', color: '#f59e0b' },
-          { name: '云瞻开放平台', url: 'https://www.yunzhanxinxi.com/index.html', color: '#475569' },
         ],
       },
       {
@@ -910,11 +889,7 @@ export const NAV_GROUPS: NavGroup[] = [
         links: [
           { name: '一元机场', url: 'https://xn--4gq62f52gdss.com/', color: '#0ea5e9' },
           { name: '木瓜云', url: 'https://muguacloud.app/user', color: '#f59e0b' },
-          { name: '科学上网导航', url: 'https://www.abonnie.uk/virtual-private-network', color: '#16a34a' },
           { name: '龙猫云', url: 'https://a14.lml2vipaff01.cc/inv', color: '#6d28d9' },
-          { name: '新谷歌', url: 'https://xingoogle0.cc/user', color: '#1f78bf' },
-          { name: '奈云', url: 'https://www.v2ny.com/', color: '#0891b2' },
-          { name: '新谷歌 好链接', url: 'https://qingse001.cc/', color: '#1f78bf' },
           { name: '新谷歌 V2', url: 'https://tomato258.cc/', color: '#dc2626' },
         ],
       },
