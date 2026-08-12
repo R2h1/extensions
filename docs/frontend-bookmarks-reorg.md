@@ -58,6 +58,7 @@
 ### 01 语言基础
 
 #### JavaScript
+
 - MDN Web 文档 — https://developer.mozilla.org/zh-CN/
 - 现代 JavaScript 教程 — https://zh.javascript.info/
 - web.dev — https://web.dev/
@@ -67,6 +68,7 @@
 - trekhleb/javascript-algorithms → 归到「算法」
 
 #### TypeScript
+
 - TypeScript 官方文档 — https://www.typescriptlang.org/zh/docs/handbook/tsconfig-json.html
 - TypeScript Playground — https://www.typescriptlang.org/zh/play
 - DefinitelyTyped — https://github.com/DefinitelyTyped/DefinitelyTyped
@@ -75,7 +77,9 @@
 - React TypeScript 备忘录(在 React 文档区) — https://react-typescript-cheatsheet.netlify.app/
 
 #### 常用 JS 库(原「开源项目」归集)
+
 > 这些是写业务时常搜的工具库,归到语言基础下,需要时好找。
+
 - immer(不可变数据) — https://github.com/immerjs/immer
 - nanoid(唯一 ID) — https://github.com/ai/nanoid
 - decimal.js(高精度数值,比 number-precision 全) — https://github.com/MikeMcl/decimal.js
@@ -95,6 +99,7 @@
 - you-dont-need(理性选库清单) — https://github.com/you-dont-need/You-Dont-Need
 
 #### 算法与计算机基础
+
 - trekhleb/javascript-algorithms — https://github.com/trekhleb/javascript-algorithms
 - krahets/LeetCode-Book(剑指 Offer / 图解算法) — https://github.com/krahets/LeetCode-Book
 - 小林 coding(图解操作系统/网络/Redis) — https://www.xiaolincoding.com/
@@ -105,6 +110,7 @@
 ### 02 框架与视图
 
 #### React 核心
+
 - React 官方文档(中文) — https://zh-hans.react.dev/
 - facebook/react — https://github.com/facebook/react
 - Redux 中文官网 — https://cn.redux.js.org/
@@ -114,6 +120,7 @@
 - dumi(组件文档工具) — https://d.umijs.org/zh-CN
 
 #### React Hooks 与状态
+
 - react-use — https://github.com/streamich/react-use
 - ahooks — https://ahooks.gitee.io/zh-CN
 - beautiful-react-hooks — https://antonioru.github.io/beautiful-react-hooks/
@@ -125,6 +132,7 @@
 - React Spectrum hooks — https://react-spectrum.adobe.com/react-aria/useSearchField.html
 
 #### React 组件库(设计系统/后台框架)
+
 - shadcn/ui — https://ui.shadcn.com/
 - Mantine — https://mantine.dev/
 - Semi Design — https://semi.design/zh-CN
@@ -142,6 +150,7 @@
 #### React 功能组件(把原来 40 个微文件夹压成 6 组)
 
 **A. 表单 / 编辑器 / 输入**
+
 - Formik — https://formik.org/
 - React Select — https://react-select.com/home
 - react-pin-field(验证码) — https://github.com/soywod/react-pin-field
@@ -154,6 +163,7 @@
 - React Rating(评分) — https://react-rating.onrender.com/
 
 **B. 列表 / 虚拟滚动 / 分页**
+
 - react-window — https://react-window.vercel.app/
 - React Virtuoso — https://virtuoso.dev/
 - react-infinite-scroller — https://github.com/danbovey/react-infinite-scroller
@@ -161,6 +171,7 @@
 - glide-data-grid(数据表格) — https://glideapps.github.io/glide-data-grid/
 
 **C. 图表 / 多媒体**
+
 - echarts-for-react — https://git.hust.cc/echarts-for-react/
 - react-chartjs-2 — https://react-chartjs-2.js.org/
 - react-player — https://cookpete.com/react-player/
@@ -171,6 +182,7 @@
 - react-calendar-heatmap(日历热力图) — https://github.com/kevinsqi/react-calendar-heatmap
 
 **D. 动画 / 过渡 / 反馈**
+
 - react-spring — https://react-spring.dev/
 - react-motion — https://github.com/chenglou/react-motion
 - react-page-transition — https://github.com/Steveeeie/react-page-transition
@@ -186,6 +198,7 @@
 - emoji-mart(表情) — https://github.com/missive/emoji-mart
 
 **E. 图片 / 裁剪 / 缩放 / 头像**
+
 - react-easy-crop — https://github.com/ValentinH/react-easy-crop
 - react-image-crop — https://github.com/DominicTobias/react-image-crop
 - react-medium-image-zoom — https://laurenashpole.github.io/react-inner-image-zoom/
@@ -197,6 +210,7 @@
 - react-sketch-canvas(手绘) — https://github.com/vinothpandian/react-sketch-canvas
 
 **F. 交互 / 导航 / 其他**
+
 - React DnD — https://react-dnd.github.io/react-dnd/about
 - react-beautiful-dnd — https://github.com/atlassian/react-beautiful-dnd
 - any-touch(手势) — https://any86.github.io/any-touch/
@@ -222,6 +236,7 @@
 > 「React 组件 → 浏览器插件组件」移到 04/浏览器扩展。
 
 #### Vue
+
 - Vue.js — https://cn.vuejs.org/
 - VueUse — https://vueuse.org/
 - Vue 生态中文导航 — https://vitejs.cn/
@@ -237,19 +252,22 @@
 - Vite TS Starter 模板 — https://likemashang.com/
 
 #### 跨端与桌面
+
 - React Native — https://github.com/react/react-native
 - Pushy 热更新 — https://pushy.reactnative.cn/
 - react-native-skia — https://github.com/shopify/react-native-skia
 - Flutter 中文网 — https://flutterchina.club/get-started/test-drive/
 - electron-vite — https://cn.electron-vite.org/
 - qiankun(微前端) — https://qiankun.umijs.org/zh/guide
-- Bangumi(RN 客户端,你的 fork) — https://github.com/R2h/Bangumi *(你自己的项目,也可放「我的」)*
+- Bangumi(RN 客户端,你的 fork) — https://github.com/R2h/Bangumi _(你自己的项目,也可放「我的」)_
 - Bangumi API / bangumi-data — https://bangumi.github.io/api/ , https://github.com/bangumi-data/bangumi-data
 - nutjs(桌面自动化) — https://nutjs.dev/
 - HuLa(Rust+Vue3 跨平台 IM,参考) — https://github.com/HuLaSpark/HuLa
 
 #### 微信小程序
+
 > 原散落于 `开源项目/`,集中成一组。
+
 - Vant Weapp(有赞组件库) — https://youzan.github.io/vant-weapp/
 - iView Weapp — https://weapp.iviewui.com/
 - mp-html(富文本组件) — https://jin-yufeng.gitee.io/mp-html/
@@ -267,6 +285,7 @@
 ### 03 样式与 UI 资源(合并原 `CSS/` + `工具/CSS/`)
 
 #### 学习与技巧
+
 - CSS-Tricks — https://css-tricks.com/
 - 张鑫旭博客 — https://www.zhangxinxu.com/
 - chokcoco/iCSS(不止于 CSS) — https://github.com/chokcoco/iCSS
@@ -275,6 +294,7 @@
 - Navnav(导航合集) — https://thuvien.org/navnav/
 
 #### 动画
+
 - Animate.css — https://animate.style/
 - Animista — https://animista.net/
 - 缓动函数速查 — https://easings.net/zh-cn
@@ -284,9 +304,10 @@
 - GSAP(专业动画库) — https://greensock.com/
 - particles.js / tsParticles(粒子背景) — https://vincentgarreton.com/particles.js/ , https://github.com/matteobruni/tsparticles
 - p5.js(创意编程/生成艺术) — https://github.com/processing/p5.js
-- Driver.js(新手引导) — https://driverjs.com/ *(注:开源项目里有两条,一条首页一条文档,合并)*
+- Driver.js(新手引导) — https://driverjs.com/ _(注:开源项目里有两条,一条首页一条文档,合并)_
 
 #### CSS 生成器
+
 - Grabient / uiGradients(渐变) — https://grabient.com/ , https://uigradients.com/
 - Adobe 好看的颜色 — https://assets.adobe.com/
 - Box Shadow 生成器 — https://cssgenerator.org/box-shadow-css-generator.html
@@ -302,6 +323,7 @@
 - Autoprefixer 在线版 — https://autoprefixer.github.io/
 
 #### CSS 工程化
+
 - UnoCSS — https://unocss.dev/
 - PostCSS 中文网 — https://www.postcss.com.cn/
 - PurgeCSS — https://github.com/FullHuman/purgecss
@@ -311,6 +333,7 @@
 - W3C — https://www.w3.org/zh-hans/
 
 #### 音视频播放器
+
 - Artplayer.js — https://www.artplayer.org/
 - DPlayer — https://dplayer.diygod.dev/
 
@@ -319,10 +342,11 @@
 ### 04 工程化与构建
 
 #### 编译与打包
+
 - Vite — https://github.com/vitejs/vite
 - esbuild-loader — https://github.com/privatenumber/esbuild-loader
 - Biome(一体化工具链) — https://biomejs.dev/zh-cn/
-- Babel — https://babel.dev/ , https://babeljs.io/ *(原开源项目有两条重复,合并)*
+- Babel — https://babel.dev/ , https://babeljs.io/ _(原开源项目有两条重复,合并)_
 - terser(ES6+ 压缩) — https://terser.org/
 - AST explorer — https://astexplorer.net/
 - Esprima Parser — https://esprima.org/demo/parse.html
@@ -334,16 +358,19 @@
 - webpack-autoconf(已旧,引用 Snowpack,建议删)
 
 #### Monorepo
+
 - Nx — https://www.npmjs.com/package/nx
 - Lerna — https://www.npmjs.com/package/lerna
 
 #### 质量与测试
+
 - Playwright(E2E) — https://playwright.dev/
 - Mocha — https://www.npmjs.com/package/mocha
 - Apifox — https://apifox.com/
 - Postman — https://www.postman.com/
 
 #### 浏览器扩展(⭐ 本项目就是扩展,重点保留)
+
 - crxjs/chrome-extension-tools — https://github.com/crxjs/chrome-extension-tools
 - create-chrome-ext — https://github.com/guocaoyi/create-chrome-ext
 - Plasmo — https://www.plasmo.com/
@@ -353,6 +380,7 @@
 - VS Code 插件中文文档 — https://liiked.github.io/VS-Code-Extension-Doc-ZH/
 
 #### 调试代理
+
 - Whistle — https://wproxy.org/
 - Can I use — https://caniuse.com/
 - Browserhacks — http://browserhacks.com/
@@ -365,17 +393,19 @@
 > 注意:**你目前后端栈只有 Express / Egg / Nest + MongoDB**,缺关系型数据库/ORM、缓存、容器化(见缺口分析)。
 
 #### 运行时与规范
+
 - Node.js 指南(官方) — https://nodejs.org/zh-cn/docs/guides/
 - Node.js 中文网 — https://nodejs.cn/
 - Node.js 源码剖析 — https://theanarkh.github.io/understand-nodejs/
 - Node Best Practices — https://github.com/goldbergyoni/nodebestpractices
 - CNode 社区 — https://cnodejs.org/
-- nvm(Windows / *nix) — https://github.com/coreybutler/nvm-windows , https://github.com/nvm-sh/nvm
+- nvm(Windows / \*nix) — https://github.com/coreybutler/nvm-windows , https://github.com/nvm-sh/nvm
 - nvm 使用教程 — https://www.runoob.com/w3cnote/nvm-manager-node-versions.html
 - nodemon — https://www.npmjs.com/package/nodemon
 - ts-node-dev — https://www.npmjs.com/package/ts-node-dev
 
 #### Web 框架
+
 - Nest.js 中文文档 — https://docs.nestjs.cn/
 - Egg.js — https://www.eggjs.org/zh-CN
 - Express 生态(通过 validator/cors/morgan 等)
@@ -384,11 +414,13 @@
 - public-apis-cn(免费 API 大全) — https://github.com/llf007/public-apis-cn
 
 #### 数据库
+
 - mongodb 驱动 — https://www.npmjs.com/package/mongodb
 - mongoose(ODM) — https://www.npmjs.com/package/mongoose
 - ⚠️ 缺:PostgreSQL / MySQL / Prisma / Drizzle / Redis — 见缺口
 
 #### 中间件 / 鉴权 / 工具
+
 - express-validator — https://www.npmjs.com/package/express-validator
 - egg-validate — https://www.npmjs.com/package/egg-validate
 - joi(校验) — https://joi.dev/
@@ -412,7 +444,9 @@
 - 网易云音乐 NodeJS API(练手项目,可留可删)
 
 #### CLI 与脚本工具链
+
 > 这些是写 Node CLI 的"标配全家桶",归成一组,找的时候一眼能看到。
+
 - yargs / inquirer / prompts(参数与交互)
 - chalk / chalk-cli(着色)
 - ora / cli-spinners / cli-cursor(loading)
@@ -430,6 +464,7 @@
 > 下面把有价值的按主题归位,删掉无关项。
 
 #### 6.1 LLM 厂商 / 对话入口
+
 - Anthropic — https://www.anthropic.com/
 - DeepSeek 深度求索 — https://www.deepseek.com/
 - MiniMax — https://chat.minimaxi.com/
@@ -438,29 +473,33 @@
 - 莓用 AI — https://ai.usesless.com/
 
 #### 6.2 Agent / 编排 / 自动化(⭐ 与目标最相关)
+
 - **crawl4ai**(LLM 友好的爬虫,RAG 数据接入利器) — https://github.com/unclecode/crawl4ai
 - **browser-use**(让 AI agent 操作浏览器) — https://github.com/browser-use/browser-use
 - **UI-TARS-desktop**(字节 GUI Agent,自然语言控电脑) — https://github.com/bytedance/UI-TARS-desktop
 - **Automa**(积木式浏览器自动化扩展) — https://github.com/AutomaApp/automa
-- **n8n**(节点式工作流自动化,后端也常用) — https://github.com/n8n-io/n8n  *(原在开源项目)*
+- **n8n**(节点式工作流自动化,后端也常用) — https://github.com/n8n-io/n8n _(原在开源项目)_
 - **AirCode**(JS 快速建 bot/智能体) — https://aircode.io/
 - 深入理解 AI Agent(在线书) — https://bojieli.github.io/ai-agent-book/
 - ECC(Claude Code 等 agent harness 性能优化) — https://github.com/affaan-m/ECC
 
 #### 6.3 AI 应用 / RAG / 文档
+
 - ChatDOC(文档对话) — https://chatdoc.com/
-- RuoYi AI(若依 AI 应用框架) — https://doc.pandarobot.chat/  *(原在开源项目)*
+- RuoYi AI(若依 AI 应用框架) — https://doc.pandarobot.chat/ _(原在开源项目)_
 
 #### 6.4 AIGC 工具(视频/音频/图像/数字人)
+
 - bark(Suno 文本生成音频模型) — https://github.com/suno-ai/bark
 - Noiz AI(免费 TTS) — https://noiz.ai/landing
 - Viggle AI(动作驱动视频) — https://viggle.ai/home
 - EMO(阿里肖像动画) — https://humanaigc.github.io/emote-portrait-alive/
 - 闪剪(AI 数字人视频) — https://app.shanjian.tv/
-- MoneyPrinterTurbo(AI 一键生成短视频) — https://github.com/harry0703/MoneyPrinterTurbo  *(原在开源项目)*
-- webnovel-writer(AI 长篇网文创作系统) — https://github.com/lingfengQAQ/webnovel-writer  *(原在开源项目)*
+- MoneyPrinterTurbo(AI 一键生成短视频) — https://github.com/harry0703/MoneyPrinterTurbo _(原在开源项目)_
+- webnovel-writer(AI 长篇网文创作系统) — https://github.com/lingfengQAQ/webnovel-writer _(原在开源项目)_
 
 #### 6.5 AI 导航 / 资讯 / 学习
+
 - AIHOT — https://aihot.virxact.com/
 - AI 工具集导航(500+) — https://ai-bot.cn/
 - ChatGPT 中文调教指南 — https://chatguide.plexpt.com/
@@ -470,13 +509,16 @@
 - Jack Cui(AI 个人站) — https://cuijiahua.com/
 
 #### 6.6 量子计算(与 AI agent 无关,慎留)
+
 > 这几条是"机器学习"文件夹里混进来的量子计算内容,和你当前目标完全不搭。
 > 除非对量子感兴趣,否则建议删除。
+
 - 量桨 Paddle Quantum(教程/API) — https://qml.baidu.com/
 - QuTiP — https://qutip.org/
 - QPanda-2 优化算法文档
 
 #### 仍需补充(详见第四节缺口)
+
 - TS/JS 的 LLM SDK、Agent 框架、向量库、Eval/可观测 —— 你收藏的多为"应用/产品",
   **缺的是"自己写 agent"要用的开发库**。
 
@@ -485,6 +527,7 @@
 ### 07 资讯·周刊·博客
 
 #### 周刊 / 综合资讯
+
 - JS 周刊 — https://docschina.org/news/weekly/js
 - 前端精读周刊(ascoders) — https://github.com/ascoders/weekly
 - InfoQ — https://www.infoq.cn/
@@ -493,12 +536,13 @@
 - Awesome-GitHub — https://github.com/Wechat-ggGitHub
 - GitHub520(解决 GitHub 访问慢) — https://github.com/521xueweihan/GitHub520
 - build-your-own-x(亲手造轮子学技术) — https://github.com/codecrafters-io/build-your-own-x
-- Datawhale(AI/数据开源学习社区) — https://github.com/datawhalechina *(偏 AI 学习,也可放 06)*
+- Datawhale(AI/数据开源学习社区) — https://github.com/datawhalechina _(偏 AI 学习,也可放 06)_
 - awesome-free-apps(免费应用合集) — https://github.com/Axorax/awesome-free-apps
 - freemediaheckyeah(免费媒体资源) — https://fmhy.net/
 - npm — https://www.npmjs.com/
 
 #### 个人博客
+
 - Developer Way — https://www.developerway.com/
 - 茂茂物语 — https://notes.fe-mm.com/
 - 王先生笔记 — https://wxsnote.cn/
@@ -515,6 +559,7 @@
 ### 08 在线工具与效率
 
 #### Playground / 在线编辑
+
 - CodePen — https://codepen.io/
 - JSRUN — https://jsrun.net/
 - HTML to JSX(transform.tools) — https://transform.tools/html-to-jsx
@@ -523,11 +568,13 @@
 - quick-rss — https://github.com/jaywcjlove/quick-rss
 
 #### 隐私 / 安全 / 检测
+
 - Browserleaks(浏览器隐私泄露检测) — https://browserleaks.com/
 - Fingerprint Pro(浏览器指纹) — https://fingerprint.com/
-- Mozilla Observatory(站点安全) — https://observatory.mozilla.org/ *(已在杂项)*
+- Mozilla Observatory(站点安全) — https://observatory.mozilla.org/ _(已在杂项)_
 
 #### 图片 / 媒体 / 动效
+
 - Squoosh(图片压缩) — https://squoosh.app/
 - TinyPNG — https://tinypng.com/
 - 图片转 DataURI — http://tool.c7sky.com/datauri/
@@ -539,6 +586,7 @@
 - GIMP(图像编辑) — https://www.gimp.org/
 
 #### 杂项
+
 - 正则表达式备忘单 — https://ihateregex.io/
 - HTML entity 编解码 — https://mothereff.in/html-entities
 - pb2ts(Protocol Buffers 转 TS) — https://brandonxiang.github.io/pb-to-typescript/
@@ -558,7 +606,7 @@
 - 新概念英语导航 — https://nce.ichochy.com/
 - reinstall(一键重装 VPS 系统脚本) — https://github.com/bin456789/reinstall
 - BuildCores(3D 装机配置器) — https://www.buildcores.com/
-- 大麦抢票脚本 — https://github.com/Guyungy/damaihelper *(灰色工具,慎留)*
+- 大麦抢票脚本 — https://github.com/Guyungy/damaihelper _(灰色工具,慎留)_
 - vue3-drag-directive — https://teernage.github.io/vue3-drag-directive/
 - zTree(jQuery 树插件,老旧) — https://treejs.cn/
 - Bangumi 番组计划 — https://bgm.tv/
@@ -570,6 +618,7 @@
 ### 09 面试与求职
 
 #### 面试题 / 基础
+
 - 中级前端面试指南 — https://github.com/sl1673495/blogs/issues/52
 - 大厂面试题每日一题(山月) — https://q.shanyue.tech/
 - markyun 前端面试 QA — https://github.com/markyun/My-blog/
@@ -581,10 +630,12 @@
 - SaDuck 公考知识库 — https://saduck.top/
 
 #### 简历 / 平台
+
 - 一纸简历(Markdown 简历) — https://cv.devtool.tech/
 - 牛客社招 — https://www.nowcoder.com/jobs/fulltime/center
 
 #### 远程 / 外企(相对长效)
+
 - 电鸭社区 — https://eleduck.com/
 - Thoughtworks — https://www.thoughtworks.cn/
 - 之马工场 — https://www.zhimawork.com/
@@ -608,30 +659,34 @@
 按用途重新分组,并标出建议删除项:
 
 **设计 / 图片处理**
+
 - 稿定抠图 — https://koutu.gaoding.com/
 - FocoClipping — https://www.fococlipping.com/
 - remove.bg — https://www.remove.bg/zh
 - 稿定在线 PS(Photopea) — https://ps.gaoding.com/
 - waifu2x(图片放大降噪) — http://waifu2x.udp.jp/
 - Pix Fix — https://pixfix.com/
-- CodeFormer(AI 人脸修复) — https://huggingface.co/spaces/sczhou/CodeFormer  *(偏 AI,也可放 06)*
+- CodeFormer(AI 人脸修复) — https://huggingface.co/spaces/sczhou/CodeFormer _(偏 AI,也可放 06)_
 - U钙网 logo 设计 — https://www.uugai.com/
 - 创客贴 — https://www.chuangkit.com/
 
 **视频 / 剪辑 / 动图**
+
 - 牛片网(短视频外包) — https://www.6pian.cn/
 - BeeCut 视频转 GIF — https://beecut.cn/video-to-gif-online
 - 光厂 VJ 师(视频/AE 素材) — https://www.vjshi.com/
 - 抖音/B站视频去水印下载(dy114 / iiilab / TexhOcean / 996 四个同类)
-- Runway(AI 视频) — https://app.runwayml.com/ *(偏 AI)*
+- Runway(AI 视频) — https://app.runwayml.com/ _(偏 AI)_
 
 **壁纸**
+
 - wallhaven — https://wallhaven.cc/
 - Wallpaper Engine Space — https://www.wallpaperengine.space/
 - Wallpaper Abyss — https://wall.alphacoders.com/
 - 哲风壁纸 — https://haowallpaper.com/
 
 **思维导图 / 绘图 / 文档**
+
 - ProcessOn — https://www.processon.com/diagrams
 - Excalidraw — https://excalidraw.com/
 - MD2Card(Markdown 转知识卡片) — https://md2card.com/zh
@@ -640,6 +695,7 @@
 - aconvert(在线转文档/图/音视频) — https://www.aconvert.com/
 
 **效率 / 其他工具**
+
 - ToDesk(远程控制) — https://www.todesk.com/
 - CamScanner 扫描全能王 — https://texhocean.com/712.html
 - 临时邮箱 — https://linshiyouxiang.net/
@@ -653,11 +709,13 @@
 - How To Cook — https://cook.aiursoft.cn/ → **已在微信读书延伸阅读,去重**
 
 **排行榜 / 选购**
+
 - 盖得排行 — https://guiderank-app.com/
 - 快科技天梯榜 — https://rank.kkj.cn/
 - Versus(产品对比) — https://versus.com/cn
 
 **建议从实用工具里删除的:**
+
 - 「外网代理」整个子文件夹(8 个机场:一元机场/木瓜云/CokeCloud/龙猫云/新谷歌等)——这些是个人订阅后台,会过期、含邀请链接/账户信息,**不建议长期放书签**,要用时从密码管理器/收藏的单个稳定入口进。
 - 「微信对话生成器」(伪造聊天截图)——用途灰、低频。
 - MorphVOX 变声器——桌面软件,不是网页。
@@ -670,6 +728,7 @@
 ### B. 其他书签(Other Bookmarks)逐条分流
 
 **归到 06 AI 与 Agent(⭐ 高价值,和你目标直接相关):**
+
 - Stagehand(给开发者+LLM 用的浏览器自动化 SDK) — https://www.stagehand.dev/ → 6.2 Agent
 - WaytoAGI(通往 AGI 的 AI 知识库/工具站) — https://www.waytoagi.com/zh → 6.5 导航
 - WaytoAGI AI 提示词 — https://www.waytoagi.com/zh/prompts → 6.5
@@ -683,16 +742,19 @@
   - Claude Code Spec Coding 实战(得物) — https://aicoding.juejin.cn/post/7615888039429160966
 
 **归到 07 资讯·博客(职业思考类文章):**
+
 - 卡颂:程序员转型(AI 助力转型) — https://juejin.cn/post/7496394458508984329
 - 2025 年:一半无业游民一半外包牛马 — https://juejin.cn/post/7592996072705474610
 - 写给年轻程序员的建议 — https://juejin.cn/post/7612479947865669675
 - 我的开源项目帮独立开发者省时间 — https://juejin.cn/post/7632614384470704128
 
 **归到 09 面试:**
+
 - 前端面试常见 10 个场景题(双越) — https://juejin.cn/post/7612495518645174323
 - 在线简历生成(dnd-resume) — https://dnd-resume.com/
 
 **归到对应技术区:**
+
 - Linux 命令搜索引擎 — https://wangchujiang.com/linux-command/ → 05 Node/后端(后端必会)
 - 前端性能监控 SDK 手写 — https://juejin.cn/post/7586482860104613915 → 04 工程化
 - Fantastic-admin 权限验证文档 — https://fantastic-admin.hurui.me/guide/auth.html → 02 React/Vue 后台
@@ -700,6 +762,7 @@
 - 化简(开源简历制作) — https://huajian.smallpig.site/ → 09 简历
 
 **个人 / 兴趣(可留可删,与开发无关):**
+
 - Jira Dashboard(公司内网) — http://jira.ruixin.net/ → 失效内网链接,删
 - 名侦探柯南 各卷目录 / 各集列表(百度百科) — 兴趣,自己留别处
 - 卢内尔 lunel.dev — 个人站,不知是什么
@@ -707,39 +770,40 @@
 - 数字直觉排行榜 — https://numfeel.996.ninja/pages/leaderboard/
 
 **建议直接删:**
+
 - 上面这些掘金文章如果不打算重读,文章类书签极易堆积,建议读完即删或用稍后读(Pocket/Cubox)管理,不要长期占书签栏。
 
 ---
 
 ## 三、建议直接删除 / 取消关联
 
-| 书签 | 原位置 | 原因 |
-|---|---|---|
-| HelloWindows.cn(Windows 激活) | 工具/windwos激活 | 盗版系统,与开发无关,有安全风险 |
-| 100px.net 抽奖插件 | 工具/抽奖插件 | 一次性需求,无长期价值 |
-| Disqus 评论插件 | 工具/评论插件 | 国外服务,国内基本用不上 |
-| webpack-autoconf | 编译工具 | 已停更,引用了 Snowpack(已废弃) |
-| Babel 2021 博客 | 编译工具 | 过时新闻,不是文档 |
-| 2023 各公司招聘链接 ×11 | 面试/简历投递 | 全部过期 |
-| Miro Video Converter | 工具 | 桌面软件,不是网页资源,且久未更新 |
-| YouTube | 数据 | 误放,不是数据工具 |
-| 网易云音乐 NodeJS API | nodejs | 第三方练手项目,文档站不稳定 |
-| ethers.js(Web3) | Web3.0 | 若不做链上开发可删;要做则归 AI 之外单独留 |
-| pdf2docx / pyscript / iswbm | Python | 三条都很弱,与 AI Python 栈无关,删 |
-| Apifox 重复条目 | 工具/测试 + 数据 | 保留一条,放 04/质量与测试 |
-| Normalize.css 重复 | CSS + 工具/样式标准化 | 保留一条,放 03/CSS 工程化 |
-| 缓动函数速查 重复 | CSS + 工具/动画 | 保留 easings.net 一条 |
-| perf.link 重复两条 | 工具/代码测速 | 完全相同 URL,删一条 |
-| unplugin-auto-import 重复 | Vue + 工具/自动导入 | 保留在 Vue 区 |
-| css-doodle 重复两条 | 工具/CSS绘制 | 保留一条 |
-| gogoday(空 GitHub 主页) | Javascript | 无内容,可删 |
-| **开源项目/开源项目(整个嵌套子文件夹)** | 开源项目 | 50 条与外层完全重复,整个删掉 |
-| npm 首页 | 开源项目 | 不是收藏,直接搜即可 |
-| 影速 yingsu(影视采集接口测速) | 机器学习 | 影视采集灰产工具,与学习/工作无关 |
-| MotionGo(PPT 动画插件) | 机器学习 | 办公插件,非开发 |
-| 量子计算三条(量桨/QuTiP/QPanda) | 机器学习 | 与 AI agent 目标无关,不感兴趣就删 |
-| zTree(jQuery 树插件) | 开源项目 | jQuery 时代遗留,已过时 |
-| Bangumi 相关(若不做该项目) | 开源项目 | 你的 fork 可留作个人项目,其余看情况 |
+| 书签                                    | 原位置                | 原因                                      |
+| --------------------------------------- | --------------------- | ----------------------------------------- |
+| HelloWindows.cn(Windows 激活)           | 工具/windwos激活      | 盗版系统,与开发无关,有安全风险            |
+| 100px.net 抽奖插件                      | 工具/抽奖插件         | 一次性需求,无长期价值                     |
+| Disqus 评论插件                         | 工具/评论插件         | 国外服务,国内基本用不上                   |
+| webpack-autoconf                        | 编译工具              | 已停更,引用了 Snowpack(已废弃)            |
+| Babel 2021 博客                         | 编译工具              | 过时新闻,不是文档                         |
+| 2023 各公司招聘链接 ×11                 | 面试/简历投递         | 全部过期                                  |
+| Miro Video Converter                    | 工具                  | 桌面软件,不是网页资源,且久未更新          |
+| YouTube                                 | 数据                  | 误放,不是数据工具                         |
+| 网易云音乐 NodeJS API                   | nodejs                | 第三方练手项目,文档站不稳定               |
+| ethers.js(Web3)                         | Web3.0                | 若不做链上开发可删;要做则归 AI 之外单独留 |
+| pdf2docx / pyscript / iswbm             | Python                | 三条都很弱,与 AI Python 栈无关,删         |
+| Apifox 重复条目                         | 工具/测试 + 数据      | 保留一条,放 04/质量与测试                 |
+| Normalize.css 重复                      | CSS + 工具/样式标准化 | 保留一条,放 03/CSS 工程化                 |
+| 缓动函数速查 重复                       | CSS + 工具/动画       | 保留 easings.net 一条                     |
+| perf.link 重复两条                      | 工具/代码测速         | 完全相同 URL,删一条                       |
+| unplugin-auto-import 重复               | Vue + 工具/自动导入   | 保留在 Vue 区                             |
+| css-doodle 重复两条                     | 工具/CSS绘制          | 保留一条                                  |
+| gogoday(空 GitHub 主页)                 | Javascript            | 无内容,可删                               |
+| **开源项目/开源项目(整个嵌套子文件夹)** | 开源项目              | 50 条与外层完全重复,整个删掉              |
+| npm 首页                                | 开源项目              | 不是收藏,直接搜即可                       |
+| 影速 yingsu(影视采集接口测速)           | 机器学习              | 影视采集灰产工具,与学习/工作无关          |
+| MotionGo(PPT 动画插件)                  | 机器学习              | 办公插件,非开发                           |
+| 量子计算三条(量桨/QuTiP/QPanda)         | 机器学习              | 与 AI agent 目标无关,不感兴趣就删         |
+| zTree(jQuery 树插件)                    | 开源项目              | jQuery 时代遗留,已过时                    |
+| Bangumi 相关(若不做该项目)              | 开源项目              | 你的 fork 可留作个人项目,其余看情况       |
 
 ---
 
@@ -749,24 +813,28 @@
 AI 几乎为零。要成为 AI 全栈(agent)工程师,建议补充并新建对应书签夹:
 
 ### 4.1 LLM 与 AI 运行时
+
 - **Vercel AI SDK**(TS 首选,和你前端背景最搭)— https://sdk.vercel.ai/
 - **Anthropic SDK / 文档** — https://docs.anthropic.com/ , https://github.com/anthropics/anthropic-sdk-typescript
 - **OpenAI SDK / Node** — https://github.com/openai/openai-node
 - **AI SDK 模板 / create-ai-sdk**
 
 ### 4.2 Agent 编排框架
+
 - **Mastra**(TS 原生 agent 框架)— https://mastra.ai/
 - **LangChain.js / LangGraph.js** — https://js.langchain.com/
 - **Inngest**(Agent 工作流/队列)— https://www.inngest.com/
 - (了解) Mastra / LlamaIndex.TS / VoltAgent
 
 ### 4.3 数据 / RAG / 向量库
+
 - **Pinecone / Chroma / Qdrant**(托管向量库)
 - **pgvector + Prisma**(关系库 + 向量,比 Mongo 更适合 AI 后端)
 - **LlamaIndex**(数据接入/RAG)
 - **Embeddings 评测 / Ragas**
 
 ### 4.4 后端基础设施(你目前最缺)
+
 - **Prisma / Drizzle ORM** — https://www.prisma.io/ , https://orm.drizzle.team/
 - **PostgreSQL** 文档 / **Redis**
 - **Docker / docker-compose**
@@ -775,6 +843,7 @@ AI 几乎为零。要成为 AI 全栈(agent)工程师,建议补充并新建对�
 - 鉴权:**Better Auth / Lucia / Auth.js**
 
 ### 4.5 Python AI 栈(后端/agent 生态主流)
+
 - Python 官方教程 / **FastAPI**(AI 服务最常用后端框架)
 - **uv / poetry / ruff**(现代 Python 工具链)
 - **pydantic**
@@ -782,10 +851,12 @@ AI 几乎为零。要成为 AI 全栈(agent)工程师,建议补充并新建对�
 - **Jupyter / pandas**(数据处理)
 
 ### 4.6 可观测 / Eval(Agent 工程化关键)
+
 - **LangSmith / Langfuse / Helicone**(LLM 调用追踪)
 - **Braintrust / promptfoo**(Eval)
 
 ### 4.7 部署
+
 - **Cloudflare Workers / Pages**、**Vercel**、**Fly.io**、**Railway**
 - **Supabase / Neon**(Serverless Postgres)
 

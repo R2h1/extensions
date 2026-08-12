@@ -96,11 +96,6 @@ export const NAV_GROUPS: NavGroup[] = [
         links: [
           { name: 'bark (TTS)', url: 'https://github.com/suno-ai/bark', color: '#ef4444' },
           { name: 'Noiz AI TTS', url: 'https://noiz.ai/landing', color: '#0ea5e9' },
-          {
-            name: 'Azure TTS',
-            url: 'https://azure.microsoft.com/zh-cn/services/cognitive-services/text-to-speech/',
-            color: '#0078d4',
-          },
           { name: 'Viggle AI', url: 'https://viggle.ai/home', color: '#7c3aed' },
           {
             name: 'EMO',
@@ -109,12 +104,6 @@ export const NAV_GROUPS: NavGroup[] = [
           },
           { name: '闪剪数字人', url: 'https://app.shanjian.tv/', color: '#2563eb' },
           { name: 'Runway', url: 'https://app.runwayml.com/', color: '#111' },
-          { name: 'OiiOii', url: 'https://oiioii.art/', color: '#db2777' },
-          {
-            name: 'CodeFormer',
-            url: 'https://huggingface.co/spaces/sczhou/CodeFormer',
-            color: '#f59e0b',
-          },
           {
             name: 'MoneyPrinterTurbo',
             url: 'https://github.com/harry0703/MoneyPrinterTurbo',
@@ -530,11 +519,6 @@ export const NAV_GROUPS: NavGroup[] = [
             color: '#1e80ff',
           },
           {
-            name: '扩展学习整理',
-            url: 'https://github.com/justinzm/chrome-extensions-learning',
-            color: '#4f46e5',
-          },
-          {
             name: 'VS Code 插件文档',
             url: 'https://liiked.github.io/VS-Code-Extension-Doc-ZH/',
             color: '#007acc',
@@ -669,12 +653,6 @@ export const NAV_GROUPS: NavGroup[] = [
           { name: 'InfoQ', url: 'https://www.infoq.cn/', color: '#1682ef' },
           { name: 'HelloGitHub', url: 'https://hellogithub.com/', color: '#ef4444' },
           {
-            name: 'GitHub 中文榜',
-            url: 'https://github.com/GrowingGit/GitHub-Chinese-Top-Charts',
-            color: '#111',
-          },
-          { name: 'GitHub520', url: 'https://github.com/521xueweihan/GitHub520', color: '#111' },
-          {
             name: 'build-your-own-x',
             url: 'https://github.com/codecrafters-io/build-your-own-x',
             color: '#111',
@@ -780,57 +758,40 @@ export const NAV_GROUPS: NavGroup[] = [
       {
         title: '设计 / 图片处理',
         links: [
-          { name: '稿定抠图', url: 'https://koutu.gaoding.com/', color: '#ff6b35' },
-          { name: 'remove.bg', url: 'https://www.remove.bg/zh', color: '#1a62ff' },
-          { name: 'FocoClipping', url: 'https://www.fococlipping.com/', color: '#4f46e5' },
-          { name: 'Photopea 在线PS', url: 'https://ps.gaoding.com/', color: '#003d8f' },
-          { name: 'waifu2x 放大', url: 'http://waifu2x.udp.jp/', color: '#475569' },
           { name: 'Squoosh', url: 'https://squoosh.app/', color: '#db2777' },
           { name: 'TinyPNG', url: 'https://tinypng.com/', color: '#111' },
           { name: '图片转 DataURI', url: 'http://tool.c7sky.com/datauri/', color: '#0ea5e9' },
           { name: 'Lorem Picsum', url: 'https://picsum.photos/', color: '#6d28d9' },
-          { name: 'U钙 logo', url: 'https://www.uugai.com/', color: '#16a34a' },
-          { name: '创客贴', url: 'https://www.chuangkit.com/', color: '#ff6b35' },
         ],
       },
       {
         title: '视频 / 思维导图 / 文档',
         links: [
-          { name: 'BeeCut 转GIF', url: 'https://beecut.cn/video-to-gif-online', color: '#f59e0b' },
           { name: '抖音去水印', url: 'https://www.dy114.com/douyin', color: '#000' },
           { name: 'B站视频解析', url: 'https://bilibili.iiilab.com/', color: '#fb7299' },
           { name: '视频压缩', url: 'https://tools.rotato.app/compress', color: '#4f46e5' },
           { name: 'aconvert 转换', url: 'https://www.aconvert.com/', color: '#0ea5e9' },
-          { name: 'ProcessOn', url: 'https://www.processon.com/diagrams', color: '#1f78bf' },
           { name: 'Excalidraw', url: 'https://excalidraw.com/', color: '#111' },
           { name: 'MD2Card', url: 'https://md2card.com/zh', color: '#4f46e5' },
-          { name: 'wolai 笔记', url: 'https://www.wolai.com/', color: '#111' },
           { name: 'PDF24 Tools', url: 'https://tools.pdf24.org/zh/', color: '#111' },
         ],
       },
       {
         title: '壁纸 / 效率',
         links: [
-          { name: 'wallhaven', url: 'https://wallhaven.cc/', color: '#111' },
-          { name: 'Wallpaper Abyss', url: 'https://wall.alphacoders.com/', color: '#4f46e5' },
           { name: '哲风壁纸', url: 'https://haowallpaper.com/', color: '#0ea5e9' },
-          { name: 'ToDesk', url: 'https://www.todesk.com/', color: '#16a34a' },
           { name: '临时邮箱', url: 'https://linshiyouxiang.net/mailbox/rrh/', color: '#ef4444' },
           { name: '蓝奏云', url: 'https://up.woozooo.com/', color: '#1976f3' },
           { name: 'Keep Screen On', url: 'https://www.keepscreenon.com/', color: '#475569' },
           { name: '正则备忘', url: 'https://ihateregex.io/', color: '#db2777' },
           { name: 'Let’s Encrypt', url: 'https://letsencrypt.org/', color: '#111' },
-          { name: 'MaiPDF', url: 'https://maitube.com/', color: '#16a34a' },
         ],
       },
       {
         title: '排行榜 / 选购',
         links: [
-          { name: '盖得排行', url: 'https://guiderank-app.com/', color: '#dc2626' },
-          { name: '快科技天梯榜', url: 'https://rank.kkj.cn/', color: '#f59e0b' },
           { name: 'Versus 对比', url: 'https://versus.com/cn', color: '#4f46e5' },
           { name: 'BuildCores 装机', url: 'https://www.buildcores.com/', color: '#111' },
-          { name: 'iFixit 维修', url: 'https://zh.ifixit.com/', color: '#1f78bf' },
         ],
       },
     ],
@@ -879,18 +840,13 @@ export const NAV_GROUPS: NavGroup[] = [
         links: [
           { name: '影速 影视采集测速', url: 'https://github.com/fish2018/yingsu', color: '#475569' },
           { name: '大麦抢票脚本', url: 'https://github.com/Guyungy/damaihelper', color: '#ff4906' },
-          { name: 'TexhOcean 去水印', url: 'https://texhocean.com/watermark/watermark.html', color: '#0ea5e9' },
-          { name: 'CamScanner 破解站', url: 'https://texhocean.com/712.html', color: '#dc2626' },
           { name: 'MotionGo PPT 动画', url: 'https://motion.yoo-ai.com/', color: '#ea4b71' },
         ],
       },
       {
         title: '机场 / 代理订阅（含个人邀请，慎分享）',
         links: [
-          { name: '一元机场', url: 'https://xn--4gq62f52gdss.com/', color: '#0ea5e9' },
-          { name: '木瓜云', url: 'https://muguacloud.app/user', color: '#f59e0b' },
           { name: '龙猫云', url: 'https://a14.lml2vipaff01.cc/inv', color: '#6d28d9' },
-          { name: '新谷歌 V2', url: 'https://tomato258.cc/', color: '#dc2626' },
         ],
       },
       {
@@ -901,8 +857,6 @@ export const NAV_GROUPS: NavGroup[] = [
           { name: 'Animeko', url: 'https://animeko.org/', color: '#7c3aed' },
           { name: 'B站录播姬', url: 'https://rec.danmuji.org/', color: '#fb7299' },
           { name: 'KikoPlay 弹幕播放器', url: 'https://github.com/KikoPlayProject/KikoPlay', color: '#2563eb' },
-          { name: '牛片网 (视频外包)', url: 'https://www.6pian.cn/', color: '#f59e0b' },
-          { name: '光厂 VJ 师 (素材)', url: 'https://www.vjshi.com/', color: '#db2777' },
           { name: '柯南各卷目录', url: 'https://baike.baidu.com/item/名侦探柯南各卷目录/49790351', color: '#000' },
           { name: '柯南各集列表', url: 'https://baike.baidu.com/item/名侦探柯南各集列表/49823770', color: '#000' },
           { name: '数字直觉排行榜', url: 'https://numfeel.996.ninja/pages/leaderboard/', color: '#4f46e5' },

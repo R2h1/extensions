@@ -95,7 +95,6 @@ const TOOL_CSS: NavLink[] = [
 const TOOL_IMG: NavLink[] = [
   { name: 'Squoosh', url: 'https://squoosh.app/', color: '#db2777' },
   { name: 'TinyPNG', url: 'https://tinypng.com/', color: '#111' },
-  { name: 'remove.bg', url: 'https://www.remove.bg/zh', color: '#1a62ff' },
   { name: 'Carbon', url: 'https://carbon.now.sh/', color: '#111' },
 ];
 const TOOL_PLAY: NavLink[] = [
