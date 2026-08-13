@@ -82,7 +82,6 @@ export const NAV_GROUPS: NavGroup[] = [
         title: 'RAG / 应用 / 模板',
         links: [
           { name: 'ChatDOC', url: 'https://chatdoc.com/', color: '#0ea5e9' },
-          { name: 'RuoYi AI', url: 'https://doc.pandarobot.chat/', color: '#16a34a' },
           {
             name: 'Code Reviewer Skill',
             url: 'https://www.aitmpl.com/component/skill/development/code-reviewer',
@@ -134,7 +133,6 @@ export const NAV_GROUPS: NavGroup[] = [
             url: 'https://github.com/quin95/KunTab-AI',
             color: '#16a34a',
           },
-          { name: 'Datawhale', url: 'https://github.com/datawhalechina', color: '#2563eb' },
           { name: 'Jack Cui', url: 'https://cuijiahua.com/', color: '#dc2626' },
         ],
       },
@@ -189,20 +187,12 @@ export const NAV_GROUPS: NavGroup[] = [
           { name: 'nanoid', url: 'https://github.com/ai/nanoid', color: '#ec4899' },
           { name: 'decimal.js', url: 'https://github.com/MikeMcl/decimal.js', color: '#f59e0b' },
           { name: 'number-precision', url: 'https://github.com/nefe/number-precision', color: '#475569' },
-          {
-            name: 'js-spark-md5',
-            url: 'https://github.com/satazor/js-spark-md5',
-            color: '#475569',
-          },
-          { name: 'pinyin', url: 'https://pinyin.js.org/', color: '#dc2626' },
           { name: 'howler.js', url: 'https://howlerjs.com/', color: '#111' },
           {
             name: 'screenfull',
             url: 'https://github.com/sindresorhus/screenfull',
             color: '#475569',
           },
-          { name: 'umi-request', url: 'https://github.com/umijs/umi-request', color: '#0ea5e9' },
-          { name: 'Mock.js', url: 'http://mockjs.com/', color: '#f08232' },
           {
             name: 'node-html-parser',
             url: 'https://github.com/taoqf/node-html-parser',
@@ -215,16 +205,6 @@ export const NAV_GROUPS: NavGroup[] = [
             name: 'Color Thief',
             url: 'https://lokeshdhakar.com/projects/color-thief/',
             color: '#6d28d9',
-          },
-          {
-            name: 'zero-width-detection',
-            url: 'https://github.com/umpox/zero-width-detection',
-            color: '#475569',
-          },
-          {
-            name: 'you-dont-need',
-            url: 'https://github.com/you-dont-need/You-Dont-Need',
-            color: '#111',
           },
         ],
       },
@@ -361,7 +341,6 @@ export const NAV_GROUPS: NavGroup[] = [
           },
           { name: 'electron-vite', url: 'https://cn.electron-vite.org/', color: '#6d28d9' },
           { name: 'qiankun', url: 'https://qiankun.umijs.org/zh/guide', color: '#1f78bf' },
-          { name: 'nutjs', url: 'https://nutjs.dev/', color: '#000' },
           { name: 'HuLa', url: 'https://github.com/HuLaSpark/HuLa', color: '#22c55e' },
         ],
       },
@@ -369,7 +348,6 @@ export const NAV_GROUPS: NavGroup[] = [
         title: '微信小程序',
         links: [
           { name: 'Vant Weapp', url: 'https://youzan.github.io/vant-weapp/', color: '#07c160' },
-          { name: 'iView Weapp', url: 'https://weapp.iviewui.com/', color: '#19be6b' },
           { name: 'mp-html', url: 'https://jin-yufeng.gitee.io/mp-html/', color: '#19be6b' },
           {
             name: 'echarts-for-weixin',
@@ -473,13 +451,11 @@ export const NAV_GROUPS: NavGroup[] = [
             color: '#ffcf00',
           },
           { name: 'Biome', url: 'https://biomejs.dev/zh-cn/', color: '#60a5fa' },
-          { name: 'Babel', url: 'https://babel.dev/', color: '#f9dc3e' },
           { name: 'terser', url: 'https://terser.org/', color: '#f59e0b' },
           { name: 'ESLint', url: 'https://eslint.org/', color: '#4b32c3' },
           { name: 'depcheck', url: 'https://github.com/depcheck/depcheck', color: '#475569' },
           { name: 'AST explorer', url: 'https://astexplorer.net/', color: '#111' },
           { name: 'Docusaurus', url: 'https://github.com/facebook/docusaurus', color: '#2e8555' },
-          { name: 'HTMLrev 模板', url: 'https://htmlrev.com/', color: '#0ea5e9' },
         ],
       },
       {
@@ -656,7 +632,6 @@ export const NAV_GROUPS: NavGroup[] = [
             url: 'https://github.com/codecrafters-io/build-your-own-x',
             color: '#111',
           },
-          { name: 'Folo (RSS)', url: 'https://github.com/RSSNext/Folo', color: '#ff6600' },
         ],
       },
       {
