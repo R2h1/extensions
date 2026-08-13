@@ -87,6 +87,7 @@ export const NAV_GROUPS: NavGroup[] = [
             url: 'https://www.aitmpl.com/component/skill/development/code-reviewer',
             color: '#475569',
           },
+          { name: 'Locofy 设计转码', url: 'https://www.locofy.ai/', color: '#7c3aed' },
         ],
       },
       {
@@ -206,6 +207,9 @@ export const NAV_GROUPS: NavGroup[] = [
             url: 'https://lokeshdhakar.com/projects/color-thief/',
             color: '#6d28d9',
           },
+          { name: 'ethers.js', url: 'https://github.com/ethers-io/ethers.js/', color: '#6d67d4' },
+          { name: '100px 抽奖插件', url: 'https://100px.net/', color: '#ef4444' },
+          { name: 'zTree (jQuery)', url: 'https://treejs.cn/v3/main.php', color: '#475569' },
         ],
       },
       {
@@ -223,6 +227,17 @@ export const NAV_GROUPS: NavGroup[] = [
           },
           { name: '小林 coding', url: 'https://www.xiaolincoding.com/', color: '#16a34a' },
           { name: 'V8', url: 'https://github.com/v8/v8', color: '#475569' },
+        ],
+      },
+      {
+        title: 'Python / 量子计算（留档）',
+        links: [
+          { name: 'pyscript', url: 'https://github.com/pyscript/pyscript', color: '#f7df1e' },
+          { name: 'pdf2docx', url: 'https://github.com/dothinking/pdf2docx', color: '#3776ab' },
+          { name: 'iswbm', url: 'https://github.com/iswbm', color: '#475569' },
+          { name: '量桨 API 文档', url: 'https://qml.baidu.com/api/introduction.html', color: '#2932e1' },
+          { name: 'QuTiP', url: 'https://qutip.org/', color: '#475569' },
+          { name: 'QPanda-2 优化算法', url: 'https://pyqpanda-toturial.readthedocs.io/zh/latest/Optimizer.html', color: '#1f78bf' },
         ],
       },
     ],
@@ -456,6 +471,7 @@ export const NAV_GROUPS: NavGroup[] = [
           { name: 'depcheck', url: 'https://github.com/depcheck/depcheck', color: '#475569' },
           { name: 'AST explorer', url: 'https://astexplorer.net/', color: '#111' },
           { name: 'Docusaurus', url: 'https://github.com/facebook/docusaurus', color: '#2e8555' },
+          { name: 'vscode.dev 工作区', url: 'https://vscode.dev/', color: '#007acc' },
         ],
       },
       {
@@ -571,6 +587,7 @@ export const NAV_GROUPS: NavGroup[] = [
           },
           { name: 'public-apis', url: 'https://github.com/public-apis/public-apis', color: '#111' },
           { name: '天行数据', url: 'https://www.tianapi.com/list/', color: '#0ea5e9' },
+          { name: '网易云音乐 Node API', url: 'https://docs-neteasecloudmusicapi.focalors.ltd/', color: '#c20c0c' },
         ],
       },
       {
@@ -646,6 +663,7 @@ export const NAV_GROUPS: NavGroup[] = [
           { name: '随易科技', url: 'https://yicode.tech/', color: '#0ea5e9' },
           { name: 'Easy', url: 'https://github.com/easychen', color: '#111' },
           { name: '咖喱君资源库', url: 'https://link3.cc/galijun', color: '#db2777' },
+          { name: '卢内尔 lunel.dev', url: 'https://lunel.dev/', color: '#475569' },
         ],
       },
     ],
@@ -743,6 +761,7 @@ export const NAV_GROUPS: NavGroup[] = [
           { name: 'Excalidraw', url: 'https://excalidraw.com/', color: '#111' },
           { name: 'MD2Card', url: 'https://md2card.com/zh', color: '#4f46e5' },
           { name: 'PDF24 Tools', url: 'https://tools.pdf24.org/zh/', color: '#111' },
+          { name: '影速 影视采集测速', url: 'https://github.com/fish2018/yingsu', color: '#475569' },
         ],
       },
       {
@@ -754,6 +773,9 @@ export const NAV_GROUPS: NavGroup[] = [
           { name: 'Keep Screen On', url: 'https://www.keepscreenon.com/', color: '#475569' },
           { name: '正则备忘', url: 'https://ihateregex.io/', color: '#db2777' },
           { name: 'Let’s Encrypt', url: 'https://letsencrypt.org/', color: '#111' },
+          { name: '龙猫云', url: 'https://a14.lml2vipaff01.cc/inv', color: '#6d28d9' },
+          { name: 'MotionGo PPT 动画', url: 'https://motion.yoo-ai.com/', color: '#ea4b71' },
+          { name: '电脑开荒网', url: 'https://www.cyhaoka.vip/', color: '#1f78bf' },
         ],
       },
       {
@@ -761,61 +783,6 @@ export const NAV_GROUPS: NavGroup[] = [
         links: [
           { name: 'Versus 对比', url: 'https://versus.com/cn', color: '#4f46e5' },
           { name: 'BuildCores 装机', url: 'https://www.buildcores.com/', color: '#111' },
-        ],
-      },
-    ],
-  },
-  {
-    id: 'stash',
-    name: '暂存·待整理',
-    icon: '<path d="M21 8v13H3V8"/><path d="M1 3h22v5H1z"/><path d="M10 12h4"/>',
-    sections: [
-      {
-        title: '量子计算（与当前方向无关，留档）',
-        links: [
-          { name: '量桨 API 文档', url: 'https://qml.baidu.com/api/introduction.html', color: '#2932e1' },
-          { name: 'QuTiP', url: 'https://qutip.org/', color: '#475569' },
-          { name: 'QPanda-2 优化算法', url: 'https://pyqpanda-toturial.readthedocs.io/zh/latest/Optimizer.html', color: '#1f78bf' },
-        ],
-      },
-      {
-        title: 'Web3 / Python（弱相关）',
-        links: [
-          { name: 'ethers.js', url: 'https://github.com/ethers-io/ethers.js/', color: '#6d67d4' },
-          { name: 'pdf2docx', url: 'https://github.com/dothinking/pdf2docx', color: '#3776ab' },
-          { name: 'pyscript', url: 'https://github.com/pyscript/pyscript', color: '#f7df1e' },
-          { name: 'iswbm', url: 'https://github.com/iswbm', color: '#475569' },
-        ],
-      },
-      {
-        title: '已过时 / 旧库 / 失效',
-        links: [
-          { name: 'HelloWindows (激活)', url: 'https://www.hellowindows.cn/', color: '#0078d4' },
-          { name: '100px 抽奖插件', url: 'https://100px.net/', color: '#ef4444' },
-          { name: 'Disqus 评论', url: 'https://disqus.com/', color: '#111' },
-          { name: 'webpack-autoconf', url: 'https://github.com/jakoblind/webpack-autoconf', color: '#475569' },
-          { name: 'Babel 2021 博客', url: 'https://babeljs.io/blog/2021/04/29/7.14.0', color: '#f9dc3e' },
-          { name: 'Miro Video Converter', url: 'http://www.mirovideoconverter.com/', color: '#ea4c89' },
-          { name: '网易云音乐 Node API', url: 'https://docs-neteasecloudmusicapi.focalors.ltd/', color: '#c20c0c' },
-          { name: 'zTree (jQuery)', url: 'https://treejs.cn/v3/main.php', color: '#475569' },
-          { name: 'React Desktop', url: 'http://reactdesktop.js.org/', color: '#149eca' },
-          { name: 'Locofy 设计转码', url: 'https://www.locofy.ai/', color: '#7c3aed' },
-          { name: 'vscode.dev 工作区', url: 'https://vscode.dev/', color: '#007acc' },
-          { name: 'Jira (公司内网)', url: 'http://jira.ruixin.net/secure/Dashboard.jspa', color: '#0052cc' },
-        ],
-      },
-      {
-        title: '灰色 / 采集 / 解析（易失效）',
-        links: [
-          { name: '影速 影视采集测速', url: 'https://github.com/fish2018/yingsu', color: '#475569' },
-          { name: '大麦抢票脚本', url: 'https://github.com/Guyungy/damaihelper', color: '#ff4906' },
-          { name: 'MotionGo PPT 动画', url: 'https://motion.yoo-ai.com/', color: '#ea4b71' },
-        ],
-      },
-      {
-        title: '机场 / 代理订阅（含个人邀请，慎分享）',
-        links: [
-          { name: '龙猫云', url: 'https://a14.lml2vipaff01.cc/inv', color: '#6d28d9' },
         ],
       },
       {
@@ -830,13 +797,7 @@ export const NAV_GROUPS: NavGroup[] = [
           { name: '柯南各集列表', url: 'https://baike.baidu.com/item/名侦探柯南各集列表/49823770', color: '#000' },
           { name: '数字直觉排行榜', url: 'https://numfeel.996.ninja/pages/leaderboard/', color: '#4f46e5' },
           { name: 'Bangumi 番组计划', url: 'https://bgm.tv/', color: '#f09199' },
-        ],
-      },
-      {
-        title: '杂项 / 不知用途',
-        links: [
-          { name: '卢内尔 lunel.dev', url: 'https://lunel.dev/', color: '#475569' },
-          { name: '电脑开荒网', url: 'https://www.cyhaoka.vip/', color: '#1f78bf' },
+          { name: '大麦抢票脚本', url: 'https://github.com/Guyungy/damaihelper', color: '#ff4906' },
         ],
       },
     ],
