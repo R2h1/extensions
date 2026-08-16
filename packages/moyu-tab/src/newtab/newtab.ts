@@ -15,16 +15,7 @@ import {
   renderWereadKeySetup,
   setWereadSettingsOpener,
 } from './widgets/weread-shared';
-import { initTax, renderTaxCard } from './widgets/tax';
-import { initMortgage, renderMortgageCard } from './widgets/mortgage';
-import { initMortgagePrepay, renderMortgagePrepayCard } from './widgets/mortgage-prepay';
-import { initColorConv, renderColorConvCard } from './widgets/color-conv';
-import { initBmi, renderBmiCard } from './widgets/bmi';
-import { initQr, renderQrCard } from './widgets/qrcode';
-import { initWifi, renderWifiCard } from './widgets/wifi';
-import { initAuthenticator, renderAuthenticatorCard } from './widgets/authenticator';
 import { initWater, renderWaterSettings, setWaterSettingsOpener } from './widgets/water';
-import { initCurrency, renderCurrencyCard } from './widgets/currency';
 import {
   initNavCards,
   renderAiCard,
@@ -42,108 +33,24 @@ import { renderFoodCard, initFood, renderFoodSettings } from './widgets/food';
 import { renderStatsCard, initStats } from './widgets/stats';
 import { CAT_TREE, ALL_WIDGETS, TopCat, WID } from './config';
 
-// 实用工具：3 个计算器整合为弹窗，入口卡片始终渲染在 #panel 第一行
-function tkSvg(p: string): string {
-  return `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${p}</svg>`;
-}
-const TK_TITLE_ICON = tkSvg(
-  '<path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/>',
-);
-const TOOLKIT: {
+// 顶部快捷入口条（搜索框下方）：配置数组驱动，新增入口只需往 DOCK_ITEMS 加一条。
+// 工具策略：所有计算/工具功能在网站 app.conan.js.cn/tools 实现，moyu-tab 只提供跳转。
+interface DockItem {
   id: string;
-  title: string;
-  desc: string;
-  icon: string;
-  render: () => string;
-  init: () => void;
-}[] = [
+  label: string;
+  href: string;
+  external?: boolean; // 新标签页打开
+  letter?: string; // 可选小方块字母（mkt-link-chip / mkt-link-letter 风格）
+  color?: string; // 可选小方块背景色
+}
+const DOCK_ITEMS: DockItem[] = [
   {
-    id: 'tax',
-    title: '个税计算器',
-    desc: '月薪到手税后',
-    icon: tkSvg(
-      '<line x1="19" y1="5" x2="5" y2="19"/><circle cx="6.5" cy="6.5" r="2.5"/><circle cx="17.5" cy="17.5" r="2.5"/>',
-    ),
-    render: renderTaxCard,
-    init: initTax,
-  },
-  {
-    id: 'mortgage',
-    title: '房贷计算器',
-    desc: '等额本息/本金',
-    icon: tkSvg('<path d="M3 10 12 3l9 7"/><path d="M5 9.5V20h14V9.5"/><path d="M10 20v-5h4v5"/>'),
-    render: renderMortgageCard,
-    init: initMortgage,
-  },
-  {
-    id: 'mortgage-prepay',
-    title: '房贷提前还款',
-    desc: '缩短年限/减月供',
-    icon: tkSvg(
-      '<path d="M3 10 12 3l9 7"/><path d="M5 9.5V20h14V9.5"/><circle cx="12" cy="14" r="2.5"/><path d="M9.5 20v-3M14.5 20v-3"/>',
-    ),
-    render: renderMortgagePrepayCard,
-    init: initMortgagePrepay,
-  },
-  {
-    id: 'color',
-    title: '颜色转换',
-    desc: 'RGB/RGBA 转 hex',
-    icon: tkSvg(
-      '<circle cx="12" cy="12" r="9"/><path d="M12 3a9 9 0 0 1 0 18z" fill="currentColor" stroke="none"/><path d="M12 3a9 9 0 0 0-6.4 2.6"/>',
-    ),
-    render: renderColorConvCard,
-    init: initColorConv,
-  },
-  {
-    id: 'bmi',
-    title: 'BMI 计算器',
-    desc: '身体质量指数',
-    icon: tkSvg(
-      '<rect x="4" y="3" width="16" height="18" rx="2"/><circle cx="12" cy="10" r="3.2"/><line x1="12" y1="10" x2="14" y2="8.2"/>',
-    ),
-    render: renderBmiCard,
-    init: initBmi,
-  },
-  {
-    id: 'currency',
-    title: '汇率换算',
-    desc: '实时汇率换算',
-    icon: tkSvg(
-      '<path d="M8 3 4 7l4 4"/><path d="M4 7h16"/><path d="m16 21 4-4-4-4"/><path d="M20 17H4"/>',
-    ),
-    render: renderCurrencyCard,
-    init: initCurrency,
-  },
-  {
-    id: 'qrcode',
-    title: '二维码生成器',
-    desc: '文本/链接转二维码',
-    icon: tkSvg(
-      '<rect x="3" y="3" width="7" height="7"/><rect x="5" y="5" width="3" height="3"/><rect x="14" y="3" width="7" height="7"/><rect x="16" y="5" width="3" height="3"/><rect x="3" y="14" width="7" height="7"/><rect x="5" y="16" width="3" height="3"/><rect x="14" y="14" width="3" height="3"/><rect x="18" y="18" width="3" height="3"/>',
-    ),
-    render: renderQrCard,
-    init: initQr,
-  },
-  {
-    id: 'wifi',
-    title: 'WiFi 二维码',
-    desc: '扫码即连 WiFi',
-    icon: tkSvg(
-      '<path d="M5 12.55a11 11 0 0 1 14 0"/><path d="M8.5 16.1a6 6 0 0 1 7 0"/><path d="M12 20h.01"/>',
-    ),
-    render: renderWifiCard,
-    init: initWifi,
-  },
-  {
-    id: 'authenticator',
-    title: '验证器',
-    desc: '两步验证动态码',
-    icon: tkSvg(
-      '<rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/>',
-    ),
-    render: renderAuthenticatorCard,
-    init: initAuthenticator,
+    id: 'tools',
+    label: '工具箱',
+    href: 'http://app.conan.js.cn/tools',
+    external: true,
+    letter: '工',
+    color: '#d97706',
   },
 ];
 
@@ -310,13 +217,8 @@ async function renderPanel() {
     : `<div class="empty"><div>暂无组件</div><div class="add-hint">左下角点 添加</div></div>`;
   const tkRow = document.getElementById('toolkitRow');
   if (tkRow) {
-    // 实用工具卡片 + 行情卡片（常驻）置于面板顶部第一行
-    tkRow.innerHTML = renderToolkitCard() + renderMarketCard();
-    tkRow
-      .querySelectorAll('.toolkit-tile')
-      .forEach((b) =>
-        b.addEventListener('click', () => openToolkit((b as HTMLElement).dataset.tool!)),
-      );
+    // 行情卡片（常驻）置于面板顶部第一行
+    tkRow.innerHTML = renderMarketCard();
     initMarket();
   }
   for (const id of [...leftIds, ...rightIds]) initW(id);
@@ -335,16 +237,6 @@ function getCard(w: WID): string {
   if (w.id === 'food') return renderFoodCard();
   if (w.id === 'stats') return renderStatsCard();
   return `<div class="widget-card clickable" data-widget="${w.id}"><div class="widget-entry"><span>${w.desc}</span><span class="arrow">→</span></div></div>`;
-}
-function renderToolkitCard(): string {
-  const tiles = TOOLKIT.map(
-    (t) =>
-      `<button class="toolkit-tile" data-tool="${t.id}"><span class="tk-head"><span class="tk-ico">${t.icon}</span><span class="tk-name">${t.title}</span></span><span class="tk-desc">${t.desc}</span></button>`,
-  ).join('');
-  return `<div class="widget-card toolkit-card">
-      <div class="toolkit-title">${TK_TITLE_ICON} 实用工具</div>
-      <div class="toolkit-grid">${tiles}</div>
-    </div>`;
 }
 async function initW(id: string) {
   if (rendered[id]) return;
@@ -384,17 +276,6 @@ async function initW(id: string) {
 
 document.getElementById('addWidgetBtn')!.addEventListener('click', () => openWidgetModal(true));
 document.getElementById('settingsBtn')!.addEventListener('click', openSettings);
-document.getElementById('gotoToolkitBtn')!.addEventListener('click', () => {
-  const row = document.getElementById('toolkitRow');
-  if (!row) return;
-  row.scrollIntoView({ behavior: 'smooth', block: 'start' });
-  const card = row.querySelector('.toolkit-card');
-  if (card) {
-    card.classList.remove('tk-locate');
-    void (card as HTMLElement).offsetWidth; // 重新触发动画
-    card.classList.add('tk-locate');
-  }
-});
 document.getElementById('gotoHotBtn')!.addEventListener('click', () => {
   const card = document.querySelector('.hot-card');
   if (!card) return;
@@ -516,37 +397,6 @@ async function openWidgetModal(showTree: boolean) {
 }
 
 // ── 实用工具弹窗（单工具弹窗：只展示被点击的工具，无工具切换列表）──
-const tk = document.getElementById('toolkitModal')!;
-let tkCur = 'tax';
-function renderTkContent() {
-  const t = TOOLKIT.find((x) => x.id === tkCur);
-  const c = document.getElementById('tkContent');
-  const title = document.getElementById('tkTitle');
-  if (!t || !c) return;
-  if (title) title.textContent = t.title;
-  // 清理上一个工具留在头部的额外控件
-  document.querySelectorAll('#toolkitModal .mh .tk-mh-extra').forEach((e) => e.remove());
-  c.innerHTML = t.render();
-  // 汇率换算：刷新按钮 + 状态提示放到头部标题后（贴标题，远离关闭按钮）
-  if (tkCur === 'currency' && title) {
-    const extra = document.createElement('div');
-    extra.className = 'tk-mh-extra cur-meta';
-    extra.innerHTML =
-      '<span class="cur-upd" id="curUpd"></span><button class="cur-refresh" id="curRefresh" title="刷新">↻</button>';
-    title.after(extra);
-  }
-  t.init();
-}
-function openToolkit(tool?: string) {
-  if (tool) tkCur = tool;
-  renderTkContent();
-  tk.classList.add('open');
-}
-document.getElementById('tkClose')!.addEventListener('click', () => tk.classList.remove('open'));
-tk.addEventListener('click', (e) => {
-  if (e.target === tk) tk.classList.remove('open');
-});
-
 // ── 微信读书弹窗（单视图：点什么看什么，无 tab 切换，复用各 widget 的 render/init）──
 const WR_VIEWS = [
   { id: 'shelf', name: '我的书架', render: renderWereadCard, init: initWeread },
@@ -2001,6 +1851,15 @@ function initWebSearch() {
     if ((e as KeyboardEvent).key === 'Enter') doSearch();
   });
 }
+/** 渲染顶部快捷入口行（搜索框下方）：由 DOCK_ITEMS 配置驱动，复用市场卡片的 mkt-link-chip 胶囊样式 */
+function renderTopDock() {
+  const dock = document.getElementById('topDock');
+  if (!dock) return;
+  dock.innerHTML = DOCK_ITEMS.map(
+    (it) =>
+      `<a class="mkt-link-chip" href="${it.href}"${it.external ? ' target="_blank" rel="noopener"' : ''} title="${it.label}">${it.letter ? `<span class="mkt-link-letter" style="background:${it.color ?? '#d97706'}">${it.letter}</span>` : ''}<span>${it.label}</span></a>`,
+  ).join('');
+}
 async function init() {
   requestAnimationFrame(() =>
     requestAnimationFrame(() => document.documentElement.classList.add('animated')),
@@ -2011,6 +1870,7 @@ async function init() {
   initCalendarPopover();
   initWeatherPopover();
   initWebSearch();
+  renderTopDock();
   initMedia();
   initTyphoon();
   initWater();

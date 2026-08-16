@@ -8,7 +8,7 @@
     "build": "npm run build:bundle && npm run build:copy",
     "build:bundle": "node scripts/build-bundle.cjs",
     "build:copy": "node scripts/copy-assets.cjs",
-    "clean": "rm -rf dist"
+    "clean": "node -e \"fs.rmSync('dist',{recursive:true,force:true})\""
   },
   "devDependencies": {
     "esbuild": "^0.28.1"

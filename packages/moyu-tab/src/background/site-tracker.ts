@@ -4,7 +4,7 @@
  * 监听 tabs.onActivated / onUpdated、windows.onFocusChanged，5 秒 tick 一次把活跃 tab 的时长
  * 累计进 chrome.storage.local（key 'tracker'，按 日期→域名 分桶）。SW 被终止后由 1 分钟 alarm
  * 兜底唤醒保存，重启时用 session meta 恢复 SW 休眠期间丢失的时长。
- * 纯逻辑，不碰 DOM；类型内联（moyu-tab 不依赖 @extensions/shared）。
+ * 纯逻辑，不碰 DOM；类型内联。
  */
 
 // ─── Types ──────────────────────────────────────────────

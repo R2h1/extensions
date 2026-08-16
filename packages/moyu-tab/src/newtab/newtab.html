@@ -576,40 +576,6 @@ html.locked .sub-filter{display:none}
 .sina-text{font-size:12px;color:var(--text);line-height:1.45;flex:1;min-width:0}
 .sina-list::-webkit-scrollbar{width:5px}
 .sina-list::-webkit-scrollbar-thumb{background:rgba(0,0,0,0.12);border-radius:3px}
-/* 计算器卡片（个税/房贷/BMI 共用） */
-.calc-card{padding:12px 14px}
-.calc-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
-.calc-title{font-size:14px;font-weight:600;color:var(--text-secondary);letter-spacing:.5px;display:flex;align-items:center;gap:6px}
-.calc-sub{font-size:10px;color:var(--text-tertiary)}
-.calc-form{display:flex;flex-direction:column;gap:6px}
-.calc-field{display:flex;flex-direction:column;gap:3px}
-.calc-field span{font-size:11px;color:var(--text-tertiary)}
-.calc-field input{padding:7px 10px;font-size:12px;border:0.5px solid var(--glass-border-h);border-radius:var(--radius-xs);background:var(--nm-surface);color:var(--text);outline:none;font-family:inherit;width:100%;transition:border-color .15s,box-shadow .15s}
-.calc-field input:focus{border-color:var(--accent);box-shadow:0 0 0 1.5px var(--accent)}
-.calc-row2{display:grid;grid-template-columns:1fr 1fr;gap:6px}
-.calc-row3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px}
-.calc-toggle{display:flex;background:var(--nm-surface);border-radius:var(--radius-xs);padding:2px;border:0.5px solid var(--glass-border-h);gap:2px}
-.calc-tb{flex:1;text-align:center;padding:6px 0;border-radius:5px;font-size:11px;font-weight:500;color:var(--text-tertiary);cursor:pointer;transition:all .15s;user-select:none}
-.calc-tb.active{background:var(--nm-surface);color:var(--accent);box-shadow:var(--nm-out-sm);font-weight:600}
-.calc-result{background:var(--nm-surface);border-radius:var(--radius-sm);padding:10px 12px;}
-.calc-rows{display:flex;flex-direction:column;gap:5px}
-.calc-row{display:flex;align-items:center;justify-content:space-between;font-size:12px;color:var(--text-secondary)}
-.calc-row span:first-child{color:var(--text-tertiary);font-size:11px}
-.calc-empty{font-size:12px;color:var(--text-tertiary);text-align:center;padding:6px 0}
-.calc-val{font-variant-numeric:tabular-nums;font-family:'Courier New',ui-monospace,monospace;font-weight:600}
-.color-card .col-main{display:flex;gap:12px;align-items:stretch}
-.color-card .col-swatch{width:72px;flex-shrink:0;border-radius:var(--radius-sm);border:0.5px solid var(--glass-border-h)}
-.color-card .col-list{flex:1;display:flex;flex-direction:column;gap:2px;justify-content:center}
-.color-card .col-hex{display:flex;align-items:center;gap:8px;padding:4px 8px;border-radius:5px;cursor:pointer;transition:background .15s}
-.color-card .col-hex:hover{background:var(--nm-surface)}
-.color-card .col-hex.copied{background:var(--accent)}
-.color-card .col-k{flex-shrink:0;width:38px;font-size:10px;color:var(--text-tertiary);letter-spacing:.5px}
-.color-card .col-v{font-variant-numeric:tabular-nums;font-family:'Courier New',ui-monospace,monospace;font-size:13px;font-weight:600;color:var(--accent)}
-.color-card .col-hex.copied .col-k{color:rgba(255,255,255,.7)}
-.color-card .col-hex.copied .col-v{color:#fff}
-.color-card .col-hex.copied .col-v::after{content:' — 已复制';font-size:11px;font-weight:500}
-.calc-val.tax{color:#ef4444}
-.calc-val.after{color:var(--accent)}
 /* 喝水提醒：右下角量杯 + 弹出层 */
 .water-dock{position:fixed;right:24px;bottom:16px;z-index:7;display:flex;flex-direction:column;align-items:flex-end;gap:10px}
 .water-fab{width:34px;height:34px;border-radius:50%;border:none;background:var(--nm-surface);box-shadow:var(--card-shadow-h);color:var(--water);cursor:pointer;display:flex;align-items:center;justify-content:center;font-family:inherit;transition:transform .15s,box-shadow .15s}
@@ -634,152 +600,6 @@ html.locked .sub-filter{display:none}
 .water-pop-add:disabled{opacity:.45;cursor:not-allowed;filter:grayscale(.1)}
 /* 喝水设置（全局设置里）：分段选项占满行 */
 .water-tg{flex:1}
-.bmi-main{display:flex;align-items:baseline;gap:10px}
-.bmi-val{font-size:34px;font-weight:700;font-variant-numeric:tabular-nums;font-family:'Courier New',ui-monospace,monospace;letter-spacing:-1px;line-height:1}
-.bmi-tag{font-size:12px;font-weight:600;padding:2px 10px;border-radius:10px}
-.bmi-val.up,.bmi-tag.up{color:#10b981}
-.bmi-tag.up{background:rgba(16,185,129,.12)}
-.bmi-val.warn,.bmi-tag.warn{color:var(--accent)}
-.bmi-tag.warn{background:var(--glass-accent)}
-.bmi-val.down,.bmi-tag.down{color:#ef4444}
-.bmi-tag.down{background:rgba(239,68,68,.12)}
-.bmi-val.thin,.bmi-tag.thin{color:#3b82f6}
-.bmi-tag.thin{background:rgba(59,130,246,.12)}
-.bmi-range{margin-top:4px}
-.bmi-card .calc-result{min-height:88px;display:flex;flex-direction:column;justify-content:center}
-/* BMI 分级标准 + 关于 BMI */
-.bmi-std{border-top:0.5px solid var(--glass-border);padding-top:10px}
-.bmi-std-title{font-size:11px;color:var(--text-tertiary);margin-bottom:6px;letter-spacing:.3px}
-.bmi-std-table{display:flex;gap:6px}
-.bmi-std-row{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;padding:8px 4px;border-radius:var(--radius-xs);border:1px solid transparent;background:var(--nm-surface);transition:all .15s;min-width:0}
-.bmi-std-label{font-size:12px;font-weight:600}
-.bmi-std-range{font-size:11px;color:var(--text-secondary);font-variant-numeric:tabular-nums;font-family:'Courier New',ui-monospace,monospace;white-space:nowrap}
-.bmi-std-row[data-cat="thin"]{background:rgba(59,130,246,.10);border-color:rgba(59,130,246,.28)}
-.bmi-std-row[data-cat="thin"] .bmi-std-label{color:#3b82f6}
-.bmi-std-row[data-cat="normal"]{background:rgba(16,185,129,.10);border-color:rgba(16,185,129,.28)}
-.bmi-std-row[data-cat="normal"] .bmi-std-label{color:#10b981}
-.bmi-std-row[data-cat="over"]{background:rgba(217,119,6,.10);border-color:rgba(217,119,6,.28)}
-.bmi-std-row[data-cat="over"] .bmi-std-label{color:var(--accent)}
-.bmi-std-row[data-cat="obese"]{background:rgba(239,68,68,.10);border-color:rgba(239,68,68,.28)}
-.bmi-std-row[data-cat="obese"] .bmi-std-label{color:#ef4444}
-.bmi-std-row.active[data-cat="thin"]{background:rgba(59,130,246,.22);border-color:#3b82f6}
-.bmi-std-row.active[data-cat="normal"]{background:rgba(16,185,129,.22);border-color:#10b981}
-.bmi-std-row.active[data-cat="over"]{background:rgba(217,119,6,.22);border-color:var(--accent)}
-.bmi-std-row.active[data-cat="obese"]{background:rgba(239,68,68,.22);border-color:#ef4444}
-.bmi-std-row.active .bmi-std-range{color:var(--text);font-weight:600}
-.bmi-about{margin-top:12px;border-top:0.5px solid var(--glass-border);padding-top:10px}
-.bmi-about-title{font-size:11px;color:var(--text-tertiary);margin-bottom:8px;letter-spacing:.3px}
-.bmi-about-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
-.bmi-about-item{display:flex;flex-direction:column;gap:4px;padding:10px 12px;border-radius:var(--radius-xs);background:var(--nm-surface);box-shadow:var(--nm-out-sm)}
-.bmi-about-head{display:flex;align-items:center;gap:6px}
-.bmi-about-num{width:18px;height:18px;border-radius:50%;background:var(--glass-accent);color:var(--accent);font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0}
-.bmi-about-h{font-size:12px;font-weight:600;color:var(--text)}
-.bmi-about-t{font-size:11px;color:var(--text-tertiary);line-height:1.5}
-/* 汇率换算卡片 */
-.currency-card{padding:12px 14px}
-.cur-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
-.cur-title{font-size:14px;font-weight:600;color:var(--text-secondary);letter-spacing:.5px;display:flex;align-items:center;gap:6px}
-.cur-meta{display:flex;align-items:center;gap:8px}
-.cur-upd{font-size:10px;color:var(--text-tertiary);font-variant-numeric:tabular-nums;min-height:12px}
-.cur-upd:empty{display:none}
-.cur-refresh{width:26px;height:26px;border-radius:50%;border:none;background:var(--nm-surface);box-shadow:var(--nm-out),0 2px 4px rgba(0,0,0,0.1);color:var(--text-tertiary);cursor:pointer;font-size:13px;display:flex;align-items:center;justify-content:center;transition:color .15s,box-shadow .15s;font-family:inherit}
-.cur-refresh:hover{color:var(--accent)}
-.cur-refresh:active{box-shadow:var(--nm-in-sm)}
-.cur-refresh.spin{color:var(--accent);animation:goldspin 1s linear infinite}
-.cur-form{display:flex;flex-direction:column;gap:6px}
-.cur-form input{padding:8px 10px;font-size:13px;border:0.5px solid var(--glass-border-h);border-radius:var(--radius-xs);background:var(--nm-surface);color:var(--text);outline:none;font-family:inherit;width:100%;transition:border-color .15s,box-shadow .15s}
-.cur-form input:focus{border-color:var(--accent);box-shadow:0 0 0 1.5px var(--accent)}
-.cur-row{display:flex;align-items:center;gap:6px}
-.cur-dd{flex:1;min-width:0}
-.cur-dd .cal-dd-btn{width:100%;justify-content:center;padding:7px 8px;font-size:12px;font-weight:500;color:var(--text);border:0.5px solid var(--glass-border-h);box-shadow:none}
-.cur-dd .cal-dd-btn:hover{color:var(--accent)}
-.cur-dd.open .cal-dd-btn{color:var(--accent);border-color:var(--accent);box-shadow:none}
-.cur-dd .cal-dd-list{left:0;transform:none;min-width:100%}
-.cur-ic{flex-shrink:0}
-.cur-swap{width:34px;height:32px;border:none;border-radius:var(--radius-xs);background:var(--glass-accent);color:var(--accent);cursor:pointer;font-size:14px;flex-shrink:0;font-family:inherit;transition:all .15s}
-.cur-swap:hover{background:var(--accent);color:#fff}
-.cur-result{margin-top:10px;background:var(--nm-surface);border-radius:var(--radius-sm);padding:12px;text-align:center}
-.cur-amount{font-size:26px;font-weight:700;color:var(--accent);font-variant-numeric:tabular-nums;font-family:'Courier New',ui-monospace,monospace;letter-spacing:-.5px;line-height:1.2}
-.cur-unit{font-size:13px;color:var(--text-tertiary);font-weight:500}
-.cur-rate{font-size:12px;color:var(--text-secondary);margin-top:6px}
-.cur-rate-sub{font-size:10px;color:var(--text-tertiary);margin-top:3px}
-/* 二维码生成器 */
-.qr-card .calc-form{gap:8px}
-.qr-text-wrap{position:relative}
-.qr-text{width:100%;box-sizing:border-box;padding:9px 10px;font-size:13px;border:0.5px solid var(--glass-border-h);border-radius:var(--radius-xs);background:var(--nm-surface);color:var(--text);outline:none;font-family:inherit;resize:vertical;min-height:60px;transition:border-color .15s,box-shadow .15s}
-.qr-text:focus{border-color:var(--accent);box-shadow:0 0 0 1.5px var(--accent)}
-.qr-paste{position:absolute;top:6px;right:6px;border:none;border-radius:5px;background:var(--glass-accent);color:var(--accent);font-size:11px;padding:3px 8px;cursor:pointer;font-family:inherit;transition:background .15s,color .15s}
-.qr-paste:hover{background:var(--accent);color:#fff}
-.qr-row{display:flex;align-items:center;gap:8px}
-.qr-label{font-size:11px;color:var(--text-tertiary);width:32px;flex-shrink:0}
-.qr-dd-row{display:flex;gap:8px}
-.qr-dd-field{flex:1;min-width:0}
-.qr-dd .cal-dd-btn{width:100%;justify-content:space-between;padding:7px 10px;font-size:12px;font-weight:500;color:var(--text);border:0.5px solid var(--glass-border-h);box-shadow:none}
-.qr-dd .cal-dd-btn:hover{color:var(--accent)}
-.qr-dd.open .cal-dd-btn{color:var(--accent);border-color:var(--accent);box-shadow:none}
-.qr-dd .cal-dd-list{left:0;transform:none;min-width:100%}
-.qr-colors{display:flex;align-items:center;gap:10px;flex:1}
-.qr-color{display:flex;align-items:center;gap:5px;cursor:pointer}
-.qr-color input{width:24px;height:24px;padding:0;border:0.5px solid var(--glass-border-h);border-radius:6px;background:none;cursor:pointer}
-.qr-color input::-webkit-color-swatch-wrapper{padding:0}
-.qr-color input::-webkit-color-swatch{border:none;border-radius:4px}
-.qr-color span{font-size:10px;color:var(--text-tertiary);font-family:'Courier New',ui-monospace,monospace;min-width:46px}
-.qr-swap{width:28px;height:24px;border:none;border-radius:5px;background:var(--glass-accent);color:var(--accent);cursor:pointer;font-size:13px;font-family:inherit;transition:background .15s,color .15s}
-.qr-swap:hover{background:var(--accent);color:#fff}
-.qr-stage{margin-top:10px;background:var(--nm-surface);border-radius:var(--radius-sm);padding:14px;display:flex;align-items:center;justify-content:center;min-height:180px;position:relative}
-.qr-canvas{max-width:100%;height:auto;display:block;border-radius:4px}
-.qr-canvas[hidden]{display:none}
-.qr-empty,.qr-err{position:absolute;font-size:12px;color:var(--text-tertiary);text-align:center}
-.qr-err{color:#ef4444}
-.qr-actions{display:flex;gap:8px;margin-top:10px}
-.qr-btn{flex:1;padding:8px;font-size:12px;font-weight:600;border:none;border-radius:var(--radius-xs);cursor:pointer;font-family:inherit;transition:opacity .15s,box-shadow .15s}
-.qr-btn:disabled{opacity:.45;cursor:not-allowed}
-.qr-btn-pri{background:var(--accent);color:#fff}
-.qr-btn-pri:not(:disabled):active{box-shadow:var(--nm-in-sm)}
-.qr-btn-ghost{background:var(--glass-accent);color:var(--accent)}
-.qr-btn-ghost:not(:disabled):active{box-shadow:var(--nm-in-sm)}
-/* WiFi 二维码 */
-.wifi-card .calc-form{gap:8px}
-.wf-pw-wrap{position:relative;display:flex;align-items:center}
-.wf-pw-wrap .wf-input{padding-right:34px;flex:1;width:100%;box-sizing:border-box}
-.wf-eye{position:absolute;right:4px;top:50%;transform:translateY(-50%);display:flex;align-items:center;justify-content:center;width:26px;height:26px;border:none;border-radius:5px;background:transparent;color:var(--text-tertiary);cursor:pointer;font-family:inherit;transition:color .15s,background .15s}
-.wf-eye:hover{color:var(--accent);background:var(--glass-accent)}
-.wf-eye.on{color:var(--accent)}
-.wf-dd .cal-dd-btn{width:100%;justify-content:space-between;padding:7px 10px;font-size:12px;font-weight:500;color:var(--text);border:0.5px solid var(--glass-border-h);box-shadow:none}
-.wf-dd .cal-dd-btn:hover{color:var(--accent)}
-.wf-dd.open .cal-dd-btn{color:var(--accent);border-color:var(--accent);box-shadow:none}
-.wf-dd .cal-dd-list{left:0;transform:none;min-width:100%}
-.wf-hidden{display:flex;align-items:center;gap:8px;cursor:pointer;user-select:none;padding:2px 0;position:relative}
-.wf-hidden input{position:absolute;opacity:0;width:0;height:0;margin:0}
-.wf-switch{width:34px;height:18px;border-radius:9px;background:var(--nm-surface);border:0.5px solid var(--glass-border-h);position:relative;flex-shrink:0;transition:background .15s,border-color .15s}
-.wf-switch-knob{position:absolute;top:1px;left:1px;width:14px;height:14px;border-radius:50%;background:var(--text-tertiary);transition:transform .15s,background .15s}
-.wf-hidden input:checked + .wf-switch{background:var(--accent);border-color:var(--accent)}
-.wf-hidden input:checked + .wf-switch .wf-switch-knob{transform:translateX(16px);background:#fff}
-.wf-hidden-txt{font-size:12px;color:var(--text-secondary)}
-.wf-stage{min-height:200px}
-.wf-note{margin:8px 0 0;text-align:center;color:var(--text-tertiary);font-size:11px;line-height:1.5}
-/* 两步验证器 */
-.otp-list{display:flex;flex-direction:column;gap:6px;margin-bottom:8px;max-height:300px;overflow-y:auto}
-.otp-list::-webkit-scrollbar{width:5px}
-.otp-list::-webkit-scrollbar-thumb{background:rgba(0,0,0,0.12);border-radius:3px}
-.otp-item{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:var(--radius-xs);background:var(--nm-surface);box-shadow:var(--nm-out-sm)}
-.otp-info{flex:1;min-width:0;display:flex;flex-direction:column;gap:1px}
-.otp-issuer{font-size:12px;font-weight:600;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.otp-account{font-size:10px;color:var(--text-tertiary);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.otp-code{font-size:19px;font-weight:700;color:var(--accent);font-variant-numeric:tabular-nums;font-family:'Courier New',ui-monospace,monospace;letter-spacing:1px;cursor:pointer;flex-shrink:0;user-select:none;transition:opacity .15s,color .15s}
-.otp-code:hover{opacity:.65}
-.otp-code.copied{color:#10b981;opacity:1}
-.otp-timer{font-size:11px;color:var(--text-tertiary);font-variant-numeric:tabular-nums;font-family:'Courier New',ui-monospace,monospace;min-width:20px;text-align:center;flex-shrink:0}
-.otp-timer.warn{color:#ef4444;font-weight:600}
-.otp-next{width:30px;height:30px;border:none;border-radius:var(--radius-xs);background:var(--glass-accent);color:var(--accent);cursor:pointer;font-size:12px;flex-shrink:0;font-family:inherit;display:flex;align-items:center;justify-content:center;transition:background .15s,color .15s}
-.otp-next:hover{background:var(--accent);color:#fff}
-.otp-next:active{box-shadow:var(--nm-in-sm)}
-.otp-del{width:24px;height:24px;border:none;border-radius:50%;background:transparent;color:var(--text-tertiary);cursor:pointer;font-size:11px;flex-shrink:0;font-family:inherit;display:flex;align-items:center;justify-content:center;transition:color .15s,background .15s}
-.otp-del:hover{color:#ef4444;background:rgba(239,68,68,.1)}
-.otp-add{display:flex;gap:6px}
-.otp-add .qr-btn{flex:0 0 auto;padding:8px 16px;white-space:nowrap}
-.otp-input{flex:1;min-width:0;padding:8px 10px;font-size:12px;border:0.5px solid var(--glass-border-h);border-radius:var(--radius-xs);background:var(--nm-surface);color:var(--text);outline:none;font-family:inherit;transition:border-color .15s,box-shadow .15s}
-.otp-input:focus{border-color:var(--accent);box-shadow:0 0 0 1.5px var(--accent)}
 /* 书签同步卡片 */
 .bm-card{padding:12px 14px}
 .bm-head{display:flex;align-items:center;gap:8px;margin-bottom:8px}
@@ -963,6 +783,10 @@ html.locked .sub-filter{display:none}
 .sb-input::placeholder{color:var(--text-tertiary)}
 .sb-go{width:34px;height:34px;flex-shrink:0;border:none;border-radius:50%;background:var(--glass-accent);color:var(--accent);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s}
 .sb-go:hover{background:var(--accent);color:#fff}
+/* 顶部「工具中心」入口（搜索框下方） */
+/* 顶部快捷入口行（搜索框下方；DOCK_ITEMS 配置驱动，chip 复用市场卡片的 mkt-link-chip 胶囊样式） */
+.top-dock{display:flex;align-items:center;gap:4px;width:100%;max-width:580px;padding:0 4px}
+html.locked .top-dock{display:none}
 /* 全局消息提示（Toast，页面顶部居中） */
 .msg-container{position:fixed;top:72px;left:50%;transform:translateX(-50%);z-index:9999;display:flex;flex-direction:column;gap:8px;align-items:center;pointer-events:none}
 .msg-toast{display:flex;align-items:center;gap:8px;padding:9px 14px 9px 10px;border-radius:var(--radius-sm);background:var(--nm-surface);box-shadow:var(--nm-out),0 4px 14px rgba(0,0,0,0.1);font-size:13px;color:var(--text);font-family:inherit;animation:msgIn .25s ease-out;pointer-events:auto;max-width:90vw;cursor:pointer}
@@ -1021,29 +845,7 @@ html.locked .sub-filter{display:none}
 #typhoonModal.fs .vm-open{display:none}
 /* 实用工具入口卡片 + 弹窗 */
 .toolkit-row{margin-bottom:14px;display:flex;flex-direction:column;gap:14px}
-.toolkit-card{padding:14px 16px}
-.toolkit-title{font-size:14px;font-weight:600;color:var(--text-secondary);letter-spacing:.5px;display:flex;align-items:center;gap:6px;margin-bottom:10px}
-.toolkit-title svg{width:16px;height:16px}
-.toolkit-grid{display:flex;gap:10px;flex-wrap:wrap}
-.toolkit-tile{flex:0 0 calc(25% - 7.5px);display:flex;flex-direction:column;gap:4px;padding:10px 12px;border:0.5px solid var(--glass-border);border-radius:var(--radius-sm);background:rgba(255,255,255,0.4);font-family:inherit;cursor:pointer;transition:all .15s;text-align:left;min-width:0}
-.toolkit-tile:hover{border-color:var(--accent);background:var(--glass-accent)}
-.toolkit-tile:active{box-shadow:var(--nm-in-sm)}
-.toolkit-tile .tk-head{display:flex;align-items:center;gap:6px;min-width:0}
-.toolkit-tile .tk-ico{display:flex;align-items:center;justify-content:center;color:var(--text-tertiary);flex-shrink:0}
-.toolkit-tile .tk-ico svg{width:18px;height:18px}
-.toolkit-tile:hover .tk-ico{color:var(--accent)}
-.toolkit-tile .tk-name{font-size:13px;font-weight:600;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.toolkit-tile:hover .tk-name{color:var(--accent)}
-.toolkit-tile .tk-desc{font-size:11px;color:var(--text-tertiary);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-#toolkitModal{background:rgba(0,0,0,0.5);backdrop-filter:blur(2px);-webkit-backdrop-filter:blur(2px)}
-#toolkitModal .mh{padding:10px 14px;border-bottom:0.5px solid var(--glass-border);background:rgba(0,0,0,0.04)}
-#toolkitModal .mh .mc{width:28px;height:28px;border-radius:50%;border:none;background:var(--nm-surface);box-shadow:var(--nm-out),0 2px 4px rgba(0,0,0,0.1);color:var(--text-tertiary);font-size:13px}
-#toolkitModal .mh .mc:hover{color:var(--accent)}
-#tkContent .widget-card{background:transparent;box-shadow:none;padding:0}
-#tkContent .calc-head{display:none}
-#toolkitModal .mh .cur-meta{margin-left:8px;margin-right:auto}
 @keyframes tklocate{0%,30%{box-shadow:0 0 0 2px var(--accent),var(--card-shadow-h)}100%{box-shadow:var(--card-shadow)}}
-.toolkit-card.tk-locate{animation:tklocate .9s ease-out}
 .widget-card.locate{animation:tklocate .9s ease-out}
 /* 微信读书弹窗：头部参考工具弹窗，单视图（点什么看什么） */
 #wereadModal{background:rgba(0,0,0,0.5);backdrop-filter:blur(2px);-webkit-backdrop-filter:blur(2px)}
@@ -1091,11 +893,11 @@ html.locked .sub-filter{display:none}
       <input class="sb-input" id="sbInput" type="text" placeholder="输入关键词搜索…" autocomplete="off" />
       <button class="sb-go" id="sbGo" title="搜索"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></button>
     </div>
+    <div class="top-dock" id="topDock"></div>
   </header>
   <div class="app-body">
   <nav class="sidebar">
     <button class="sb-btn" id="addWidgetBtn"><span class="ic">+</span>添加</button>
-    <button class="sb-btn" id="gotoToolkitBtn"><span class="ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg></span>工具</button>
     <button class="sb-btn" id="gotoMarketBtn"><span class="ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="7" y1="4" x2="7" y2="20"/><rect x="5" y="8" width="4" height="6" rx="1"/><line x1="17" y1="4" x2="17" y2="20"/><rect x="15" y="11" width="4" height="5" rx="1"/></svg></span>行情</button>
     <button class="sb-btn" id="gotoHotBtn"><span class="ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg></span>资讯</button>
     <div class="sb-div"></div>
@@ -1182,7 +984,6 @@ html.locked .sub-filter{display:none}
 <div class="mo" id="widgetModal"><div class="ms"><div class="mh"><span class="mt">组件库</span><button class="mc" id="wmClose">x</button></div><div class="modal-split"><div class="wm-sidebar" id="wmSidebar"></div><div class="modal-content"><div class="wm-tabs" id="wmTabs"></div><div id="widgetList"></div></div></div></div></div>
 <div class="mo" id="settingsModal"><div class="ms"><div class="mh"><span class="mt">设置</span><button class="mc" id="smClose">x</button></div><div class="modal-split"><div class="modal-sidebar" id="smSidebar"><button class="msb active" data-s="time">时间</button><button class="msb" data-s="salary">发薪日</button><button class="msb" data-s="weread">微信读书</button><button class="msb" data-s="food">今天吃什么</button><button class="msb" data-s="water">喝水</button></div><div class="modal-content" id="settingsBody"></div></div></div></div>
 <div class="mo" id="wallpaperModal"><div class="ms" style="max-width:600px"><div class="mh"><span class="mt">更换壁纸</span><button class="mc" id="wpClose">x</button></div><div class="modal-content" id="wpBody" style="padding:16px 20px 20px"></div></div></div>
-<div class="mo" id="toolkitModal"><div class="ms"><div class="mh"><span class="mt" id="tkTitle">实用工具</span><button class="mc" id="tkClose">✕</button></div><div class="modal-content" id="tkContent"></div></div></div>
 <div class="mo" id="wereadModal"><div class="ms" style="max-width:560px"><div class="mh"><span class="mt" id="wrModalTitle">微信读书</span><button class="mc" id="wrModalClose">✕</button></div><div class="modal-content" id="wrModalContent"></div></div></div>
 <div class="cal-popover" id="calPopover">
   <div class="widget-card cal-card">

@@ -8,17 +8,14 @@
     "build": "npm run build:bundle && npm run build:copy",
     "build:bundle": "node scripts/build-bundle.cjs",
     "build:copy": "node scripts/copy-assets.cjs",
-    "clean": "rm -rf dist"
+    "clean": "node -e \"fs.rmSync('dist',{recursive:true,force:true})\""
   },
   "devDependencies": {
     "@types/three": "^0.185.4",
     "esbuild": "^0.28.1"
   },
   "dependencies": {
-    "@types/crypto-js": "^4.2.2",
     "aplayer": "^1.10.1",
-    "crypto-js": "^4.2.0",
-    "qrcode-generator": "^2.0.4",
     "three": "^0.185.1"
   }
 }

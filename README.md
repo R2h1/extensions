@@ -1,69 +1,58 @@
-# TimeRank Monorepo
+# 闲页 · Extensions Monorepo
 
-TimeRank — 一个基于 **Manifest V3** 的浏览器扩展 Monorepo。
+两个 100% 本地的 Manifest V3 Chrome 扩展，基于 npm workspaces 管理。
 
-## 目录结构
+## 包说明
 
-```
-extensions/
-├── packages/
-│   ├── shared/                    # 公共库（类型、工具函数、存储封装）
-│   │   ├── src/
-│   │   │   ├── types.ts           # 共享类型定义
-│   │   │   ├── utils.ts           # 工具函数
-│   │   │   ├── storage.ts         # 存储封装
-│   │   │   └── index.ts           # 统一导出
-│   │   └── package.json           # @extensions/shared
-│   │
-│   ├── moyu-tab/                  # 闲页 — 新标签页摸鱼面板
-│   └── reading-community/         # 阅读社区
-│
-├── package.json                   # npm workspaces 根配置
-├── tsconfig.base.json             # 基础 TS 配置
-└── README.md
-```
+| 包名 | 目录 | 描述 |
+|------|------|------|
+| `@extensions/moyu-tab` | [packages/moyu-tab](packages/moyu-tab/) | **闲页** — 新标签页摸鱼仪表盘 |
+| `@extensions/reading-community` | [packages/reading-community](packages/reading-community/) | **书搭子** — 侧边栏阅读笔记 |
+
+### 闲页（moyu-tab）
+
+覆盖新标签页，提供行情、天气、台风、热搜、新闻、微信读书、书架统计、网站统计、番茄钟、喝水提醒、万年历、壁纸、音乐播放器等功能。所有计算/工具类功能由站外 [工具箱](http://app.conan.js.cn/tools) 承载，扩展本身不再内置计算器组件。
+
+### 书搭子（reading-community）
+
+Chrome 侧边栏扩展，用于在浏览网页时随手记录阅读笔记。
 
 ## 快速开始
 
-### 安装依赖
-
 ```bash
-npm install
+npm install          # 安装所有依赖
+npm run build:all    # 构建两个扩展
 ```
 
-### 构建
-
-```bash
-# 构建所有
-npm run build:all
-```
+构建产物输出到各包的 `dist/` 目录。
 
 ### 在 Chrome 中加载
 
 1. 打开 `chrome://extensions`
-2. 开启"开发者模式"
-3. 点击"加载已解压的扩展"
-4. 选择对应包的 `packages/<包名>/dist/`
+2. 开启右上角「开发者模式」
+3. 点击「加载已解压的扩展程序」
+4. 选择对应包的 `packages/<包名>/dist/` 目录
 
-## 开发命令
+> 修改源码或静态资源（HTML / manifest.json）后，需重新构建并在扩展管理页刷新。
+
+## 命令
 
 | 命令 | 说明 |
 |------|------|
-| `npm run build:shared` | 构建公共库 |
+| `npm run build:moyu` | 构建闲页（esbuild bundle + 资源拷贝） |
+| `npm run build:community` | 构建书搭子 |
 | `npm run build:all` | 构建所有包 |
+| `npm run lint` | ESLint 检查 |
+| `npm run lint:fix` | ESLint 自动修复 |
+| `npm run format:fix` | Prettier 格式化 |
+| `npm run pack:moyu` | 打包闲页 zip 到 `releases/` |
+| `npm run pack:community` | 打包书搭子 zip 到 `releases/` |
 | `npm run icons` | 生成占位图标 |
-
-## 添加新插件
-
-1. 在 `packages/` 下创建新目录
-2. 添加 `package.json`（引用 `@extensions/shared`）
-3. 添加 `tsconfig.json`（extends `../../tsconfig.base.json`）
-4. 构建：`npm run build -w packages/your-plugin`
 
 ## 技术栈
 
-- **Manifest V3** — 最新扩展规范
+- **Manifest V3** — Service Worker + declarativeNetRequest
 - **TypeScript** — 类型安全
+- **esbuild** — 快速打包
 - **npm Workspaces** — Monorepo 管理
-- **Chrome Extension API** — `storage`, `tabs`, `alarms`, `runtime`
-- **100% 本地** — 无后端，不上传数据
+- **100% 本地** — 无后端，不上传数据；数据仅存于 `chrome.storage.local`

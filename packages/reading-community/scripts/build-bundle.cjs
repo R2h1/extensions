@@ -1,4 +1,5 @@
 const esbuild = require('esbuild');
+const fs = require('fs');
 const path = require('path');
 
 const ROOT = path.resolve(__dirname, '..');
@@ -12,6 +13,9 @@ const ENTRY_POINTS = [
 
 async function build() {
   console.log('Building 书搭子 with esbuild...\n');
+
+  // 每次构建前清空 dist，避免陈旧产物残留
+  fs.rmSync(DIST, { recursive: true, force: true });
 
   for (const entry of ENTRY_POINTS) {
     const srcPath = path.join(SRC, entry);
