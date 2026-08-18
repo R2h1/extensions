@@ -254,114 +254,6 @@ async function handleHolidayFetch(): Promise<HolidayResponse> {
   }
 }
 
-// ─── Zhihu Daily (知乎日报) ───────────────────────────
-
-interface ZhihuItem {
-  title: string;
-  url: string;
-  image?: string;
-  hint?: string;
-}
-interface ZhihuResponse {
-  success: boolean;
-  data?: { date: string; list: ZhihuItem[] };
-  error?: string;
-}
-
-/** 知乎日报：每日精选，带封面图。 */
-async function handleZhihuFetch(): Promise<ZhihuResponse> {
-  const ctrl = new AbortController();
-  const to = setTimeout(() => ctrl.abort(), 12000);
-  try {
-    const res = await fetch('https://news-at.zhihu.com/api/4/news/latest', {
-      cache: 'no-store',
-      signal: ctrl.signal,
-    });
-    if (!res.ok) return { success: false, error: 'HTTP ' + res.status };
-    const j = await res.json();
-    const stories = (j?.stories ?? []) as unknown[];
-    const list: ZhihuItem[] = stories.map((s) => {
-      const x = s as {
-        title?: string;
-        url?: string;
-        id?: number;
-        images?: string[];
-        hint?: string;
-      };
-      return {
-        title: String(x.title || ''),
-        url: String(x.url || (x.id ? `https://daily.zhihu.com/story/${x.id}` : '')),
-        image: Array.isArray(x.images) && x.images[0] ? String(x.images[0]) : '',
-        hint: String(x.hint || ''),
-      };
-    });
-    if (!list.length) return { success: false, error: 'empty' };
-    return { success: true, data: { date: String(j.date || ''), list } };
-  } catch (e) {
-    return { success: false, error: e instanceof Error ? e.message : String(e) };
-  } finally {
-    clearTimeout(to);
-  }
-}
-
-// ─── Sina 7x24 Finance Flash (新浪财经快讯) ──────────
-
-interface SinaFlashItem {
-  text: string;
-  time: string;
-  url?: string;
-}
-interface SinaFlashResponse {
-  success: boolean;
-  data?: SinaFlashItem[];
-  error?: string;
-}
-
-function stripHtml(s: string): string {
-  return s
-    .replace(/<[^>]*>/g, '')
-    .replace(/&[a-z#0-9]+;/gi, ' ')
-    .replace(/\s+/g, ' ')
-    .trim();
-}
-
-/** 新浪 7x24 财经快讯：实时滚动流，无需 Referer。 */
-async function handleSinaFlashFetch(): Promise<SinaFlashResponse> {
-  const ctrl = new AbortController();
-  const to = setTimeout(() => ctrl.abort(), 12000);
-  try {
-    const res = await fetch(
-      'https://zhibo.sina.com.cn/api/zhibo/feed?page=1&page_size=40&zhibo_id=152&tag_id=0&type=0',
-      { cache: 'no-store', signal: ctrl.signal },
-    );
-    if (!res.ok) return { success: false, error: 'HTTP ' + res.status };
-    const j = await res.json();
-    const arr = (j?.result?.data?.feed?.list ?? []) as unknown[];
-    const items: SinaFlashItem[] = arr
-      .map((x) => {
-        const it = x as {
-          rich_text?: string;
-          create_time?: string;
-          update_time?: string;
-          docurl?: string;
-        };
-        const t = String(it.create_time || it.update_time || '');
-        return {
-          text: stripHtml(String(it.rich_text || '')),
-          time: t.length >= 16 ? t.slice(11, 16) : '',
-          url: it.docurl ? String(it.docurl) : '',
-        };
-      })
-      .filter((x) => x.text);
-    if (!items.length) return { success: false, error: 'empty' };
-    return { success: true, data: items };
-  } catch (e) {
-    return { success: false, error: e instanceof Error ? e.message : String(e) };
-  } finally {
-    clearTimeout(to);
-  }
-}
-
 // ─── Typhoon Activity (浙江水利厅台风网实时活跃台风) ────
 
 interface ActiveTyphoon {
@@ -1143,8 +1035,6 @@ type MsgHandler = (msg: Msg) => Promise<unknown>;
 
 const HANDLERS: Record<string, MsgHandler> = {
   HOLIDAY_FETCH: () => handleHolidayFetch(),
-  ZHIHU_FETCH: () => handleZhihuFetch(),
-  SINA_FLASH_FETCH: () => handleSinaFlashFetch(),
   TYPHOON_FETCH: () => handleTyphoonActivityFetch(),
   WEREAD_SHELF_FETCH: (m) => handleWereadShelfFetch((m.apiKey as string | undefined) ?? ''),
   WEREAD_READDATA_FETCH: (m) => handleWereadReaddataFetch((m.apiKey as string | undefined) ?? ''),

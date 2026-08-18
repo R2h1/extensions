@@ -87,7 +87,7 @@ export const CAT_TREE: TopCat[] = [
 ];
 
 export const ALL_WIDGETS: WID[] = [
-  { id: 'news', name: '资讯', desc: 'AI精选/知乎日报/财经快讯', cat: 'news', sub: 'news' },
+  { id: 'news', name: '资讯', desc: 'AI精选', cat: 'news', sub: 'news' },
   {
     id: 'community',
     name: '社区',

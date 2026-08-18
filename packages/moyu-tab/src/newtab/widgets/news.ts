@@ -1,7 +1,5 @@
-/** 资讯卡：AI资讯 / 知乎日报 / 7x24快讯 合并为单卡片，Tab 切换 */
+/** 资讯卡：AI精选（原知乎日报 / 财经快讯 tab 已移除） */
 import { initAihot, refreshAH, swapAHPage } from './aihot';
-import { initZhihu, refreshZH } from './zhihu';
-import { initSinaFlash, refreshSF } from './sina-flash';
 
 interface NewsSource {
   id: string;
@@ -19,22 +17,6 @@ const NEWS_SOURCES: NewsSource[] = [
     init: initAihot,
     refresh: refreshAH,
     hasSwap: true,
-  },
-  {
-    id: 'zhihu',
-    name: '知乎日报',
-    pane: 'zhihuList',
-    init: initZhihu,
-    refresh: refreshZH,
-    hasSwap: false,
-  },
-  {
-    id: 'sina',
-    name: '财经快讯',
-    pane: 'sinaList',
-    init: initSinaFlash,
-    refresh: refreshSF,
-    hasSwap: false,
   },
 ];
 
@@ -90,9 +72,7 @@ async function refreshActive() {
 
 export async function initNewsCard() {
   document.getElementById('newsRefresh')?.addEventListener('click', refreshActive);
-  document.getElementById('newsSwap')?.addEventListener('click', () => {
-    if (newsActive === 'aihot') swapAHPage();
-  });
+  document.getElementById('newsSwap')?.addEventListener('click', swapAHPage);
   document
     .querySelectorAll('.hot-tab[data-source]')
     .forEach((t) =>
