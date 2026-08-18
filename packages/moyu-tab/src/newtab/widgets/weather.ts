@@ -131,7 +131,10 @@ function renderWeather(c: WCache | null, error: boolean) {
       const lv = aqiLevel(c.aqi.usAqi);
       aqiEl.textContent = `${Math.round(c.aqi.usAqi)} ${lv.label}`;
       aqiEl.style.color = lv.color;
-      aqiEl.setAttribute('title', `PM2.5 ${Math.round(c.aqi.pm25)} · PM10 ${Math.round(c.aqi.pm10)}`);
+      aqiEl.setAttribute(
+        'title',
+        `PM2.5 ${Math.round(c.aqi.pm25)} · PM10 ${Math.round(c.aqi.pm10)}`,
+      );
     } else {
       aqiEl.textContent = '--';
       aqiEl.style.color = '';
@@ -317,4 +320,3 @@ export async function initWeather() {
   setInterval(refreshWeather, 600000);
   document.addEventListener('visibilitychange', onWeatherVis);
 }
-

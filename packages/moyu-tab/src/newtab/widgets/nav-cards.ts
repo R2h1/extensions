@@ -170,6 +170,21 @@ const HUB_CATS: { id: string; name: string; color: string; icon: string }[] = [
     icon: '<path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>',
   },
 ];
+// 研报 · 数据（原行情卡「研报 · 数据」区迁入）
+const RESEARCH_LINKS: NavLink[] = [
+  { name: '行行查', url: 'https://www.hanghangcha.com/', color: '#0ea5e9' },
+  {
+    name: '晨星网',
+    url: 'https://www.morningstar.cn/main/default.aspx',
+    color: '#d97706',
+  },
+  { name: '洞见研报', url: 'https://www.djyanbao.com/index', color: '#059669' },
+  {
+    name: '蛋卷指数',
+    url: 'https://danjuanapp.com/index-detail/SH000016',
+    color: '#ef4444',
+  },
+];
 export function renderNavHubCard(): string {
   const cats = HUB_CATS.map(
     (c) =>
@@ -187,6 +202,13 @@ export function renderNavHubCard(): string {
       <span>搜索全部链接…</span>
     </button>
     <div class="nv-hub-grid">${cats}</div>
+    <div class="nv-research">
+      <div class="nv-research-title">研报 · 数据</div>
+      <div class="nv-chips">${RESEARCH_LINKS.map(
+        (l) =>
+          `<a class="nv-chip" href="${escAttr(l.url)}" target="_blank" rel="noopener" title="${escAttr(l.name)}"><span class="nv-chip-dot" style="background:${l.color}"></span>${esc(l.name)}</a>`,
+      ).join('')}</div>
+    </div>
   </div>`;
 }
 

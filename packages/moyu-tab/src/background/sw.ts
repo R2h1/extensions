@@ -115,18 +115,25 @@ async function onPhaseComplete() {
 }
 
 /** 发送系统通知。iconUrl 必须是扩展内真实 PNG（chrome.notifications 不支持 data: URL，否则报 "Unable to download all specified images"）。
- *  icon128.png 是蓝色水滴图标，正好当喝水/番茄钟通知图标。 */
+ *  icon128.png 是蓝色水滴图标，正好当喝水/番茄钟通知图标。
+ *  @types/chrome 仅提供回调式签名，用 Promise 包装拿到通知 id。 */
 async function showNotification(title: string, message: string): Promise<string | undefined> {
   try {
-    return await chrome.notifications.create({
-      type: 'basic',
-      iconUrl: chrome.runtime.getURL('icons/icon128.png'),
-      title,
-      message,
-      priority: 2,
+    return await new Promise<string>((resolve, reject) => {
+      chrome.notifications.create(
+        {
+          type: 'basic',
+          iconUrl: chrome.runtime.getURL('icons/icon128.png'),
+          title,
+          message,
+          priority: 2,
+        },
+        (id) => (id ? resolve(id) : reject(new Error('通知 id 为空'))),
+      );
     });
   } catch (e) {
     console.error('通知发送失败', e);
+    return undefined;
   }
 }
 
@@ -151,301 +158,19 @@ async function onWaterReminder() {
       return;
     }
     const title = '💧 该喝水啦';
-    const message = goal > 0
-      ? `今日已喝 ${total}/${goal}ml，起来喝一杯（${d.cup ?? 250}ml）润润喉~`
-      : `今日已喝 ${total}ml，起来喝一杯（${d.cup ?? 250}ml）润润喉~`;
-    console.log('[water] onWaterReminder 发送通知:', { title, message, iconUrl: chrome.runtime.getURL('icons/icon128.png') });
+    const message =
+      goal > 0
+        ? `今日已喝 ${total}/${goal}ml，起来喝一杯（${d.cup ?? 250}ml）润润喉~`
+        : `今日已喝 ${total}ml，起来喝一杯（${d.cup ?? 250}ml）润润喉~`;
+    console.log('[water] onWaterReminder 发送通知:', {
+      title,
+      message,
+      iconUrl: chrome.runtime.getURL('icons/icon128.png'),
+    });
     const notifId = await showNotification(title, message);
     console.log('[water] notifications.create 返回 id:', notifId);
   } catch (e) {
     console.error('[water] onWaterReminder 异常:', e);
-  }
-}
-
-// ─── Fund Estimate ─────────────────────────────────────
-
-interface FundQuote {
-  name: string;
-  dwjz: string;
-  gsz: string;
-  gszzl: string;
-  gztime: string;
-}
-interface FundResponse {
-  success: boolean;
-  data?: Record<string, FundQuote | null>;
-  error?: string;
-}
-
-/** fundgz 实时估值（A 股基金盘中估算）。返回 jsonpgz({...}); 格式，正则提取后解析。QDII 等无实时估值的基金返回 null。 */
-async function fetchFundgz(code: string): Promise<FundQuote | null> {
-  const ctrl = new AbortController();
-  const to = setTimeout(() => ctrl.abort(), 12000);
-  try {
-    const res = await fetch(`https://fundgz.1234567.com.cn/js/${code}.js`, {
-      cache: 'no-store',
-      signal: ctrl.signal,
-    });
-    if (!res.ok) return null;
-    const text = await res.text();
-    const m = text.match(/jsonpgz\((.*)\)/);
-    if (!m) return null;
-    const obj = JSON.parse(m[1]);
-    if (!obj?.fundcode) return null;
-    return {
-      name: String(obj.name ?? ''),
-      dwjz: String(obj.dwjz ?? ''),
-      gsz: String(obj.gsz ?? ''),
-      gszzl: String(obj.gszzl ?? ''),
-      gztime: String(obj.gztime ?? ''),
-    };
-  } catch {
-    return null;
-  } finally {
-    clearTimeout(to);
-  }
-}
-
-/** pingzhongdata 最新净值（兜底：QDII / 新基金等 fundgz 无实时估值时）。fS_name=名称，Data_netWorthTrend 末条=最新净值（y=净值 equityReturn=涨跌幅 x=日期）。接口不校验 Referer。 */
-async function fetchFundDetail(code: string): Promise<FundQuote | null> {
-  const ctrl = new AbortController();
-  const to = setTimeout(() => ctrl.abort(), 12000);
-  try {
-    const res = await fetch(`https://fund.eastmoney.com/pingzhongdata/${code}.js`, {
-      cache: 'no-store',
-      signal: ctrl.signal,
-    });
-    if (!res.ok) return null;
-    const text = await res.text();
-    const nameM = text.match(/fS_name\s*=\s*"([^"]*)"/);
-    const nwM = text.match(/Data_netWorthTrend\s*=\s*(\[[\s\S]*?\]);/);
-    if (!nwM) return null;
-    const arr = JSON.parse(nwM[1]) as { x?: number; y?: number; equityReturn?: number }[];
-    const last = arr[arr.length - 1];
-    if (!last || last.y == null) return null;
-    const gztime = last.x ? new Date(last.x).toISOString().slice(0, 10) : '';
-    return {
-      name: nameM?.[1] ?? '',
-      dwjz: String(last.y),
-      gsz: String(last.y),
-      gszzl: String(last.equityReturn ?? ''),
-      gztime,
-    };
-  } catch {
-    return null;
-  } finally {
-    clearTimeout(to);
-  }
-}
-
-/** 抓取单只基金：先 fundgz 实时估值，拿不到（QDII 等）回退 pingzhongdata 最新净值。 */
-async function fetchOneFund(code: string): Promise<FundQuote | null> {
-  const gz = await fetchFundgz(code);
-  if (gz && gz.gsz) return gz;
-  return fetchFundDetail(code);
-}
-
-async function handleFundFetch(codes: string[]): Promise<FundResponse> {
-  const data: Record<string, FundQuote | null> = {};
-  await Promise.all(
-    codes.map(async (c) => {
-      data[c] = await fetchOneFund(c);
-    }),
-  );
-  return { success: true, data };
-}
-
-// ─── A股 / 个股行情（东财 qt/stock/get）───────────────
-
-interface StockQuote {
-  name: string;
-  current: number;
-  prevClose: number;
-  change: number;
-  changePct: number;
-}
-interface StockResponse {
-  success: boolean;
-  data?: Record<string, StockQuote | null>;
-  error?: string;
-}
-
-/** 代码 -> 东财 secid：sh->1. sz/bj->0. */
-function toEastSecid(code: string): string {
-  const m = code.match(/^([a-z]+)(\w+)$/i);
-  if (!m) return code;
-  const p = m[1].toLowerCase();
-  const rest = m[2];
-  if (p === 'sh') return '1.' + rest;
-  if (p === 'sz' || p === 'bj') return '0.' + rest;
-  return code;
-}
-
-/** A股/全球指数/个股批量（东财 ulist.np，单请求拿全部 secid，规避逐只并发触发 IP 限流）。fltt=2=实际小数价；字段 f2=现价 f3=涨跌幅% f4=涨跌额 f14=名称 f18=昨收。 */
-async function handleStockFetch(codes: string[]): Promise<StockResponse> {
-  if (!codes.length) return { success: true, data: {} };
-  const secidToCode = new Map<string, string>();
-  const secids = codes.map((c) => {
-    const secid = toEastSecid(c);
-    secidToCode.set(secid, c);
-    return secid;
-  });
-  const ctrl = new AbortController();
-  const to = setTimeout(() => ctrl.abort(), 12000);
-  try {
-    const res = await fetch(
-      `https://push2.eastmoney.com/api/qt/ulist.np/get?secids=${secids.join(',')}&fields=f12,f13,f2,f3,f4,f14,f18&fltt=2`,
-      { cache: 'no-store', signal: ctrl.signal },
-    );
-    if (!res.ok) return { success: false, error: 'HTTP ' + res.status };
-    const j = await res.json();
-    const diff = (j?.data?.diff ?? []) as Record<string, unknown>[];
-    const data: Record<string, StockQuote | null> = {};
-    for (const d of diff) {
-      const secid = d.f13 + '.' + d.f12;
-      const code = secidToCode.get(secid);
-      if (!code) continue;
-      const current = Number(d.f2);
-      if (isNaN(current)) {
-        data[code] = null;
-        continue;
-      }
-      const prevClose = Number(d.f18);
-      const change = Number(d.f4);
-      const changePct = Number(d.f3);
-      data[code] = {
-        name: String(d.f14 ?? ''),
-        current,
-        prevClose: isNaN(prevClose) ? 0 : prevClose,
-        change: isNaN(change) ? 0 : change,
-        changePct: isNaN(changePct) ? 0 : changePct,
-      };
-    }
-    for (const c of codes) if (!(c in data)) data[c] = null;
-    return { success: true, data };
-  } catch (e) {
-    return { success: false, error: e instanceof Error ? e.message : String(e) };
-  } finally {
-    clearTimeout(to);
-  }
-}
-
-// ─── Sector Ranking (东财 行业板块) ───────────────────
-
-interface SectorQuote {
-  name: string;
-  changePct: number;
-  price: number;
-  leader: string;
-  leaderPrice: number;
-}
-interface SectorResponse {
-  success: boolean;
-  data?: SectorQuote[];
-  error?: string;
-}
-
-/** 抓取行业板块涨跌幅排行（东财 clist，fs=m:90+t:2，按 f3 降序 Top 12）。f14=板块名 f3=涨跌幅 f128=领涨股 f140=领涨股价。 */
-async function handleSectorFetch(): Promise<SectorResponse> {
-  const ctrl = new AbortController();
-  const to = setTimeout(() => ctrl.abort(), 12000);
-  try {
-    const url =
-      'https://push2.eastmoney.com/api/qt/clist/get?pn=1&pz=12&po=1&np=1&fltt=2&invt=2&fid=f3&fs=m:90+t:2&fields=f2,f3,f12,f14,f128,f140';
-    const res = await fetch(url, { cache: 'no-store', signal: ctrl.signal });
-    if (!res.ok) return { success: false, error: 'HTTP ' + res.status };
-    const j = await res.json();
-    const arr = (j?.data?.diff ?? []) as unknown[];
-    const items: SectorQuote[] = arr
-      .map((x) => {
-        const d = x as Record<string, unknown>;
-        return {
-          name: String(d.f14 ?? ''),
-          changePct: Number(d.f3 ?? 0),
-          price: Number(d.f2 ?? 0),
-          leader: String(d.f128 ?? ''),
-          leaderPrice: Number(d.f140 ?? 0),
-        };
-      })
-      .filter((x) => x.name);
-    if (!items.length) return { success: false, error: 'empty' };
-    return { success: true, data: items };
-  } catch (e) {
-    return { success: false, error: e instanceof Error ? e.message : String(e) };
-  } finally {
-    clearTimeout(to);
-  }
-}
-
-// ─── Hot Search (微博 / B站 / 百度) ─────────────────────
-
-interface HotItem {
-  title: string;
-  hot: string;
-  url: string;
-  tag?: string;
-}
-interface HotResponse {
-  success: boolean;
-  data?: HotItem[];
-  error?: string;
-}
-
-/** 微博热搜：weibo.com 接口需 Referer，由 DNR 静态规则注入（fetch 无法设 Referer 头）。 */
-async function fetchWeiboHot(): Promise<HotItem[]> {
-  const res = await fetch('https://weibo.com/ajax/side/hotSearch', {
-    cache: 'no-store',
-  });
-  if (!res.ok) throw new Error('HTTP ' + res.status);
-  const j = await res.json();
-  const arr = (j?.data?.realtime ?? []) as any[];
-  return arr.slice(0, 30).map((r) => ({
-    title: String(r.word || r.note || ''),
-    hot: r.num ? String(r.num) : '',
-    url: `https://s.weibo.com/weibo?q=${encodeURIComponent(r.word_scheme || r.word || '')}`,
-    tag: r.label_name ? String(r.label_name) : '',
-  }));
-}
-
-/** B站热搜：search/square 接口无需鉴权。 */
-async function fetchBilibiliHot(): Promise<HotItem[]> {
-  const res = await fetch('https://api.bilibili.com/x/web-interface/wbi/search/square?limit=30', {
-    cache: 'no-store',
-  });
-  if (!res.ok) throw new Error('HTTP ' + res.status);
-  const j = await res.json();
-  const arr = (j?.data?.trending?.list ?? []) as any[];
-  return arr.slice(0, 30).map((r) => ({
-    title: String(r.keyword || r.show_name || ''),
-    hot: '',
-    url: `https://search.bilibili.com/all?keyword=${encodeURIComponent(r.keyword || '')}`,
-  }));
-}
-
-/** 百度热搜：board 接口无需鉴权。 */
-async function fetchBaiduHot(): Promise<HotItem[]> {
-  const res = await fetch('https://top.baidu.com/api/board?platform=wise', { cache: 'no-store' });
-  if (!res.ok) throw new Error('HTTP ' + res.status);
-  const j = await res.json();
-  const arr = (j?.data?.cards?.[0]?.content?.[0]?.content ?? []) as any[];
-  return arr.slice(0, 30).map((r) => ({
-    title: String(r.word || ''),
-    hot: r.hotScore ? String(r.hotScore) : '',
-    url: String(r.url || `https://www.baidu.com/s?wd=${encodeURIComponent(r.word || '')}`),
-    tag: r.isTop ? '置顶' : '',
-  }));
-}
-
-async function handleHotFetch(platform: string): Promise<HotResponse> {
-  try {
-    let items: HotItem[];
-    if (platform === 'bilibili') items = await fetchBilibiliHot();
-    else if (platform === 'baidu') items = await fetchBaiduHot();
-    else items = await fetchWeiboHot();
-    if (!items.length) return { success: false, error: 'empty' };
-    return { success: true, data: items };
-  } catch (e) {
-    return { success: false, error: e instanceof Error ? e.message : String(e) };
   }
 }
 
@@ -526,71 +251,6 @@ async function handleHolidayFetch(): Promise<HolidayResponse> {
     return { success: true, data: { list } };
   } catch (e) {
     return { success: false, error: e instanceof Error ? e.message : String(e) };
-  }
-}
-
-// ─── Juejin Hot (掘金热榜) ───────────────────────────
-
-interface JuejinItem {
-  title: string;
-  url: string;
-  hot: string;
-}
-interface JuejinResponse {
-  success: boolean;
-  data?: JuejinItem[];
-  error?: string;
-}
-
-/** 掘金热榜：recommend_all_feed + sort_type:7（3 天内热门）。POST + JSON body。 */
-async function handleJuejinFetch(): Promise<JuejinResponse> {
-  const ctrl = new AbortController();
-  const to = setTimeout(() => ctrl.abort(), 12000);
-  try {
-    const res = await fetch('https://api.juejin.cn/recommend_api/v1/article/recommend_all_feed', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        cursor: '0',
-        limit: 30,
-        sort_type: 7,
-        id_type: 42,
-        client_type: 2608,
-      }),
-      cache: 'no-store',
-      signal: ctrl.signal,
-    });
-    if (!res.ok) return { success: false, error: 'HTTP ' + res.status };
-    const j = await res.json();
-    const arr = (j?.data ?? []) as unknown[];
-    const items: JuejinItem[] = arr
-      .map(
-        (x) =>
-          x as {
-            item_type?: number;
-            item_info?: {
-              article_info?: { article_id?: string; title?: string; digg_count?: number };
-              article_counters?: { digg_count?: number };
-            };
-          },
-      )
-      .filter((x) => x?.item_type === 2 && x?.item_info?.article_info)
-      .map((x) => {
-        const a = x.item_info!.article_info!;
-        const aid = String(a.article_id || '');
-        const digg = x.item_info!.article_counters?.digg_count ?? a.digg_count ?? 0;
-        return {
-          title: String(a.title || ''),
-          url: `https://juejin.cn/post/${aid}`,
-          hot: digg ? String(digg) : '',
-        };
-      });
-    if (!items.length) return { success: false, error: 'empty' };
-    return { success: true, data: items };
-  } catch (e) {
-    return { success: false, error: e instanceof Error ? e.message : String(e) };
-  } finally {
-    clearTimeout(to);
   }
 }
 
@@ -1477,79 +1137,63 @@ async function restoreScreenOn(): Promise<void> {
   if (s.on) chrome.power.requestKeepAwake('display');
 }
 
-chrome.runtime.onMessage.addListener((message: { type: string }, _sender, sendResponse) => {
-  if (message?.type === 'FUND_FETCH') {
-    handleFundFetch((message as unknown as { codes?: string[] }).codes ?? []).then(sendResponse);
-  } else if (message?.type === 'STOCK_FETCH') {
-    handleStockFetch((message as unknown as { codes?: string[] }).codes ?? []).then(sendResponse);
-  } else if (message?.type === 'SECTOR_FETCH') {
-    handleSectorFetch().then(sendResponse);
-  } else if (message?.type === 'HOT_FETCH') {
-    handleHotFetch((message as unknown as { platform?: string }).platform ?? 'weibo').then(
-      sendResponse,
-    );
-  } else if (message?.type === 'HOLIDAY_FETCH') {
-    handleHolidayFetch().then(sendResponse);
-  } else if (message?.type === 'JUEJIN_FETCH') {
-    handleJuejinFetch().then(sendResponse);
-  } else if (message?.type === 'ZHIHU_FETCH') {
-    handleZhihuFetch().then(sendResponse);
-  } else if (message?.type === 'SINA_FLASH_FETCH') {
-    handleSinaFlashFetch().then(sendResponse);
-  } else if (message?.type === 'TYPHOON_FETCH') {
-    handleTyphoonActivityFetch().then(sendResponse);
-  } else if (message?.type === 'WEREAD_SHELF_FETCH') {
-    handleWereadShelfFetch((message as unknown as { apiKey?: string }).apiKey ?? '').then(
-      sendResponse,
-    );
-  } else if (message?.type === 'WEREAD_READDATA_FETCH') {
-    handleWereadReaddataFetch((message as unknown as { apiKey?: string }).apiKey ?? '').then(
-      sendResponse,
-    );
-  } else if (message?.type === 'WEREAD_RECOMMEND_FETCH') {
-    handleWereadRecommendFetch((message as unknown as { apiKey?: string }).apiKey ?? '').then(
-      sendResponse,
-    );
-  } else if (message?.type === 'WEREAD_NOTES_FETCH') {
-    handleWereadNotesFetch((message as unknown as { apiKey?: string }).apiKey ?? '').then(
-      sendResponse,
-    );
-  } else if (message?.type === 'WEREAD_NOTES_CONTENT_FETCH') {
-    const m = message as unknown as { apiKey?: string; bookId?: string };
-    handleWereadNotesContentFetch(m.apiKey ?? '', m.bookId ?? '').then(sendResponse);
-  } else if (message?.type === 'WEREAD_REVIEW_FETCH') {
-    const m = message as unknown as { apiKey?: string; bookId?: string };
-    handleWereadReviewFetch(m.apiKey ?? '', m.bookId).then(sendResponse);
-  } else if (message?.type === 'WEREAD_SEARCH_FETCH') {
-    const m = message as unknown as { apiKey?: string; keyword?: string };
-    handleWereadSearchFetch(m.apiKey ?? '', m.keyword ?? '').then(sendResponse);
-  } else if (message?.type === 'EXCHANGE_FETCH') {
-    handleExchangeFetch().then(sendResponse);
-  } else if (message?.type === 'AIHOT_FETCH') {
-    handleAihotFetch().then(sendResponse);
-  } else if (message?.type === 'TRACKER_RANKINGS') {
-    const m = message as unknown as { period?: string };
-    getSiteRankings((m.period as 'day' | 'week' | 'month') || 'day').then(sendResponse);
-  } else if (message?.type === 'SCREENON_ON') {
-    screenOnEnable().then(sendResponse);
-  } else if (message?.type === 'SCREENON_OFF') {
-    screenOnDisable().then(sendResponse);
-  } else if (message?.type === 'SCREENON_STATUS') {
-    getScreenOn().then((state) => sendResponse({ success: true, state }));
-  } else if (message?.type === 'WATER_SET_REMINDER') {
-    const interval = (message as { interval?: number }).interval || 0;
-    const p =
-      interval > 0
-        ? chrome.alarms
-            .create(ALARM_WATER, { periodInMinutes: interval })
-            .then(() => ({ success: true }))
-        : chrome.alarms.clear(ALARM_WATER).then(() => ({ success: true }));
-    p.then(sendResponse);
-  } else if (message?.type === 'WATER_SIMULATE') {
-    onWaterReminder().then(() => sendResponse({ success: true }));
-  } else {
-    handlePomodoroMessage(message as PomodoroMessage).then(sendResponse);
-  }
+// ── 消息路由表：新增消息只需往 HANDLERS 加一行表项 ──
+type Msg = Record<string, unknown>;
+type MsgHandler = (msg: Msg) => Promise<unknown>;
+
+const HANDLERS: Record<string, MsgHandler> = {
+  HOLIDAY_FETCH: () => handleHolidayFetch(),
+  ZHIHU_FETCH: () => handleZhihuFetch(),
+  SINA_FLASH_FETCH: () => handleSinaFlashFetch(),
+  TYPHOON_FETCH: () => handleTyphoonActivityFetch(),
+  WEREAD_SHELF_FETCH: (m) => handleWereadShelfFetch((m.apiKey as string | undefined) ?? ''),
+  WEREAD_READDATA_FETCH: (m) => handleWereadReaddataFetch((m.apiKey as string | undefined) ?? ''),
+  WEREAD_RECOMMEND_FETCH: (m) => handleWereadRecommendFetch((m.apiKey as string | undefined) ?? ''),
+  WEREAD_NOTES_FETCH: (m) => handleWereadNotesFetch((m.apiKey as string | undefined) ?? ''),
+  WEREAD_NOTES_CONTENT_FETCH: (m) =>
+    handleWereadNotesContentFetch(
+      (m.apiKey as string | undefined) ?? '',
+      (m.bookId as string | undefined) ?? '',
+    ),
+  WEREAD_REVIEW_FETCH: (m) =>
+    handleWereadReviewFetch((m.apiKey as string | undefined) ?? '', m.bookId as string | undefined),
+  WEREAD_SEARCH_FETCH: (m) =>
+    handleWereadSearchFetch(
+      (m.apiKey as string | undefined) ?? '',
+      (m.keyword as string | undefined) ?? '',
+    ),
+  EXCHANGE_FETCH: () => handleExchangeFetch(),
+  AIHOT_FETCH: () => handleAihotFetch(),
+  TRACKER_RANKINGS: (m) =>
+    getSiteRankings((m.period as 'day' | 'week' | 'month' | undefined) || 'day'),
+  SCREENON_ON: () => screenOnEnable(),
+  SCREENON_OFF: () => screenOnDisable(),
+  SCREENON_STATUS: () => getScreenOn().then((state) => ({ success: true, state })),
+  WATER_SET_REMINDER: (m) => handleWaterSetReminder((m.interval as number | undefined) ?? 0),
+  WATER_SIMULATE: () => onWaterReminder().then(() => ({ success: true })),
+  // 番茄钟：消息类型以 POM_ 开头，统一走 handlePomodoroMessage
+  POM_GET_STATE: (m) => handlePomodoroMessage(m as unknown as PomodoroMessage),
+  POM_START: (m) => handlePomodoroMessage(m as unknown as PomodoroMessage),
+  POM_PAUSE: (m) => handlePomodoroMessage(m as unknown as PomodoroMessage),
+  POM_RESUME: (m) => handlePomodoroMessage(m as unknown as PomodoroMessage),
+  POM_RESET: (m) => handlePomodoroMessage(m as unknown as PomodoroMessage),
+  POM_SETTINGS: (m) => handlePomodoroMessage(m as unknown as PomodoroMessage),
+};
+
+/** 按间隔重建/清除喝水提醒闹钟 */
+async function handleWaterSetReminder(interval: number): Promise<{ success: boolean }> {
+  return interval > 0
+    ? chrome.alarms
+        .create(ALARM_WATER, { periodInMinutes: interval })
+        .then(() => ({ success: true }))
+    : chrome.alarms.clear(ALARM_WATER).then(() => ({ success: true }));
+}
+
+chrome.runtime.onMessage.addListener((message: { type?: string }, _sender, sendResponse) => {
+  const handler = HANDLERS[message?.type ?? ''];
+  Promise.resolve(
+    handler ? handler(message as Msg) : { success: false, error: 'unknown_message' },
+  ).then(sendResponse);
   return true;
 });
 

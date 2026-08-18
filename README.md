@@ -11,7 +11,7 @@
 
 ### 闲页（moyu-tab）
 
-覆盖新标签页，提供行情、天气、台风、热搜、新闻、微信读书、书架统计、网站统计、番茄钟、喝水提醒、万年历、壁纸、音乐播放器等功能。所有计算/工具类功能由站外 [工具箱](http://app.conan.js.cn/tools) 承载，扩展本身不再内置计算器组件。
+覆盖新标签页，提供行情、天气、台风、热搜、新闻、微信读书、书架统计、网站统计、番茄钟、喝水提醒、万年历、壁纸、音乐播放器等功能。所有计算/工具类功能由站外 [工具箱](https://conan.js.cn/) 承载，扩展本身不再内置计算器组件。
 
 ### 书搭子（reading-community）
 
@@ -44,6 +44,7 @@ npm run build:all    # 构建两个扩展
 | `npm run build:all` | 构建所有包 |
 | `npm run lint` | ESLint 检查 |
 | `npm run lint:fix` | ESLint 自动修复 |
+| `npm run typecheck` | TypeScript 类型检查（tsc --noEmit，两个包） |
 | `npm run format:fix` | Prettier 格式化 |
 | `npm run pack:moyu` | 打包闲页 zip 到 `releases/` |
 | `npm run pack:community` | 打包书搭子 zip 到 `releases/` |

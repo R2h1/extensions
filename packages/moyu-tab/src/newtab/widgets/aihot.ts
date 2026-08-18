@@ -55,7 +55,9 @@ function fmtAHTime(iso: string): string {
     d.getDate() === now.getDate();
   const hh = pad(d.getHours());
   const mm = pad(d.getMinutes());
-  return sameDay ? hh + ':' + mm : pad(d.getMonth() + 1) + '-' + pad(d.getDate()) + ' ' + hh + ':' + mm;
+  return sameDay
+    ? hh + ':' + mm
+    : pad(d.getMonth() + 1) + '-' + pad(d.getDate()) + ' ' + hh + ':' + mm;
 }
 
 function pageCount(items: AHItem[]): number {

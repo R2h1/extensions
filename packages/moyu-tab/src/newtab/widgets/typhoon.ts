@@ -70,7 +70,11 @@ function renderTy(error: boolean) {
     txt.textContent = error ? '获取失败' : tyLastFetch === 0 ? '加载中…' : '暂无台风';
     btn.setAttribute(
       'title',
-      error ? '点击重试' : tyLastFetch === 0 ? '正在获取台风信息…' : '当前无活跃台风 · 点击查看台风网',
+      error
+        ? '点击重试'
+        : tyLastFetch === 0
+          ? '正在获取台风信息…'
+          : '当前无活跃台风 · 点击查看台风网',
     );
     return;
   }
@@ -152,7 +156,7 @@ function refreshTyphoonModal() {
   }
   refreshTyphoon(); // 刷新右上角气泡摘要
   const frame = document.getElementById('typhoonFrame') as HTMLIFrameElement | null;
-  if (frame && frame.src) frame.src = frame.src; // 重新加载内嵌的台风网页面
+  if (frame && frame.src) frame.src = `${frame.src}`; // 重新加载内嵌的台风网页面
 }
 
 export async function initTyphoon() {

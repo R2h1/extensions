@@ -32,6 +32,7 @@ async function build() {
       platform: 'browser',
       target: 'es2020',
       sourcemap: true,
+      minify: true,
     });
   }
 

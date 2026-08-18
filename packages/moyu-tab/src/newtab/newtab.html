@@ -6,6 +6,7 @@
 <title>新标签页</title>
 <link rel="stylesheet" href="newtab.css"/>
 <style>
+/* ═══ 1. 基础与头部：Reset / CSS 变量 / 全局 / 锁屏 / 顶部状态（日期·锁屏·常亮·台风·天气）═══ */
 *{margin:0;padding:0;box-sizing:border-box}
 :root{--glass:rgba(255,255,255,0.6);--glass-hover:rgba(255,255,255,0.75);--glass-border:rgba(0,0,0,0.04);--glass-border-h:rgba(0,0,0,0.08);--glass-accent:rgba(217,119,6,0.08);--shadow-sm:0 0.5px 1.5px rgba(0,0,0,0.04);--shadow-md:0 4px 12px rgba(0,0,0,0.05);--card-shadow:0 2px 6px rgba(0,0,0,0.09),0 10px 24px rgba(0,0,0,0.06);--card-shadow-h:0 4px 12px rgba(0,0,0,0.11),0 16px 36px rgba(0,0,0,0.07);--nm-surface:#efeff1;--nm-out:3px 3px 7px rgba(174,174,178,.12),-3px -3px 7px rgba(255,255,255,.6);--nm-out-h:4px 4px 9px rgba(174,174,178,.16),-4px -4px 9px rgba(255,255,255,.65);--nm-out-sm:2px 2px 5px rgba(174,174,178,.12),-2px -2px 5px rgba(255,255,255,.6);--nm-out-lg:6px 6px 16px rgba(174,174,178,.18),-6px -6px 16px rgba(255,255,255,.65);--nm-in:inset 3px 3px 6px rgba(174,174,178,.2),inset -3px -3px 6px rgba(255,255,255,.7);--nm-in-sm:inset 3px 3px 5px rgba(174,174,178,.25),inset -3px -3px 5px rgba(255,255,255,.65);--text:#1d1d1f;--text-secondary:#86868b;--text-tertiary:#aeaeb2;--accent:#d97706;--water:#3b82f6;--radius:14px;--radius-sm:9px;--radius-xs:7px}
 html,body{height:100%;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Noto Sans SC',sans-serif;background:#f2f2f4;color:var(--text);background-size:cover;background-position:center;background-attachment:fixed;transition:background-image 0.5s ease}
@@ -58,6 +59,7 @@ html:not(.locked) .header-weather:hover{background:var(--glass-accent)}
 .hw-desc{font-size:12px;color:#2a2a2c}
 .hw-city{font-size:12px;color:var(--text-secondary)}
 html.locked .header-weather{display:none}
+/* ═══ 2. 布局与侧栏：主框架 / 顶部栏 / 侧栏导航 / 双列面板 ═══ */
 .app{display:flex;flex-direction:column;height:100vh;position:relative;z-index:1}
 .top-header{flex-shrink:0;width:100%;display:flex;flex-direction:column;align-items:center;gap:8px;padding:10px 16px;background:rgba(255,255,255,0.22);backdrop-filter:blur(4px) saturate(140%);-webkit-backdrop-filter:blur(8px) saturate(140%);box-shadow:0 2px 10px rgba(0,0,0,0.05);position:relative;z-index:6}
 .header-row{display:flex;align-items:center;width:calc(100% + 32px);margin:0 -16px;padding:0 16px 0 100px;gap:20px}
@@ -93,6 +95,7 @@ html.locked .header-row{padding:0 16px}
 .sf-chip:hover{color:var(--text)}
 .sf-chip.active{color:var(--accent);font-weight:600;border-bottom-color:var(--accent)}
 html.locked .sub-filter{display:none}
+/* ═══ 3. 卡片通用：widget-card 外壳 ═══ */
 .widget-card{background:var(--nm-surface);backdrop-filter:none;-webkit-backdrop-filter:none;border:none;border-radius:var(--radius);padding:16px;box-shadow:var(--card-shadow);transition:all 0.2s}
 .widget-card:hover{border:none;background:var(--nm-surface);box-shadow:var(--card-shadow-h)}
 .widget-card.clickable{cursor:pointer}
@@ -100,6 +103,7 @@ html.locked .sub-filter{display:none}
 .widget-title{font-size:10px;font-weight:600;color:var(--text-tertiary);letter-spacing:2px;margin-bottom:8px}
 .widget-entry{display:flex;align-items:center;gap:6px;font-size:13px;color:var(--text-secondary);font-weight:500}
 .widget-entry .arrow{font-size:18px;color:var(--text-tertiary);margin-left:auto}
+/* ═══ 4. 弹窗基础：modal 通用骨架 / 壁纸弹窗 ═══ */
 /* modal */
 .mo{display:none;position:fixed;inset:0;z-index:100;background:rgba(0,0,0,0.18);backdrop-filter:none;-webkit-backdrop-filter:none;align-items:center;justify-content:center;padding:24px}
 .mo.open{display:flex}
@@ -145,6 +149,7 @@ html.locked .sub-filter{display:none}
 .wp-btn-ghost{background:transparent;color:var(--text-secondary);border:0.5px solid var(--glass-border)}
 .wp-btn-ghost:hover{border-color:var(--accent);color:var(--accent);filter:none}
 .wp-hint{font-size:11px;color:var(--text-tertiary);text-align:center;margin-top:10px}
+/* ═══ 5. 功能卡片：摸鱼工资 / 行情 / 天气 / 节假日 / 热搜 / 日历 / 影音 / 音乐 / 资讯 / 微信读书 / 知乎 / 快讯 / 喝水 / 导航 / AI ═══ */
 /* 薪资跳动 · 弹出卡片 */
 .sal-card{padding:12px;max-height:calc(100vh - 88px);overflow-y:auto}
 .sal-grid{display:grid;grid-template-columns:1fr;gap:8px}
@@ -175,69 +180,12 @@ html.locked .sub-filter{display:none}
 .sal-countdown{text-align:center;margin-top:5px;font-size:11px;color:var(--text-secondary)}
 .sal-countdown span{color:#3b82f6;font-weight:600;font-variant-numeric:tabular-nums;font-family:ui-monospace,monospace}
 .sal-payday{text-align:center;font-size:9px;color:var(--text-tertiary);margin-top:4px;border-top:.5px solid rgba(0,0,0,.04);padding-top:4px}
-/* 行情卡片（Tab：A股/行业/全球/黄金/自选） */
-.market-card{padding:12px 14px}
-.market-head{display:flex;align-items:center;gap:10px;margin-bottom:10px}
-.market-title{flex-shrink:0;font-size:14px;font-weight:600;color:var(--text-secondary);letter-spacing:.5px;display:flex;align-items:center;gap:6px}
-.market-refresh{flex-shrink:0;margin-left:auto;width:26px;height:26px;border-radius:50%;border:none;background:var(--nm-surface);box-shadow:var(--nm-out),0 2px 4px rgba(0,0,0,0.1);color:var(--text-tertiary);cursor:pointer;font-size:13px;display:flex;align-items:center;justify-content:center;transition:color .15s,box-shadow .15s;font-family:inherit}
-.market-refresh:hover{color:var(--accent)}
-.market-refresh:active{box-shadow:var(--nm-in-sm)}
-.market-refresh.spin{color:var(--accent);animation:goldspin 1s linear infinite}
+/* 胶囊/旋转动画（topDock 快捷入口 + 微信读书延伸阅读 共用） */
 @keyframes goldspin{to{transform:rotate(360deg)}}
-.market-tabs{display:flex;gap:2px;margin-bottom:10px;overflow-x:auto;scrollbar-width:none}
-.market-tabs::-webkit-scrollbar{display:none}
-.market-tab{padding:4px 8px;border:none;background:transparent;border-radius:var(--radius-xs);font-size:11px;font-weight:500;color:var(--text-tertiary);cursor:pointer;transition:all .15s;user-select:none;font-family:inherit}
-.market-tab:hover{color:var(--text-secondary)}
-.market-tab.active{background:var(--nm-surface);color:var(--accent);box-shadow:2px 2px 6px rgba(174,174,178,.3),-2px -2px 6px rgba(255,255,255,.8);font-weight:600}
-.market-body{min-height:80px}
-.market-section{margin-top:10px;margin-bottom:10px}
-.market-section:last-child{margin-bottom:0}
-.market-subtitle{font-size:12px;font-weight:600;color:var(--text-secondary);letter-spacing:.5px}
-.market-subtitle-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:5px}
-/* 小卡片网格（红涨绿跌，每行 6 个） */
-.mkt-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:8px}
-.mkt-grid-5{grid-template-columns:repeat(5,1fr)}
-@media (max-width:600px){.mkt-grid{grid-template-columns:repeat(4,1fr)}}
-@media (max-width:480px){.mkt-grid{grid-template-columns:repeat(3,1fr)}}
-.mkt-empty{grid-column:1/-1;font-size:12px;color:var(--text-tertiary);text-align:center;padding:14px 0}
-.mkt-links-sec{margin-top:8px;padding-top:8px;border-top:0.5px solid var(--glass-border)}
 .mkt-link-row{display:flex;flex-wrap:wrap;gap:6px}
 .mkt-link-chip{display:inline-flex;align-items:center;gap:5px;padding:4px 9px;border-radius:999px;background:var(--glass);text-decoration:none;font-size:11px;color:var(--text-secondary);transition:background .12s,color .12s}
 .mkt-link-chip:hover{background:var(--glass-accent);color:var(--text)}
 .mkt-link-letter{width:15px;height:15px;border-radius:4px;flex:none;display:flex;align-items:center;justify-content:center;color:#fff;font-size:9px;font-weight:700}
-.mkt-tile{position:relative;padding:8px;border-radius:var(--radius-xs);background:var(--nm-surface);box-shadow:var(--nm-out);display:flex;flex-direction:column;gap:2px;overflow:hidden}
-.mkt-tile.up{background:rgba(239,68,68,.10)}
-.mkt-tile.down{background:rgba(22,163,74,.10)}
-.mkt-tile.flat{background:var(--nm-surface)}
-.mkt-name{font-size:11px;color:var(--text-secondary);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.mkt-price{font-size:15px;font-weight:700;color:var(--text);font-variant-numeric:tabular-nums;font-family:'Courier New',ui-monospace,monospace;line-height:1.2}
-.mkt-cny{display:block;font-size:11px;font-weight:500;color:var(--text-secondary);font-variant-numeric:tabular-nums;font-family:'Courier New',ui-monospace,monospace}
-.mkt-unit{font-size:11px;font-weight:500;color:var(--text-secondary)}
-.mkt-chg{font-size:11px;font-weight:600;font-variant-numeric:tabular-nums}
-.mkt-chg.up{color:#dc2626}
-.mkt-chg.down{color:#16a34a}
-.mkt-chg.flat{color:var(--text-tertiary)}
-.mkt-leader{font-size:10px;color:var(--text-tertiary);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.mkt-del{position:absolute;top:4px;right:4px;width:18px;height:18px;border-radius:50%;border:none;background:#dc2626;color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;opacity:0;transition:opacity .15s;padding:0;box-shadow:0 1px 3px rgba(0,0,0,.25)}
-.mkt-tile:hover .mkt-del{opacity:1}
-.mkt-del:hover{background:#b91c1c}
-/* 自选添加 */
-.wl-add-btn{padding:4px 10px;font-size:11px;border:none;border-radius:var(--radius-xs);background:rgba(0,0,0,0.05);color:var(--text-secondary);cursor:pointer;font-family:inherit;transition:background .15s}
-.wl-add-btn:hover{background:rgba(0,0,0,0.08)}
-/* 金价段（黄金 Tab，红涨绿跌） */
-.gold-upd{font-size:10px;color:var(--text-tertiary);font-variant-numeric:tabular-nums}
-.gold-main{display:flex;align-items:baseline;gap:8px;margin-bottom:8px}
-.gold-amount{font-size:30px;font-weight:700;letter-spacing:-1px;line-height:1;background:linear-gradient(135deg,#f6c544,#b8860b);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;color:transparent;font-variant-numeric:tabular-nums;font-family:'Courier New',ui-monospace,monospace}
-.gold-unit{font-size:13px;color:var(--text-tertiary)}
-.gold-sub{display:flex;align-items:center;gap:18px;flex-wrap:wrap}
-.gold-sub-i{display:flex;flex-direction:column;gap:2px}
-.gold-sub-i span:first-child{font-size:10px;color:var(--text-tertiary)}
-.gold-sub-i span:last-child{font-size:13px;color:var(--text-secondary);font-variant-numeric:tabular-nums;font-family:'Courier New',ui-monospace,monospace}
-.gold-delta{margin-left:auto;font-size:12px;font-weight:600;font-variant-numeric:tabular-nums}
-.gold-delta.up{color:#dc2626}
-.gold-delta.down{color:#16a34a}
-.gold-delta.flat{color:var(--text-tertiary)}
-@media (max-width:520px){.gold-amount{font-size:26px}}
 /* 天气卡片 */
 .weather-card{padding:12px 14px}
 .weather-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px}
@@ -289,31 +237,6 @@ html.locked .sub-filter{display:none}
 .hot-swap{display:flex;align-items:center;gap:4px;padding:3px 9px;font-size:11px;font-weight:500;border:0.5px solid var(--glass-border);border-radius:var(--radius-xs);background:transparent;color:var(--text-secondary);cursor:pointer;font-family:inherit;transition:all .15s}
 .hot-swap:hover{border-color:var(--accent);color:var(--accent)}
 .hot-swap i{font-style:normal;font-size:10px;color:var(--text-tertiary)}
-/* 今天吃什么卡片 */
-.food-card{padding:12px 14px}
-.food-head{display:flex;align-items:center;gap:10px;margin-bottom:10px}
-.food-title{font-size:14px;font-weight:600;color:var(--text-secondary);letter-spacing:.5px;display:flex;align-items:center;gap:6px}
-.food-title svg{width:16px;height:16px}
-.food-tabs{display:flex;gap:4px;margin-left:auto}
-.food-tab{padding:4px 10px;border:none;background:transparent;border-radius:var(--radius-xs);font-size:12px;font-weight:500;color:var(--text-tertiary);cursor:pointer;transition:all .15s;font-family:inherit}
-.food-tab.active{background:var(--glass-accent);color:var(--accent)}
-.food-tab:hover:not(.active){color:var(--text-secondary)}
-.food-stage{position:relative;overflow:hidden;border-radius:var(--radius);height:140px;background:#fff;border:0.5px solid var(--glass-border);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px}
-.food-name{font-size:26px;font-weight:700;color:#E6A23C;letter-spacing:1px;text-shadow:0 1px 2px rgba(0,0,0,.12);transition:opacity .2s;z-index:2;max-width:90%;text-align:center}
-.food-name.prompt{color:var(--text-tertiary);font-size:18px;font-weight:500;text-shadow:none}
-.food-name.pop{animation:foodPop .4s ease-out}
-@keyframes foodPop{from{opacity:0;transform:scale(.6)}to{opacity:1;transform:scale(1)}}
-@keyframes foodFade{0%{opacity:0}30%{opacity:.6}100%{opacity:0}}
-.food-swap{position:relative;z-index:2;background:#fff;color:#4996EE;border:none;border-radius:40px;padding:7px 20px;font-size:13px;font-weight:500;font-family:inherit;cursor:pointer;box-shadow:0 2px 6px rgba(96,196,246,.5);transition:transform .15s,box-shadow .15s}
-.food-swap:hover{box-shadow:0 4px 10px rgba(96,196,246,.6)}
-.food-swap:active{transform:scale(.95)}
-.food-swap:disabled{opacity:.6;cursor:default}
-.food-swap.is-spinning{color:#dc2626}
-.food-floater{position:absolute;z-index:1;color:rgba(63,63,63,.5);font-weight:600;white-space:nowrap;pointer-events:none;animation:foodFade 1.2s ease forwards}
-.food-edit-row{margin-bottom:12px}
-.food-edit-label{font-size:12px;font-weight:600;color:var(--text-secondary);margin-bottom:4px}
-.food-edit-area{width:100%;min-height:100px;resize:vertical;box-sizing:border-box;padding:8px 10px;border:0.5px solid var(--glass-border);border-radius:var(--radius-xs);background:transparent;color:var(--text-primary);font-size:13px;font-family:inherit;line-height:1.5;outline:none}
-.food-edit-area:focus{border-color:var(--accent)}
 /* 日历卡片 */
 .cal-card{padding:14px}
 .cal-wkend{opacity:.55}
@@ -423,9 +346,7 @@ html.locked .sub-filter{display:none}
 .hot-rank{font-size:11px;font-weight:600;color:var(--text-tertiary);width:18px;text-align:center;flex-shrink:0;font-variant-numeric:tabular-nums}
 .hot-rank.top{color:var(--accent)}
 .hot-title{flex:1;min-width:0;font-size:12px;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:flex;align-items:center;gap:4px}
-.hot-title-text{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .hot-row:hover .hot-title{color:var(--accent)}
-.hot-tag{font-style:normal;font-size:9px;color:var(--accent);border:0.5px solid var(--accent);padding:0 3px;border-radius:3px;flex-shrink:0;line-height:1.4}
 .hot-num{font-size:10px;color:var(--text-tertiary);flex-shrink:0;font-variant-numeric:tabular-nums;font-family:'Courier New',ui-monospace,monospace}
 /* 资讯卡片（AI精选/知乎日报/财经快讯 合并，Tab 切换） */
 .news-card{padding:12px 14px;position:sticky;top:16px}
@@ -708,6 +629,9 @@ html.locked .sub-filter{display:none}
 .nv-hub-cat:hover{background:var(--glass-accent)}
 .nv-hub-ico{width:30px;height:30px;border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
 .nv-hub-name{font-size:10px;color:var(--text-secondary);white-space:nowrap}
+.nv-research{margin-top:12px}
+.nv-research-title{font-size:10px;font-weight:600;color:var(--text-tertiary);letter-spacing:.5px;margin:0 0 6px 2px}
+.nv-research .nv-chips{margin-top:0;padding-top:0;border-top:none}
 /* 导航大弹窗 */
 .nv-ms{max-width:760px}
 .nv-sidebar{width:108px;flex-shrink:0;overflow-y:auto}
@@ -756,6 +680,7 @@ html.locked .sub-filter{display:none}
 .aihot-score{font-style:normal;font-size:9px;color:var(--text-tertiary);background:var(--glass);border:0.5px solid var(--glass-border);padding:0 4px;border-radius:3px;flex-shrink:0;line-height:1.5;font-variant-numeric:tabular-nums}
 .aihot-list::-webkit-scrollbar{width:5px}
 .aihot-list::-webkit-scrollbar-thumb{background:rgba(0,0,0,0.12);border-radius:3px}
+/* ═══ 6. 组件库 & 搜索：组件库弹窗 / 顶部搜索框 / 工具箱入口 ═══ */
 /* 组件库弹窗：左侧一级 + 右侧顶部二级 tab */
 .wm-sidebar{width:110px;flex-shrink:0;padding:12px 6px;border-right:0.5px solid rgba(0,0,0,0.05);display:flex;flex-direction:column;gap:2px;overflow-y:auto}
 .wm-cat{display:flex;align-items:center;padding:8px 10px;border-radius:var(--radius-xs);background:transparent;border:none;color:var(--text-tertiary);font-size:12px;font-family:inherit;cursor:pointer;transition:all .2s;text-align:left;width:100%}
@@ -784,9 +709,10 @@ html.locked .sub-filter{display:none}
 .sb-go{width:34px;height:34px;flex-shrink:0;border:none;border-radius:50%;background:var(--glass-accent);color:var(--accent);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s}
 .sb-go:hover{background:var(--accent);color:#fff}
 /* 顶部「工具中心」入口（搜索框下方） */
-/* 顶部快捷入口行（搜索框下方；DOCK_ITEMS 配置驱动，chip 复用市场卡片的 mkt-link-chip 胶囊样式） */
+/* 顶部快捷入口行（搜索框下方；DOCK_ITEMS 配置驱动，chip 用 mkt-link-chip 胶囊样式） */
 .top-dock{display:flex;align-items:center;gap:4px;width:100%;max-width:580px;padding:0 4px}
 html.locked .top-dock{display:none}
+/* ═══ 7. 浮层与角落：Toast / 媒体 dock / 台风 / 工具 / 微信读书弹窗 ═══ */
 /* 全局消息提示（Toast，页面顶部居中） */
 .msg-container{position:fixed;top:72px;left:50%;transform:translateX(-50%);z-index:9999;display:flex;flex-direction:column;gap:8px;align-items:center;pointer-events:none}
 .msg-toast{display:flex;align-items:center;gap:8px;padding:9px 14px 9px 10px;border-radius:var(--radius-sm);background:var(--nm-surface);box-shadow:var(--nm-out),0 4px 14px rgba(0,0,0,0.1);font-size:13px;color:var(--text);font-family:inherit;animation:msgIn .25s ease-out;pointer-events:auto;max-width:90vw;cursor:pointer}
@@ -843,8 +769,7 @@ html.locked .top-dock{display:none}
 #typhoonModal.fs .vm-card{width:100vw;max-width:none;height:100vh;max-height:100vh;border-radius:0}
 #typhoonModal.fs .vm-frame{height:auto;flex:1}
 #typhoonModal.fs .vm-open{display:none}
-/* 实用工具入口卡片 + 弹窗 */
-.toolkit-row{margin-bottom:14px;display:flex;flex-direction:column;gap:14px}
+/* 卡片定位动画（点击侧栏滚动定位高亮） */
 @keyframes tklocate{0%,30%{box-shadow:0 0 0 2px var(--accent),var(--card-shadow-h)}100%{box-shadow:var(--card-shadow)}}
 .widget-card.locate{animation:tklocate .9s ease-out}
 /* 微信读书弹窗：头部参考工具弹窗，单视图（点什么看什么） */
@@ -898,13 +823,11 @@ html.locked .top-dock{display:none}
   <div class="app-body">
   <nav class="sidebar">
     <button class="sb-btn" id="addWidgetBtn"><span class="ic">+</span>添加</button>
-    <button class="sb-btn" id="gotoMarketBtn"><span class="ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="7" y1="4" x2="7" y2="20"/><rect x="5" y="8" width="4" height="6" rx="1"/><line x1="17" y1="4" x2="17" y2="20"/><rect x="15" y="11" width="4" height="5" rx="1"/></svg></span>行情</button>
-    <button class="sb-btn" id="gotoHotBtn"><span class="ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg></span>资讯</button>
     <div class="sb-div"></div>
     <button class="sb-btn" id="settingsBtn"><span class="ic">⚙</span>设置</button>
   </nav>
   <main class="content"><div class="ci">
-    <div id="panel"><div class="toolkit-row" id="toolkitRow"></div><div class="panel-cols">
+    <div id="panel"><div class="panel-cols">
       <div class="feed-col" id="feedCol"></div>
       <div class="cards-col" id="cardsCol"></div>
     </div></div>
@@ -982,7 +905,7 @@ html.locked .top-dock{display:none}
 </div>
 <div class="ctx-menu" id="ctxMenu"><button id="ctxWidgets">组件库</button><button id="ctxWallpaper">更换壁纸</button></div>
 <div class="mo" id="widgetModal"><div class="ms"><div class="mh"><span class="mt">组件库</span><button class="mc" id="wmClose">x</button></div><div class="modal-split"><div class="wm-sidebar" id="wmSidebar"></div><div class="modal-content"><div class="wm-tabs" id="wmTabs"></div><div id="widgetList"></div></div></div></div></div>
-<div class="mo" id="settingsModal"><div class="ms"><div class="mh"><span class="mt">设置</span><button class="mc" id="smClose">x</button></div><div class="modal-split"><div class="modal-sidebar" id="smSidebar"><button class="msb active" data-s="time">时间</button><button class="msb" data-s="salary">发薪日</button><button class="msb" data-s="weread">微信读书</button><button class="msb" data-s="food">今天吃什么</button><button class="msb" data-s="water">喝水</button></div><div class="modal-content" id="settingsBody"></div></div></div></div>
+<div class="mo" id="settingsModal"><div class="ms"><div class="mh"><span class="mt">设置</span><button class="mc" id="smClose">x</button></div><div class="modal-split"><div class="modal-sidebar" id="smSidebar"><button class="msb active" data-s="time">时间</button><button class="msb" data-s="salary">发薪日</button><button class="msb" data-s="weread">微信读书</button><button class="msb" data-s="water">喝水</button></div><div class="modal-content" id="settingsBody"></div></div></div></div>
 <div class="mo" id="wallpaperModal"><div class="ms" style="max-width:600px"><div class="mh"><span class="mt">更换壁纸</span><button class="mc" id="wpClose">x</button></div><div class="modal-content" id="wpBody" style="padding:16px 20px 20px"></div></div></div>
 <div class="mo" id="wereadModal"><div class="ms" style="max-width:560px"><div class="mh"><span class="mt" id="wrModalTitle">微信读书</span><button class="mc" id="wrModalClose">✕</button></div><div class="modal-content" id="wrModalContent"></div></div></div>
 <div class="cal-popover" id="calPopover">
@@ -1064,7 +987,7 @@ html.locked .top-dock{display:none}
 <div class="video-modal" id="videoModal">
   <div class="vm-card">
     <div class="vm-head">
-      <a class="vm-open" href="http://app.conan.js.cn/tv" target="_blank" rel="noopener">新标签打开 ↗</a>
+      <a class="vm-open" href="https://conan.js.cn/tv" target="_blank" rel="noopener">新标签打开 ↗</a>
       <button class="vm-close" id="vmClose" title="关闭">✕</button>
     </div>
     <iframe class="vm-frame" id="tvFrame" referrerpolicy="no-referrer" allow="fullscreen; encrypted-media" allowfullscreen></iframe>

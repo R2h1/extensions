@@ -36,4 +36,3 @@ export function ymdMidnight(dateStr: string): number {
   const [y, m, d] = dateStr.split('-').map(Number);
   return new Date(y, m - 1, d).getTime();
 }
-

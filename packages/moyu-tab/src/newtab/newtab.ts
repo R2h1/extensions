@@ -1,21 +1,10 @@
-import APlayer from 'aplayer';
-import 'aplayer/dist/APlayer.min.css';
-import { renderMarketCard, initMarket } from './widgets/market';
 import { initHoliday } from './widgets/holiday';
 import { initWeread, renderWereadCard } from './widgets/weread';
 import { initNotes, renderNotesCard } from './widgets/notes';
 import { initSearch, renderSearchCard } from './widgets/search';
-import {
-  initWereadOverview,
-  renderWereadOverviewCard,
-  refreshWereadOverview,
-} from './widgets/weread-overview';
-import {
-  openBookReviewIn,
-  renderWereadKeySetup,
-  setWereadSettingsOpener,
-} from './widgets/weread-shared';
-import { initWater, renderWaterSettings, setWaterSettingsOpener } from './widgets/water';
+import { initWereadOverview, renderWereadOverviewCard } from './widgets/weread-overview';
+import { openBookReviewIn } from './widgets/weread-shared';
+import { initWater } from './widgets/water';
 import {
   initNavCards,
   renderAiCard,
@@ -27,14 +16,19 @@ import { initTranslate, renderTranslateCard } from './widgets/translate';
 import { initCommunity, renderCommunityCard } from './widgets/community';
 import { initWeather } from './widgets/weather';
 import { initTyphoon } from './widgets/typhoon';
-import { renderHotCard, initHotCard } from './widgets/hot';
 import { renderNewsCard, initNewsCard } from './widgets/news';
-import { renderFoodCard, initFood, renderFoodSettings } from './widgets/food';
 import { renderStatsCard, initStats } from './widgets/stats';
+import { getLunar } from './lunar';
 import { CAT_TREE, ALL_WIDGETS, TopCat, WID } from './config';
+import { showMessage } from './ui/toast';
+import { initWebSearch } from './widgets/searchbox';
+import { initMedia } from './widgets/media';
+import { loadWallpaper, setWallpaperWidgetOpener } from './widgets/wallpaper';
+import { initSalary, tickSalary, loadSal, loadSch } from './widgets/salary';
+import { openSettings, closeSettings } from './ui/settings';
 
 // 顶部快捷入口条（搜索框下方）：配置数组驱动，新增入口只需往 DOCK_ITEMS 加一条。
-// 工具策略：所有计算/工具功能在网站 app.conan.js.cn/tools 实现，moyu-tab 只提供跳转。
+// 工具策略：所有计算/工具功能在网站 conan.js.cn 实现，moyu-tab 只提供跳转。
 interface DockItem {
   id: string;
   label: string;
@@ -47,43 +41,31 @@ const DOCK_ITEMS: DockItem[] = [
   {
     id: 'tools',
     label: '工具箱',
-    href: 'http://app.conan.js.cn/tools',
+    href: 'https://conan.js.cn/',
     external: true,
     letter: '工',
     color: '#d97706',
   },
+  {
+    id: 'market',
+    label: '行情',
+    href: 'https://conan.js.cn/market',
+    external: true,
+    letter: '行',
+    color: '#dc2626',
+  },
+  {
+    id: 'hot',
+    label: '热搜',
+    href: 'https://conan.js.cn/hot',
+    external: true,
+    letter: '热',
+    color: '#ef4444',
+  },
 ];
 
-const SS = 'moyu_schedule',
-  SW = 'moyu_widgets',
-  SR = 'moyu_salary',
+const SW = 'moyu_widgets',
   WV = 8; // 组件存储结构版本：变更组件分类归属时 +1，触发按新 cat.sub 重组迁移
-interface Sch {
-  startHour: number;
-  startMinute: number;
-  lunchHour: number;
-  lunchMinute: number;
-  restEndHour: number;
-  restEndMinute: number;
-  endHour: number;
-  endMinute: number;
-  workDays: number[];
-}
-const DS: Sch = {
-  startHour: 9,
-  startMinute: 0,
-  lunchHour: 12,
-  lunchMinute: 0,
-  restEndHour: 14,
-  restEndMinute: 0,
-  endHour: 17,
-  endMinute: 0,
-  workDays: [1, 2, 3, 4, 5],
-};
-interface SalStt {
-  monthlyIncome: number;
-  payDay: number;
-}
 // 类型、图标、分类树、组件元数据统一从 ./config 导入（消除与 config.ts 的双份维护）
 type WData = { subs: Record<string, string[]> };
 function subKey(cat: string, sub: string) {
@@ -130,14 +112,6 @@ async function getWD(): Promise<WData> {
 async function setWD(d: WData) {
   await chrome.storage.sync.set({ [SW]: { subs: d.subs, v: WV } });
 }
-async function getSal(): Promise<SalStt> {
-  const r = await chrome.storage.sync.get(SR);
-  return (r[SR] as SalStt) ?? { monthlyIncome: 10000, payDay: 10 };
-}
-async function setSal(s: SalStt) {
-  await chrome.storage.sync.set({ [SR]: s });
-}
-const WDPM = 21.75;
 
 const NM_ENTER_DUR = 500;
 const curCat = CAT_TREE[0].id;
@@ -181,8 +155,7 @@ function nmTrigger() {
 function nonEmptySubs(top: TopCat) {
   return top.subs.filter((s) => ALL_WIDGETS.some((w) => w.cat === top.id && w.sub === s.id));
 }
-let rendered: Record<string, boolean> = {},
-  salStt: SalStt = { monthlyIncome: 10000, payDay: 10 };
+let rendered: Record<string, boolean> = {};
 async function renderPanel() {
   const d = await getWD();
   const enabled = new Set<string>();
@@ -193,13 +166,10 @@ async function renderPanel() {
   const rightIds: string[] = [];
   for (const w of ALL_WIDGETS) {
     if (!enabled.has(w.id)) continue;
-    (w.id === 'hot' || w.id === 'news' || w.id === 'food' || w.id === 'stats'
-      ? leftIds
-      : rightIds
-    ).push(w.id);
+    (w.id === 'news' || w.id === 'stats' ? leftIds : rightIds).push(w.id);
   }
-  // 左列顺序：今天吃什么 → 网站统计 → 热搜 → 资讯
-  const leftOrder = ['food', 'stats', 'hot', 'news'];
+  // 左列顺序：网站统计 → 资讯
+  const leftOrder = ['stats', 'news'];
   leftIds.sort((a, b) => leftOrder.indexOf(a) - leftOrder.indexOf(b));
   const feedCol = document.getElementById('feedCol');
   const cardsCol = document.getElementById('cardsCol');
@@ -215,12 +185,6 @@ async function renderPanel() {
   cardsCol.innerHTML = rightIds.length
     ? html(rightIds)
     : `<div class="empty"><div>暂无组件</div><div class="add-hint">左下角点 添加</div></div>`;
-  const tkRow = document.getElementById('toolkitRow');
-  if (tkRow) {
-    // 行情卡片（常驻）置于面板顶部第一行
-    tkRow.innerHTML = renderMarketCard();
-    initMarket();
-  }
   for (const id of [...leftIds, ...rightIds]) initW(id);
   nmTrigger();
 }
@@ -232,9 +196,7 @@ function getCard(w: WID): string {
   if (w.id === 'cloud') return renderCloudCard();
   if (w.id === 'translate') return renderTranslateCard();
   if (w.id === 'community') return renderCommunityCard();
-  if (w.id === 'hot') return renderHotCard();
   if (w.id === 'news') return renderNewsCard();
-  if (w.id === 'food') return renderFoodCard();
   if (w.id === 'stats') return renderStatsCard();
   return `<div class="widget-card clickable" data-widget="${w.id}"><div class="widget-entry"><span>${w.desc}</span><span class="arrow">→</span></div></div>`;
 }
@@ -242,9 +204,6 @@ async function initW(id: string) {
   if (rendered[id]) return;
   rendered[id] = true;
   switch (id) {
-    case 'hot':
-      initHotCard();
-      break;
     case 'news':
       initNewsCard();
       break;
@@ -265,9 +224,6 @@ async function initW(id: string) {
     case 'community':
       initCommunity();
       break;
-    case 'food':
-      initFood();
-      break;
     case 'stats':
       initStats();
       break;
@@ -276,22 +232,6 @@ async function initW(id: string) {
 
 document.getElementById('addWidgetBtn')!.addEventListener('click', () => openWidgetModal(true));
 document.getElementById('settingsBtn')!.addEventListener('click', openSettings);
-document.getElementById('gotoHotBtn')!.addEventListener('click', () => {
-  const card = document.querySelector('.hot-card');
-  if (!card) return;
-  card.scrollIntoView({ behavior: 'smooth', block: 'start' });
-  card.classList.remove('locate');
-  void (card as HTMLElement).offsetWidth; // 重新触发动画
-  card.classList.add('locate');
-});
-document.getElementById('gotoMarketBtn')!.addEventListener('click', () => {
-  const card = document.querySelector('.market-card');
-  if (!card) return;
-  card.scrollIntoView({ behavior: 'smooth', block: 'start' });
-  card.classList.remove('locate');
-  void (card as HTMLElement).offsetWidth; // 重新触发动画
-  card.classList.add('locate');
-});
 
 // ── Widget Modal ──
 const wm = document.getElementById('widgetModal')!;
@@ -395,6 +335,7 @@ async function openWidgetModal(showTree: boolean) {
   await renderWmList(wmCat, wmSub);
   wm.classList.add('open');
 }
+setWallpaperWidgetOpener(() => openWidgetModal(false));
 
 // ── 实用工具弹窗（单工具弹窗：只展示被点击的工具，无工具切换列表）──
 // ── 微信读书弹窗（单视图：点什么看什么，无 tab 切换，复用各 widget 的 render/init）──
@@ -458,185 +399,10 @@ wrModal.addEventListener('click', (e) => {
   if (e.target === wrModal) wrModal.classList.remove('open');
 });
 
-// ── 全局消息提示（Toast，页面顶部居中）──
-type MsgType = 'success' | 'warning' | 'error' | 'info';
-const MSG_ICONS: Record<MsgType, string> = { success: '✓', warning: '!', error: '✕', info: 'i' };
-function ensureMsgContainer(): HTMLElement {
-  let c = document.getElementById('msgContainer');
-  if (!c) {
-    c = document.createElement('div');
-    c.id = 'msgContainer';
-    c.className = 'msg-container';
-    document.body.appendChild(c);
-  }
-  return c;
-}
-function dismissMsg(toast: HTMLElement) {
-  if (!toast.parentNode) return;
-  toast.classList.add('out');
-  toast.addEventListener('animationend', () => toast.remove(), { once: true });
-}
-function showMessage(text: string, type: MsgType = 'info') {
-  const c = ensureMsgContainer();
-  const toast = document.createElement('div');
-  toast.className = `msg-toast ${type}`;
-  const icon = document.createElement('span');
-  icon.className = 'msg-icon';
-  icon.textContent = MSG_ICONS[type];
-  const txt = document.createElement('span');
-  txt.className = 'msg-text';
-  txt.textContent = text;
-  toast.append(icon, txt);
-  toast.addEventListener('click', () => dismissMsg(toast));
-  c.appendChild(toast);
-  setTimeout(() => dismissMsg(toast), 2500);
-}
-
-// ── Settings ──
-const sm = document.getElementById('settingsModal')!;
-document.getElementById('smClose')!.addEventListener('click', () => sm.classList.remove('open'));
-sm.addEventListener('click', (e) => {
-  if (e.target === sm) sm.classList.remove('open');
-});
-document.querySelectorAll('#smSidebar .msb').forEach((b) =>
-  b.addEventListener('click', function (this: HTMLElement) {
-    document.querySelectorAll('#smSidebar .msb').forEach((x) => x.classList.remove('active'));
-    this.classList.add('active');
-    if (this.dataset.s === 'time') renderSetTime();
-    else if (this.dataset.s === 'weread') renderSetWeread();
-    else if (this.dataset.s === 'food') renderSetFood();
-    else if (this.dataset.s === 'water') renderSetWater();
-    else renderSetSalary();
-  }),
-);
-async function openSettings() {
-  document.querySelectorAll('#smSidebar .msb').forEach((b) => b.classList.remove('active'));
-  document.querySelector('#smSidebar [data-s="time"]')!.classList.add('active');
-  renderSetTime();
-  sm.classList.add('open');
-}
-function renderSetWeread() {
-  const body = document.getElementById('settingsBody');
-  if (!body) return;
-  renderWereadKeySetup(body, async () => {
-    sm.classList.remove('open');
-    refreshWereadOverview();
-  });
-}
-function renderSetFood() {
-  const body = document.getElementById('settingsBody');
-  if (!body) return;
-  renderFoodSettings(body, () => {
-    showMessage('清单已保存', 'success');
-  });
-}
-function renderSetWater() {
-  const body = document.getElementById('settingsBody');
-  if (!body) return;
-  renderWaterSettings(body, () => {
-    showMessage('喝水设置已保存', 'success');
-  });
-}
-function openSettingsWeread() {
-  document.getElementById('wereadModal')?.classList.remove('open');
-  document.querySelectorAll('#smSidebar .msb').forEach((b) => b.classList.remove('active'));
-  document.querySelector('#smSidebar [data-s="weread"]')?.classList.add('active');
-  renderSetWeread();
-  sm.classList.add('open');
-}
-setWereadSettingsOpener(openSettingsWeread);
-function openSettingsWater() {
-  document.querySelectorAll('#smSidebar .msb').forEach((b) => b.classList.remove('active'));
-  document.querySelector('#smSidebar [data-s="water"]')?.classList.add('active');
-  renderSetWater();
-  sm.classList.add('open');
-}
-setWaterSettingsOpener(openSettingsWater);
-async function renderSetTime() {
-  const r = await chrome.storage.sync.get(SS);
-  const s = { ...DS, ...(r[SS] || {}) };
-  const wd: number[] = s.workDays ?? [1, 2, 3, 4, 5];
-  const dhtml = ['一', '二', '三', '四', '五', '六', '日']
-    .map((d, i) => {
-      return `<label class="dc${wd.includes(i < 5 ? i + 1 : 0) ? ' active' : ''}" data-v="${i < 5 ? i + 1 : 0}"><span>${d}</span></label>`;
-    })
-    .join('');
-  const t = (h: number, m: number) => `${pad(h)}:${pad(m)}`;
-  document.getElementById('settingsBody')!.innerHTML =
-    `<div class="f"><label>上班</label><input type="time" id="sStart" value="${t(s.startHour, s.startMinute)}"/></div><div class="f"><label>午餐</label><input type="time" id="sLunch" value="${t(s.lunchHour, s.lunchMinute)}"/></div><div class="f"><label>午休结束</label><input type="time" id="sRestEnd" value="${t(s.restEndHour, s.restEndMinute)}"/></div><div class="f"><label>下班</label><input type="time" id="sEnd" value="${t(s.endHour, s.endMinute)}"/></div><div class="f"><label>工作日</label><div style="display:flex;gap:5px" id="sDays">${dhtml}</div></div><button class="btn" id="sSave">保存</button>`;
-  document.querySelectorAll('#sDays .dc').forEach((el) =>
-    el.addEventListener('click', function (this: HTMLElement) {
-      this.classList.toggle('active');
-    }),
-  );
-  document.getElementById('sSave')!.addEventListener('click', async () => {
-    const [sh, sm] = (document.getElementById('sStart') as HTMLInputElement).value
-      .split(':')
-      .map(Number);
-    const [lh, lm] = (document.getElementById('sLunch') as HTMLInputElement).value
-      .split(':')
-      .map(Number);
-    const [rh, rm] = (document.getElementById('sRestEnd') as HTMLInputElement).value
-      .split(':')
-      .map(Number);
-    const [eh, em] = (document.getElementById('sEnd') as HTMLInputElement).value
-      .split(':')
-      .map(Number);
-    if (isNaN(sh) || isNaN(lh) || isNaN(rh) || isNaN(eh)) {
-      showMessage('请填写完整的工作时间', 'warning');
-      return;
-    }
-    const oldRate = salRate();
-    const wd: number[] = [];
-    document
-      .querySelectorAll('#sDays .dc.active')
-      .forEach((el) => wd.push(Number((el as HTMLElement).dataset.v)));
-    schedule = {
-      startHour: sh,
-      startMinute: sm,
-      lunchHour: lh,
-      lunchMinute: lm,
-      restEndHour: rh,
-      restEndMinute: rm,
-      endHour: eh,
-      endMinute: em,
-      workDays: wd,
-    };
-    await chrome.storage.sync.set({ [SS]: schedule });
-    rescaleSal(oldRate);
-    buildSalTimeline();
-    tickSalary();
-    showMessage('工作时间已保存', 'success');
-  });
-}
-async function renderSetSalary() {
-  const s = await getSal();
-  document.getElementById('settingsBody')!.innerHTML = `
-    <div class="f"><label>月薪（元）</label><input type="number" id="sSalInc" value="${s.monthlyIncome}" min="1" style="width:100%;padding:9px 12px;font-size:13px;border:0.5px solid var(--glass-border);border-radius:var(--radius-xs);background:rgba(255,255,255,0.5);color:var(--text);outline:none;font-family:inherit"/></div>
-    <div class="f"><label>发薪日</label><div style="display:flex;align-items:center;gap:8px"><span style="font-size:13px;color:var(--text-secondary)">每月</span><input type="number" id="sSalDay" value="${s.payDay}" min="1" max="31" style="width:80px;padding:9px 12px;font-size:13px;border:0.5px solid var(--glass-border);border-radius:var(--radius-xs);background:rgba(255,255,255,0.5);color:var(--text);outline:none;font-family:inherit;text-align:center"/><span style="font-size:13px;color:var(--text-secondary)">号</span></div></div>
-    <div class="f" style="font-size:11px;color:var(--text-tertiary)">工作日 21.75 天/月，薪资按 上班~下班 时段计算（含午休带薪）</div>
-    <button class="btn" id="sSalSave">保存</button>`;
-  document.getElementById('sSalSave')!.addEventListener('click', async () => {
-    const inc = Number((document.getElementById('sSalInc') as HTMLInputElement).value);
-    const d = Number((document.getElementById('sSalDay') as HTMLInputElement).value);
-    if (inc < 1 || d < 1 || d > 31) {
-      showMessage('请输入有效的月薪和发薪日', 'warning');
-      return;
-    }
-    const oldRate = salRate();
-    salStt = { monthlyIncome: inc, payDay: d };
-    await setSal(salStt);
-    rescaleSal(oldRate);
-    tickSalary();
-    showMessage('薪资设置已保存', 'success');
-  });
-}
-
 document.addEventListener('keydown', (e) => {
   if (e.key === 'Escape') {
     wm.classList.remove('open');
-    sm.classList.remove('open');
-    tk.classList.remove('open');
+    closeSettings();
   }
 });
 
@@ -706,309 +472,6 @@ async function initKeepOn(): Promise<void> {
   });
 }
 
-const LUNAR_MONTH = ['正', '二', '三', '四', '五', '六', '七', '八', '九', '十', '冬', '腊'];
-const LUNAR_DAY = [
-  '',
-  '初一',
-  '初二',
-  '初三',
-  '初四',
-  '初五',
-  '初六',
-  '初七',
-  '初八',
-  '初九',
-  '初十',
-  '十一',
-  '十二',
-  '十三',
-  '十四',
-  '十五',
-  '十六',
-  '十七',
-  '十八',
-  '十九',
-  '二十',
-  '廿一',
-  '廿二',
-  '廿三',
-  '廿四',
-  '廿五',
-  '廿六',
-  '廿七',
-  '廿八',
-  '廿九',
-  '三十',
-];
-const LUNAR_INFO = [
-  0x04bd8,
-  0x04ae0,
-  0x0a570,
-  0x054d5,
-  0x0d260,
-  0x0d950,
-  0x16554,
-  0x056a0,
-  0x09ad0,
-  0x055d2, //1900-1909
-  0x04ae0,
-  0x0a5b6,
-  0x0a4d0,
-  0x0d250,
-  0x1d255,
-  0x0b540,
-  0x0d6a0,
-  0x0ada2,
-  0x095b0,
-  0x14977, //1910-1919
-  0x04970,
-  0x0a4b0,
-  0x0b4b5,
-  0x06a50,
-  0x06d40,
-  0x1ab54,
-  0x02b60,
-  0x09570,
-  0x052f2,
-  0x04970, //1920-1929
-  0x06566,
-  0x0d4a0,
-  0x0ea50,
-  0x16a95,
-  0x05ad0,
-  0x02b60,
-  0x186e3,
-  0x092e0,
-  0x1c8d7,
-  0x0c950, //1930-1939
-  0x0d4a0,
-  0x1d8a6,
-  0x0b550,
-  0x056a0,
-  0x1a5b4,
-  0x025d0,
-  0x092d0,
-  0x0d2b2,
-  0x0a950,
-  0x0b557, //1940-1949
-  0x06ca0,
-  0x0b550,
-  0x15355,
-  0x04da0,
-  0x0a5b0,
-  0x14573,
-  0x052b0,
-  0x0a9a8,
-  0x0e950,
-  0x06aa0, //1950-1959
-  0x0aea6,
-  0x0ab50,
-  0x04b60,
-  0x0aae4,
-  0x0a570,
-  0x05260,
-  0x0f263,
-  0x0d950,
-  0x05b57,
-  0x056a0, //1960-1969
-  0x096d0,
-  0x04dd5,
-  0x04ad0,
-  0x0a4d0,
-  0x0d4d4,
-  0x0d250,
-  0x0d558,
-  0x0b540,
-  0x0b6a0,
-  0x195a6, //1970-1979
-  0x095b0,
-  0x049b0,
-  0x0a974,
-  0x0a4b0,
-  0x0b27a,
-  0x06a50,
-  0x06d40,
-  0x0af46,
-  0x0ab60,
-  0x09570, //1980-1989
-  0x04af5,
-  0x04970,
-  0x064b0,
-  0x074a3,
-  0x0ea50,
-  0x06b58,
-  0x05ac0,
-  0x0ab60,
-  0x096d5,
-  0x092e0, //1990-1999
-  0x0c960,
-  0x0d954,
-  0x0d4a0,
-  0x0da50,
-  0x07552,
-  0x056a0,
-  0x0abb7,
-  0x025d0,
-  0x092d0,
-  0x0cab5, //2000-2009
-  0x0a950,
-  0x0b4a0,
-  0x0baa4,
-  0x0ad50,
-  0x055d9,
-  0x04ba0,
-  0x0a5b0,
-  0x15176,
-  0x052b0,
-  0x0a930, //2010-2019
-  0x07954,
-  0x06aa0,
-  0x0ad50,
-  0x05b52,
-  0x04b60,
-  0x0a6e6,
-  0x0a4e0,
-  0x0d260,
-  0x0ea65,
-  0x0d530, //2020-2029
-  0x05aa0,
-  0x076a3,
-  0x096d0,
-  0x04afb,
-  0x04ad0,
-  0x0a4d0,
-  0x1d0b6,
-  0x0d250,
-  0x0d520,
-  0x0dd45, //2030-2039
-  0x0b5a0,
-  0x056d0,
-  0x055b2,
-  0x049b0,
-  0x0a577,
-  0x0a4b0,
-  0x0aa50,
-  0x1b255,
-  0x06d20,
-  0x0ada0, //2040-2049
-  0x14b63,
-  0x09370,
-  0x049f8,
-  0x04970,
-  0x064b0,
-  0x168a6,
-  0x0ea50,
-  0x06b20,
-  0x1a6c4,
-  0x0aae0, //2050-2059
-  0x092e0,
-  0x0d2e3,
-  0x0c960,
-  0x0d557,
-  0x0d4a0,
-  0x0da50,
-  0x05d55,
-  0x056a0,
-  0x0a6d0,
-  0x055d4, //2060-2069
-  0x052d0,
-  0x0a9b8,
-  0x0a950,
-  0x0b4a0,
-  0x0b6a6,
-  0x0ad50,
-  0x055a0,
-  0x0aba4,
-  0x0a5b0,
-  0x052b0, //2070-2079
-  0x0b273,
-  0x06930,
-  0x07337,
-  0x06aa0,
-  0x0ad50,
-  0x14b55,
-  0x04b60,
-  0x0a570,
-  0x054e4,
-  0x0d160, //2080-2089
-  0x0e968,
-  0x0d520,
-  0x0daa0,
-  0x16aa6,
-  0x056d0,
-  0x04ae0,
-  0x0a9d4,
-  0x0a2d0,
-  0x0d150,
-  0x0f252, //2090-2099
-  0x0d520, //2100
-];
-function lYearDays(y: number): number {
-  let s = 348;
-  for (let i = 0x8000; i > 0x8; i >>= 1) s += LUNAR_INFO[y - 1900] & i ? 1 : 0;
-  return s + lLeapDays(y);
-}
-function lLeapMonth(y: number): number {
-  return LUNAR_INFO[y - 1900] & 0xf;
-}
-function lLeapDays(y: number): number {
-  if (lLeapMonth(y)) return LUNAR_INFO[y - 1900] & 0x10000 ? 30 : 29;
-  return 0;
-}
-function lMonthDays(y: number, m: number): number {
-  return LUNAR_INFO[y - 1900] & (0x10000 >> m) ? 30 : 29;
-}
-function getLunar(
-  y: number,
-  m: number,
-  d: number,
-): { lm: number; ld: number; cM: string; cD: string } {
-  if (y < 1900 || y > 2100) return { lm: 0, ld: 0, cM: '', cD: '' };
-  let offset = Math.floor((Date.UTC(y, m - 1, d) - Date.UTC(1900, 0, 31)) / 86400000);
-  let i: number,
-    temp = 0;
-  for (i = 1900; i < 2101 && offset > 0; i++) {
-    temp = lYearDays(i);
-    offset -= temp;
-  }
-  if (offset < 0) {
-    offset += temp;
-    i--;
-  }
-  const ly = i;
-  const leap = lLeapMonth(ly);
-  let isLeap = false;
-  for (i = 1; i < 13 && offset > 0; i++) {
-    if (leap > 0 && i === leap + 1 && !isLeap) {
-      i--;
-      isLeap = true;
-      temp = lLeapDays(ly);
-    } else {
-      temp = lMonthDays(ly, i);
-    }
-    if (isLeap && i === leap + 1) isLeap = false;
-    offset -= temp;
-  }
-  if (offset === 0 && leap > 0 && i === leap + 1) {
-    if (isLeap) isLeap = false;
-    else {
-      isLeap = true;
-      i--;
-    }
-  }
-  if (offset < 0) {
-    offset += temp;
-    i--;
-  }
-  const lm = i,
-    ld = offset + 1;
-  return {
-    lm,
-    ld,
-    cM: (isLeap ? '闰' : '') + (LUNAR_MONTH[lm - 1] || ''),
-    cD: LUNAR_DAY[ld] || '',
-  };
-}
 function updT() {
   const n = new Date();
   const td = document.getElementById('timeDisplay');
@@ -1019,485 +482,6 @@ function updT() {
     const wk = '日一二三四五六'[n.getDay()];
     const lunar = l.ld > 0 ? ` <span class="d-lunar">${l.cM}月${l.cD}</span>` : '';
     dd.innerHTML = `<span class="d-year">${n.getFullYear()}年</span><span class="d-md">${pad(n.getMonth() + 1)}月${pad(n.getDate())}日</span> <span class="d-week">星期${wk}</span>${lunar}`;
-  }
-}
-
-async function loadSal() {
-  salStt = await getSal();
-}
-// ── 薪资明细状态（工作/摸鱼/休息 三项累计，每日重置，刷新补足）──
-const SAL_KEY = 'moyu_salary_state';
-const FISH_MULT = 0.269;
-interface SalState {
-  date: string;
-  mode: 'work' | 'fish';
-  workIncome: number;
-  fishIncome: number;
-  restIncome: number;
-  workSeconds: number;
-  fishSeconds: number;
-  lastUpdate: number;
-}
-let salState: SalState = {
-  date: '',
-  mode: 'work',
-  workIncome: 0,
-  fishIncome: 0,
-  restIncome: 0,
-  workSeconds: 0,
-  fishSeconds: 0,
-  lastUpdate: Date.now(),
-};
-function salToday() {
-  const n = new Date();
-  return `${n.getFullYear()}-${n.getMonth() + 1}-${n.getDate()}`;
-}
-function salRate() {
-  const start = schedule.startHour * 3600 + schedule.startMinute * 60;
-  const off = schedule.endHour * 3600 + schedule.endMinute * 60;
-  const daySec = off - start;
-  if (daySec <= 0) return 0;
-  return salStt.monthlyIncome / WDPM / daySec;
-}
-function backfillFromStart() {
-  const n = new Date();
-  salState.workIncome = 0;
-  salState.fishIncome = 0;
-  salState.restIncome = 0;
-  salState.workSeconds = 0;
-  salState.fishSeconds = 0;
-  salState.mode = 'work';
-  salState.lastUpdate = Date.now();
-  if (!schedule.workDays.includes(n.getDay())) return;
-  const { start, lunch, restEnd, off } = salBandTimes();
-  const rate = salRate();
-  if (rate <= 0) return;
-  const cur = n.getHours() * 3600 + n.getMinutes() * 60 + n.getSeconds();
-  let workBand = 0;
-  if (cur > start) workBand += Math.max(0, Math.min(cur, lunch) - start);
-  if (cur > restEnd) workBand += Math.max(0, Math.min(cur, off) - restEnd);
-  const restBand = cur > lunch ? Math.max(0, Math.min(cur, restEnd) - lunch) : 0;
-  salState.workIncome = workBand * rate;
-  salState.workSeconds = workBand;
-  salState.restIncome = restBand * rate;
-}
-function loadSalState() {
-  const today = salToday();
-  try {
-    const raw = localStorage.getItem(SAL_KEY);
-    if (raw) {
-      const d = JSON.parse(raw) as Partial<SalState>;
-      if (d.date === today) {
-        salState = { ...salState, ...d, date: today } as SalState;
-        const diff = Math.floor((Date.now() - (d.lastUpdate || Date.now())) / 1000);
-        if (diff > 0 && diff < 86400) recoverGap(diff);
-      } else {
-        backfillFromStart();
-        salState.date = today;
-      }
-    } else {
-      backfillFromStart();
-      salState.date = today;
-    }
-  } catch {
-    backfillFromStart();
-    salState.date = today;
-  }
-}
-function recoverGap(diff: number) {
-  const n = new Date();
-  if (!schedule.workDays.includes(n.getDay())) return;
-  const cur = n.getHours() * 3600 + n.getMinutes() * 60 + n.getSeconds();
-  const start = schedule.startHour * 3600 + schedule.startMinute * 60;
-  const lunch = schedule.lunchHour * 3600 + schedule.lunchMinute * 60;
-  const restEnd = schedule.restEndHour * 3600 + schedule.restEndMinute * 60;
-  const off = schedule.endHour * 3600 + schedule.endMinute * 60;
-  const rate = salRate();
-  const inWork = (cur >= start && cur < lunch) || (cur >= restEnd && cur < off);
-  const inRest = cur >= lunch && cur < restEnd;
-  if (inWork) {
-    if (salState.mode === 'work') {
-      salState.workIncome += diff * rate;
-      salState.workSeconds += diff;
-    } else {
-      salState.fishIncome += diff * rate * FISH_MULT;
-      salState.fishSeconds += diff;
-    }
-  } else if (inRest) {
-    salState.restIncome += diff * rate;
-  }
-}
-function rescaleSal(oldRate: number) {
-  const newRate = salRate();
-  if (oldRate > 0 && newRate > 0) {
-    const ratio = newRate / oldRate;
-    salState.workIncome *= ratio;
-    salState.fishIncome *= ratio;
-    salState.restIncome *= ratio;
-  }
-  saveSalState();
-}
-function saveSalState() {
-  salState.lastUpdate = Date.now();
-  try {
-    localStorage.setItem(SAL_KEY, JSON.stringify(salState));
-  } catch {}
-}
-function toMoney(v: number) {
-  return '¥' + v.toFixed(2);
-}
-function toTime(sec: number) {
-  const h = Math.floor(sec / 3600),
-    m = Math.floor((sec % 3600) / 60),
-    s = Math.floor(sec % 60);
-  return `${pad(h)}:${pad(m)}:${pad(s)}`;
-}
-function salBandTimes() {
-  const start = schedule.startHour * 3600 + schedule.startMinute * 60;
-  const lunch = schedule.lunchHour * 3600 + schedule.lunchMinute * 60;
-  const restEnd = schedule.restEndHour * 3600 + schedule.restEndMinute * 60;
-  const off = schedule.endHour * 3600 + schedule.endMinute * 60;
-  return { start, lunch, restEnd, off };
-}
-function buildSalTimeline() {
-  const track = document.getElementById('salTrack');
-  if (!track) return;
-  const { start, lunch, restEnd, off } = salBandTimes();
-  const total = off - start;
-  if (total <= 0) {
-    track.innerHTML = '';
-    return;
-  }
-  const mPct = ((lunch - start) / total) * 100;
-  const rPct = ((restEnd - lunch) / total) * 100;
-  const aPct = ((off - restEnd) / total) * 100;
-  const fmt = (s: number) => `${pad(Math.floor(s / 3600))}:${pad(Math.floor((s % 3600) / 60))}`;
-  const fmtDur = (s: number) => (s / 3600).toFixed(2).replace(/\.?0+$/, '') + 'h';
-  track.innerHTML =
-    `<div class="sal-seg seg-work" style="left:0;width:${mPct}%">上午 ${fmtDur(lunch - start)}</div>` +
-    `<div class="sal-seg seg-rest" style="left:${mPct}%;width:${rPct}%">午休 ${fmtDur(restEnd - lunch)}</div>` +
-    `<div class="sal-seg seg-work" style="left:${mPct + rPct}%;width:${aPct}%">下午 ${fmtDur(off - restEnd)}</div>`;
-  const ticks = document.getElementById('salTicks');
-  if (ticks)
-    ticks.innerHTML = `<div>${fmt(start)}</div><div>${fmt(lunch)}</div><div>${fmt(restEnd)}</div><div>${fmt(off)}</div>`;
-}
-function tickSalary() {
-  const amt = document.getElementById('salAmount'),
-    workEl = document.getElementById('salWork'),
-    fishEl = document.getElementById('salFish'),
-    restEl = document.getElementById('salRest'),
-    timerEl = document.getElementById('salTimer'),
-    ind = document.getElementById('salIndicator'),
-    cd = document.getElementById('salCountdown'),
-    pdp = document.getElementById('salPayDay');
-  const n = new Date(),
-    wd = n.getDay();
-  const cur = n.getHours() * 3600 + n.getMinutes() * 60 + n.getSeconds();
-  const { start, lunch, restEnd, off } = salBandTimes();
-  const isWorkday = schedule.workDays.includes(wd);
-  const rate = salRate();
-
-  // 按时段累计明细收入
-  if (isWorkday) {
-    const inWork = (cur >= start && cur < lunch) || (cur >= restEnd && cur < off);
-    const inRest = cur >= lunch && cur < restEnd;
-    if (inWork) {
-      if (salState.mode === 'work') {
-        salState.workIncome += rate;
-        salState.workSeconds++;
-      } else {
-        salState.fishIncome += rate * FISH_MULT;
-        salState.fishSeconds++;
-      }
-    } else if (inRest) {
-      salState.restIncome += rate;
-    }
-  }
-
-  // 金额与明细
-  const total = salState.workIncome + salState.fishIncome + salState.restIncome;
-  if (amt) amt.textContent = toMoney(total);
-  if (workEl) workEl.textContent = toMoney(salState.workIncome);
-  if (fishEl) fishEl.textContent = toMoney(salState.fishIncome);
-  if (restEl) restEl.textContent = toMoney(salState.restIncome);
-
-  // 状态计时器
-  if (timerEl)
-    timerEl.textContent = toTime(
-      salState.mode === 'work' ? salState.workSeconds : salState.fishSeconds,
-    );
-
-  // 指示针
-  if (ind) {
-    if (isWorkday && off > start) {
-      ind.style.display = 'block';
-      let pct = 0;
-      if (cur < start) pct = 0;
-      else if (cur > off) pct = 100;
-      else pct = ((cur - start) / (off - start)) * 100;
-      ind.style.left = pct + '%';
-    } else {
-      ind.style.display = 'none';
-    }
-  }
-
-  // 倒计时
-  if (cd) {
-    if (!isWorkday) {
-      cd.innerHTML = '周末双休，享受生活';
-    } else {
-      let target = 0,
-        label = '';
-      if (cur < start) {
-        target = start;
-        label = '距离上班还有';
-      } else if (cur < lunch) {
-        target = lunch;
-        label = '距离午休还有';
-      } else if (cur < restEnd) {
-        target = restEnd;
-        label = '午休中 · 距离上班还有';
-      } else if (cur < off) {
-        target = off;
-        label = '距离下班还有';
-      } else {
-        target = start + 86400;
-        label = '距离明早上班还有';
-      }
-      let diff = target - cur;
-      if (diff < 0) diff = 0;
-      cd.innerHTML = `${label} <span>${toTime(diff)}</span>`;
-    }
-  }
-
-  // 发薪日
-  if (pdp) {
-    const y = n.getFullYear(),
-      m = n.getMonth(),
-      d = n.getDate();
-    let next = new Date(y, m, salStt.payDay);
-    if (d >= salStt.payDay) next = new Date(y, m + 1, salStt.payDay);
-    const diff = Math.ceil((next.getTime() - new Date(y, m, d).getTime()) / 86400000);
-    pdp.textContent =
-      diff === 0
-        ? '今天发薪日'
-        : '距离发薪 · ' +
-          diff +
-          ' 天 · ' +
-          pad(next.getMonth() + 1) +
-          '月' +
-          pad(salStt.payDay) +
-          '日';
-  }
-
-  saveSalState();
-}
-function initSalary() {
-  loadSalState();
-  buildSalTimeline();
-  document.querySelectorAll('#salToggle .sal-tb').forEach((b) => {
-    b.classList.toggle('active', (b as HTMLElement).dataset.mode === salState.mode);
-    b.addEventListener('click', function (this: HTMLElement) {
-      const m = this.dataset.mode as 'work' | 'fish';
-      if (!m || salState.mode === m) return;
-      salState.mode = m;
-      document.querySelectorAll('#salToggle .sal-tb').forEach((x) => x.classList.remove('active'));
-      this.classList.add('active');
-      saveSalState();
-    });
-  });
-  tickSalary();
-}
-
-let schedule: Sch = { ...DS };
-async function loadSch() {
-  const r = await chrome.storage.sync.get(SS);
-  if (r[SS]) schedule = { ...DS, ...r[SS] };
-}
-
-// ── Wallpaper ──
-const WP_KEY = 'moyu_wallpaper';
-// 默认壁纸：SVG 渐变（硬编码，零文件零存储）
-const DEFAULT_WP_SVG = `<svg xmlns='http://www.w3.org/2000/svg' width='1440' height='900'><defs><linearGradient id='g' x1='0' y1='0' x2='1' y2='1'><stop offset='0%' stop-color='#fde68a'/><stop offset='50%' stop-color='#fca5a5'/><stop offset='100%' stop-color='#a5b4fc'/></linearGradient></defs><rect width='100%' height='100%' fill='url(#g)'/></svg>`;
-const DEFAULT_WP_URL = `url("data:image/svg+xml,${encodeURIComponent(DEFAULT_WP_SVG)}")`;
-const WP_DB = 'moyu_db';
-const WP_STORE = 'wallpaper';
-const WP_REC_ID = 'custom';
-let curObjUrl = '';
-let wpPreviewUrl = '';
-const ctxMenu = document.getElementById('ctxMenu')!;
-const wpModal = document.getElementById('wallpaperModal')!;
-document
-  .getElementById('wpClose')!
-  .addEventListener('click', () => wpModal.classList.remove('open'));
-wpModal.addEventListener('click', (e) => {
-  if (e.target === wpModal) wpModal.classList.remove('open');
-});
-document.addEventListener('contextmenu', (e) => {
-  e.preventDefault();
-  ctxMenu.style.left = e.clientX + 'px';
-  ctxMenu.style.top = e.clientY + 'px';
-  ctxMenu.classList.add('open');
-});
-document.addEventListener('click', () => ctxMenu.classList.remove('open'));
-document.getElementById('ctxWidgets')!.addEventListener('click', () => {
-  ctxMenu.classList.remove('open');
-  openWidgetModal(false);
-});
-document.getElementById('ctxWallpaper')!.addEventListener('click', async () => {
-  ctxMenu.classList.remove('open');
-  await openWallpaperModal();
-});
-
-// IndexedDB 轻封装：单条 Blob 记录（用户壁纸）
-function idbOpen(): Promise<IDBDatabase> {
-  return new Promise((resolve, reject) => {
-    const req = indexedDB.open(WP_DB, 1);
-    req.onupgradeneeded = () => req.result.createObjectStore(WP_STORE);
-    req.onsuccess = () => resolve(req.result);
-    req.onerror = () => reject(req.error);
-  });
-}
-async function idbPutBlob(blob: Blob) {
-  const db = await idbOpen();
-  await new Promise<void>((resolve, reject) => {
-    const tx = db.transaction(WP_STORE, 'readwrite');
-    tx.objectStore(WP_STORE).put(blob, WP_REC_ID);
-    tx.oncomplete = () => resolve();
-    tx.onerror = () => reject(tx.error);
-  });
-  db.close();
-}
-async function idbGetBlob(): Promise<Blob | null> {
-  const db = await idbOpen();
-  const blob = await new Promise<Blob | null>((resolve) => {
-    const tx = db.transaction(WP_STORE, 'readonly');
-    const req = tx.objectStore(WP_STORE).get(WP_REC_ID);
-    req.onsuccess = () => resolve((req.result as Blob) ?? null);
-    req.onerror = () => resolve(null);
-  });
-  db.close();
-  return blob;
-}
-async function idbDelBlob() {
-  const db = await idbOpen();
-  await new Promise<void>((resolve, reject) => {
-    const tx = db.transaction(WP_STORE, 'readwrite');
-    tx.objectStore(WP_STORE).delete(WP_REC_ID);
-    tx.oncomplete = () => resolve();
-    tx.onerror = () => reject(tx.error);
-  });
-  db.close();
-}
-// 压缩图片：最大边 1920，JPEG 质量 0.85，避免 IndexedDB 占用过大
-function compressImage(file: File): Promise<Blob> {
-  return new Promise((resolve, reject) => {
-    const u = URL.createObjectURL(file);
-    const img = new Image();
-    img.onload = () => {
-      URL.revokeObjectURL(u);
-      const maxSide = 1920;
-      let w = img.width,
-        h = img.height;
-      if (w > maxSide || h > maxSide) {
-        if (w >= h) {
-          h = Math.round((h * maxSide) / w);
-          w = maxSide;
-        } else {
-          w = Math.round((w * maxSide) / h);
-          h = maxSide;
-        }
-      }
-      const c = document.createElement('canvas');
-      c.width = w;
-      c.height = h;
-      c.getContext('2d')!.drawImage(img, 0, 0, w, h);
-      c.toBlob((b) => (b ? resolve(b) : reject(new Error('toBlob'))), 'image/jpeg', 0.85);
-    };
-    img.onerror = () => {
-      URL.revokeObjectURL(u);
-      reject(new Error('load'));
-    };
-    img.src = u;
-  });
-}
-// 应用壁纸：custom 读 IndexedDB Blob，default 用内置 SVG
-async function applyWallpaper(mode: 'default' | 'custom') {
-  if (curObjUrl) {
-    URL.revokeObjectURL(curObjUrl);
-    curObjUrl = '';
-  }
-  if (mode === 'custom') {
-    const blob = await idbGetBlob();
-    if (blob) {
-      curObjUrl = URL.createObjectURL(blob);
-      document.body.style.backgroundImage = `url(${curObjUrl})`;
-      localStorage.setItem(WP_KEY, 'custom');
-      return;
-    }
-  }
-  document.body.style.backgroundImage = DEFAULT_WP_URL;
-  localStorage.setItem(WP_KEY, 'default');
-}
-
-async function openWallpaperModal() {
-  if (wpPreviewUrl) {
-    URL.revokeObjectURL(wpPreviewUrl);
-    wpPreviewUrl = '';
-  }
-  const mode = (localStorage.getItem(WP_KEY) as 'default' | 'custom') || 'default';
-  let bg = DEFAULT_WP_URL;
-  if (mode === 'custom') {
-    const blob = await idbGetBlob();
-    if (blob) {
-      wpPreviewUrl = URL.createObjectURL(blob);
-      bg = `url(${wpPreviewUrl})`;
-    }
-  }
-  document.getElementById('wpBody')!.innerHTML = `
-    <div class="wp-preview" style="background-image:${bg}"></div>
-    <div class="wp-status">${mode === 'custom' ? '当前：自定义壁纸' : '当前：默认壁纸'}</div>
-    <div class="wp-actions">
-      <input type="file" id="wpUpload" accept="image/*" style="display:none"/>
-      <button class="wp-btn" id="wpUploadBtn">上传壁纸</button>
-      ${mode === 'custom' ? '<button class="wp-btn wp-btn-ghost" id="wpReset">恢复默认</button>' : ''}
-    </div>
-    <div class="wp-hint">上传将替换当前壁纸（仅保留一张）</div>`;
-  wpModal.classList.add('open');
-  const fileInput = document.getElementById('wpUpload') as HTMLInputElement;
-  document.getElementById('wpUploadBtn')!.addEventListener('click', () => fileInput.click());
-  fileInput.onchange = async () => {
-    const f = fileInput.files?.[0];
-    if (!f) return;
-    try {
-      const blob = await compressImage(f);
-      await idbPutBlob(blob);
-      await applyWallpaper('custom');
-    } catch {
-      const h = document.querySelector('.wp-hint');
-      if (h) h.textContent = '⚠ 图片加载失败，请换一张';
-      return;
-    }
-    fileInput.value = '';
-    openWallpaperModal();
-  };
-  document.getElementById('wpReset')?.addEventListener('click', async () => {
-    await idbDelBlob();
-    await applyWallpaper('default');
-    openWallpaperModal();
-  });
-}
-
-function loadWallpaper() {
-  // 先立即应用默认壁纸，避免首屏空白；若用户设过自定义则异步加载替换
-  document.body.style.backgroundImage = DEFAULT_WP_URL;
-  const m = localStorage.getItem(WP_KEY);
-  if (m === 'custom') {
-    applyWallpaper('custom');
-  } else if (m && m !== 'default') {
-    // 旧版本曾把 dataUrl 直接写进 localStorage，清理残留并释放空间
-    localStorage.removeItem(WP_KEY);
-    chrome.storage.local.remove('moyu_wp_list');
   }
 }
 
@@ -1680,177 +664,6 @@ function initSalaryPopover() {
   setupHeaderPopover('timeDisplay', 'salPopover');
 }
 
-// ── 左下角媒体（♪ 图标 → 弹出 APlayer + 视频弹窗）──
-const MUSIC_API = 'https://api.i-meto.com/meting/api?server=netease&type=playlist&id=3778678&r=';
-let musicInited = false;
-
-async function ensureMusic() {
-  if (musicInited) return;
-  const container = document.getElementById('musicPlayer');
-  if (!container) return;
-  musicInited = true;
-  container.innerHTML = '<div class="hot-empty">加载中…</div>';
-  try {
-    const res = await fetch(MUSIC_API + Math.random());
-    if (!res.ok) throw new Error('HTTP ' + res.status);
-    const data = (await res.json()) as any[];
-    if (!Array.isArray(data) || !data.length) throw new Error('empty');
-    const audio = data.map((s) => ({
-      name: s.title || '未知',
-      artist: s.author || '',
-      url: s.url,
-      cover: s.pic,
-      lrc: s.lrc,
-    }));
-    container.innerHTML = '';
-    new APlayer({
-      container: container as HTMLElement,
-      audio,
-      autoplay: false,
-      theme: '#d97706',
-      listFolded: false,
-      loop: 'all',
-      order: 'list',
-      listMaxHeight: '260px',
-      lrcType: 1,
-    });
-  } catch {
-    container.innerHTML = '<div class="hot-empty">⚠ 加载失败 · 点击重试</div>';
-    container.onclick = () => {
-      musicInited = false;
-      ensureMusic();
-    };
-    musicInited = false;
-  }
-}
-function closeMediaPanel() {
-  document.getElementById('mediaPanel')?.classList.remove('open');
-  document.getElementById('mediaFab')?.classList.remove('active');
-}
-function toggleMediaPanel() {
-  const panel = document.getElementById('mediaPanel');
-  if (!panel) return;
-  const willOpen = !panel.classList.contains('open');
-  if (willOpen) {
-    panel.classList.add('open');
-    document.getElementById('mediaFab')?.classList.add('active');
-    closeMePanel();
-    ensureMusic();
-  } else {
-    closeMediaPanel();
-  }
-}
-function closeMePanel() {
-  document.getElementById('mePanel')?.classList.remove('open');
-  document.getElementById('meFab')?.classList.remove('active');
-}
-function toggleMePanel() {
-  const panel = document.getElementById('mePanel');
-  if (!panel) return;
-  const willOpen = !panel.classList.contains('open');
-  if (willOpen) {
-    panel.classList.add('open');
-    document.getElementById('meFab')?.classList.add('active');
-    closeMediaPanel();
-  } else {
-    closeMePanel();
-  }
-}
-function openVideoModal() {
-  const modal = document.getElementById('videoModal');
-  if (!modal) return;
-  const frame = document.getElementById('tvFrame') as HTMLIFrameElement | null;
-  if (frame && !frame.src) {
-    frame.src = `http://app.conan.js.cn/tv?v=${new Date().toISOString().slice(0, 10)}`;
-  }
-  modal.classList.add('open');
-}
-function closeVideoModal() {
-  document.getElementById('videoModal')?.classList.remove('open');
-}
-function initMedia() {
-  document.getElementById('meFab')?.addEventListener('click', () => toggleMePanel());
-  document.getElementById('mediaFab')?.addEventListener('click', () => toggleMediaPanel());
-  document.getElementById('mbVideo')?.addEventListener('click', openVideoModal);
-  document.getElementById('vmClose')?.addEventListener('click', closeVideoModal);
-  document.getElementById('videoModal')?.addEventListener('click', (e) => {
-    if (e.target === document.getElementById('videoModal')) closeVideoModal();
-  });
-  document.addEventListener('click', (e) => {
-    const mp = document.getElementById('mediaPanel');
-    const mep = document.getElementById('mePanel');
-    const t = e.target as HTMLElement | null;
-    if (
-      mp?.classList.contains('open') &&
-      !(t && (t.closest('.media-dock') || t.closest('.aplayer-lrc')))
-    ) {
-      closeMediaPanel();
-    }
-    if (mep?.classList.contains('open') && !(t && t.closest('.media-dock'))) {
-      closeMePanel();
-    }
-  });
-  document.addEventListener('keydown', (e) => {
-    if ((e as KeyboardEvent).key !== 'Escape') return;
-    closeMediaPanel();
-    closeMePanel();
-    closeVideoModal();
-  });
-}
-
-// ── 顶部搜索框 ──
-const SB_KEY = 'moyu_search_engine';
-const ENGINES: { name: string; url: string }[] = [
-  { name: '百度', url: 'https://www.baidu.com/s?wd=' },
-  { name: 'Google', url: 'https://www.google.com/search?q=' },
-  { name: '必应', url: 'https://www.bing.com/search?q=' },
-  { name: '搜狗', url: 'https://www.sogou.com/web?query=' },
-];
-let sbCur = ENGINES[0];
-function initWebSearch() {
-  const found = ENGINES.find((e) => e.name === localStorage.getItem(SB_KEY));
-  if (found) sbCur = found;
-  const nameEl = document.getElementById('sbEngineName');
-  const listEl = document.getElementById('sbEngineList');
-  const ddEl = document.getElementById('sbEngine');
-  const inputEl = document.getElementById('sbInput') as HTMLInputElement | null;
-  if (!nameEl || !listEl || !ddEl || !inputEl) return;
-  nameEl.textContent = sbCur.name;
-  listEl.innerHTML = ENGINES.map(
-    (e) =>
-      `<div class="sb-engine-opt${e.name === sbCur.name ? ' active' : ''}" data-name="${e.name}">${e.name}</div>`,
-  ).join('');
-  document.getElementById('sbEngineBtn')?.addEventListener('click', (e) => {
-    e.stopPropagation();
-    ddEl.classList.toggle('open');
-  });
-  listEl.querySelectorAll('.sb-engine-opt').forEach((opt) =>
-    opt.addEventListener('click', (e) => {
-      e.stopPropagation();
-      const name = (opt as HTMLElement).dataset.name!;
-      const eng = ENGINES.find((x) => x.name === name);
-      if (!eng) return;
-      sbCur = eng;
-      localStorage.setItem(SB_KEY, eng.name);
-      nameEl.textContent = eng.name;
-      listEl
-        .querySelectorAll('.sb-engine-opt')
-        .forEach((o) => o.classList.toggle('active', (o as HTMLElement).dataset.name === name));
-      ddEl.classList.remove('open');
-      inputEl.focus();
-    }),
-  );
-  document.addEventListener('click', () => ddEl.classList.remove('open'));
-  const doSearch = () => {
-    const q = inputEl.value.trim();
-    if (!q) return;
-    window.open(sbCur.url + encodeURIComponent(q), '_blank', 'noopener');
-  };
-  document.getElementById('sbGo')?.addEventListener('click', doSearch);
-  inputEl.addEventListener('keydown', (e) => {
-    if ((e as KeyboardEvent).key === 'Enter') doSearch();
-  });
-}
 /** 渲染顶部快捷入口行（搜索框下方）：由 DOCK_ITEMS 配置驱动，复用市场卡片的 mkt-link-chip 胶囊样式 */
 function renderTopDock() {
   const dock = document.getElementById('topDock');

@@ -53,7 +53,6 @@ export const CAT_TREE: TopCat[] = [
     name: '资讯',
     icon: ICONS.news,
     subs: [
-      { id: 'hot', name: '热搜' },
       { id: 'news', name: '资讯' },
       { id: 'community', name: '社区' },
       { id: 'stats', name: '网站统计' },
@@ -85,16 +84,9 @@ export const CAT_TREE: TopCat[] = [
       { id: 'translate', name: '翻译' },
     ],
   },
-  {
-    id: 'life',
-    name: '生活',
-    icon: ICONS.life,
-    subs: [{ id: 'food', name: '今天吃什么' }],
-  },
 ];
 
 export const ALL_WIDGETS: WID[] = [
-  { id: 'hot', name: '热搜', desc: '微博/B站/百度/掘金热榜', cat: 'news', sub: 'hot' },
   { id: 'news', name: '资讯', desc: 'AI精选/知乎日报/财经快讯', cat: 'news', sub: 'news' },
   {
     id: 'community',
@@ -139,6 +131,5 @@ export const ALL_WIDGETS: WID[] = [
     cat: 'bookmark',
     sub: 'toolbox',
   },
-  { id: 'food', name: '今天吃什么', desc: '随机推荐一道菜', cat: 'life', sub: 'food' },
   { id: 'stats', name: '网站统计', desc: '今日上网时长排行', cat: 'news', sub: 'stats' },
 ];

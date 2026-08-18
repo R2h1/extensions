@@ -8,6 +8,7 @@
     "build": "npm run build:bundle && npm run build:copy",
     "build:bundle": "node scripts/build-bundle.cjs",
     "build:copy": "node scripts/copy-assets.cjs",
+    "typecheck": "tsc --noEmit",
     "clean": "node -e \"fs.rmSync('dist',{recursive:true,force:true})\""
   },
   "devDependencies": {

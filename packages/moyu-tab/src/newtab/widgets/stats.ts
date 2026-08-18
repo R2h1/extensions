@@ -47,7 +47,7 @@ function fmtShort(ms: number): string {
   if (m > 0) return `${m}分${s}秒`;
   return `${s}秒`;
 }
-function loadCache(): Record<Period, StatsCache> {
+function loadCache(): Record<Period, StatsCache | undefined> {
   try {
     const r = localStorage.getItem(ST_KEY);
     const o = r ? JSON.parse(r) : {};
@@ -113,9 +113,10 @@ async function refreshStats() {
   statsLoading = true;
   btn?.classList.add('spin');
   try {
-    const res = (await chrome.runtime.sendMessage({ type: 'TRACKER_RANKINGS', period: activePeriod })) as
-      | StatsRow[]
-      | undefined;
+    const res = (await chrome.runtime.sendMessage({
+      type: 'TRACKER_RANKINGS',
+      period: activePeriod,
+    })) as StatsRow[] | undefined;
     if (Array.isArray(res)) {
       saveCache(activePeriod, { rows: res, ts: Date.now() });
       statsLastFetch = Date.now();
@@ -134,9 +135,9 @@ async function refreshStats() {
 function switchPeriod(p: Period) {
   if (p === activePeriod) return;
   activePeriod = p;
-  document.querySelectorAll('.stats-tab').forEach((b) =>
-    b.classList.toggle('active', (b as HTMLElement).dataset.period === p),
-  );
+  document
+    .querySelectorAll('.stats-tab')
+    .forEach((b) => b.classList.toggle('active', (b as HTMLElement).dataset.period === p));
   const c = loadCache()[p];
   if (c) {
     renderBody(false);
@@ -155,9 +156,11 @@ function onStatsVis() {
 export async function initStats() {
   renderBody(false);
   document.getElementById('statsRefresh')?.addEventListener('click', refreshStats);
-  document.querySelectorAll('.stats-tab').forEach((b) =>
-    b.addEventListener('click', () => switchPeriod((b as HTMLElement).dataset.period as Period)),
-  );
+  document
+    .querySelectorAll('.stats-tab')
+    .forEach((b) =>
+      b.addEventListener('click', () => switchPeriod((b as HTMLElement).dataset.period as Period)),
+    );
   if (statsInited) return;
   statsInited = true;
   refreshStats();

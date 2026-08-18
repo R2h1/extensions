@@ -40,9 +40,11 @@ async function doSearch() {
   list.innerHTML = '<div class="hot-empty">搜索中…</div>';
   try {
     const key = await loadWereadKey();
-    const res = (await chrome.runtime.sendMessage({ type: 'WEREAD_SEARCH_FETCH', apiKey: key, keyword: kw })) as
-      | { success: boolean; data?: { books: SRBook[] }; error?: string }
-      | undefined;
+    const res = (await chrome.runtime.sendMessage({
+      type: 'WEREAD_SEARCH_FETCH',
+      apiKey: key,
+      keyword: kw,
+    })) as { success: boolean; data?: { books: SRBook[] }; error?: string } | undefined;
     if (res?.success && res.data?.books?.length) {
       list.innerHTML = `<div class="wr-rec-grid">${res.data.books
         .map((b) => {

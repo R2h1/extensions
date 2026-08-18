@@ -174,7 +174,9 @@ async function flushData(): Promise<void> {
 }
 async function saveSessionMeta() {
   try {
-    await chrome.storage.local.set({ [SESSION_KEY]: { domain: activeDomain, lastTick: Date.now() } as SessionMeta });
+    await chrome.storage.local.set({
+      [SESSION_KEY]: { domain: activeDomain, lastTick: Date.now() } as SessionMeta,
+    });
   } catch {
     /* ignore */
   }
@@ -258,19 +260,25 @@ function dateRange(period: 'day' | 'week' | 'month'): string[] {
     for (let i = offset; i <= 0; i++) {
       const d = new Date(now);
       d.setDate(d.getDate() + i);
-      dates.push(`${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`);
+      dates.push(
+        `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`,
+      );
     }
     return dates;
   }
   if (period === 'month') {
     const days = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
     for (let day = 1; day <= days; day++) {
-      dates.push(`${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`);
+      dates.push(
+        `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`,
+      );
     }
   }
   return dates;
 }
-export async function getSiteRankings(period: 'day' | 'week' | 'month'): Promise<SiteRankingItem[]> {
+export async function getSiteRankings(
+  period: 'day' | 'week' | 'month',
+): Promise<SiteRankingItem[]> {
   await flushData(); // 先把内存最新时长落盘，再读回，避免读到旧数据
   await loadData();
   const keys = dateRange(period);

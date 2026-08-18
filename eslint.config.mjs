@@ -52,6 +52,9 @@ export default tseslint.config(
 
       // Empty function body allowed for no-ops
       '@typescript-eslint/no-empty-function': 'warn',
+
+      // 允许空 catch 块（localStorage/API 错误一律吞掉的既有模式）
+      'no-empty': ['error', { allowEmptyCatch: true }],
     },
   },
 

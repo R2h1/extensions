@@ -97,7 +97,9 @@ async function renderRD(error?: string) {
         .map((b, i) => {
           const author = b.author ? ` <span class="weread-author">· ${esc(b.author)}</span>` : '';
           const t = b.readTime ? `<span class="hot-num">${fmtDuration(b.readTime)}</span>` : '';
-          const href = b.deepLink ? ` href="${esc(b.deepLink)}" target="_blank" rel="noopener"` : '';
+          const href = b.deepLink
+            ? ` href="${esc(b.deepLink)}" target="_blank" rel="noopener"`
+            : '';
           return `<a class="hot-row"${href}><span class="hot-rank${i < 3 ? ' top' : ''}">${i + 1}</span><span class="hot-title">${esc(b.title)}${author}</span>${t}</a>`;
         })
         .join('')
@@ -121,9 +123,10 @@ async function refreshRD() {
   const btn = document.getElementById('readdataRefresh');
   btn?.classList.add('spin');
   try {
-    const res = (await chrome.runtime.sendMessage({ type: 'WEREAD_READDATA_FETCH', apiKey: key })) as
-      | { success: boolean; data?: RDStat; error?: string }
-      | undefined;
+    const res = (await chrome.runtime.sendMessage({
+      type: 'WEREAD_READDATA_FETCH',
+      apiKey: key,
+    })) as { success: boolean; data?: RDStat; error?: string } | undefined;
     if (res?.success && res.data) {
       saveCache({ stat: res.data, ts: Date.now() });
       rdLastFetch = Date.now();

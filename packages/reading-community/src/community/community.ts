@@ -130,7 +130,6 @@ function escapeHtml(str: string): string {
 }
 
 function renderNoteCard(note: NoteRecord, isMyNote = false): string {
-  const timeAgo = formatDate(note.timestamp);
   const isQuote = note.type === '摘录';
   const contentClass = isQuote ? 'content quote' : 'content';
   const userLabel = isMyNote ? '我' : escapeHtml(note.book.charAt(0));
@@ -176,7 +175,8 @@ async function loadHomeFeed(): Promise<void> {
 
   const notes = await sendMessage<NoteRecord[]>('GET_NOTES');
   if (!notes || notes.length === 0) {
-    feed.innerHTML = '<div class="empty-state"><i class="far fa-book-open"></i><p>还没有笔记，来写第一篇吧</p></div>';
+    feed.innerHTML =
+      '<div class="empty-state"><i class="far fa-book-open"></i><p>还没有笔记，来写第一篇吧</p></div>';
     return;
   }
 
@@ -229,9 +229,7 @@ async function publishNote(): Promise<void> {
     return;
   }
 
-  const typeRadio = document.querySelector<HTMLInputElement>(
-    'input[name="noteType"]:checked',
-  );
+  const typeRadio = document.querySelector<HTMLInputElement>('input[name="noteType"]:checked');
   const type = (typeRadio?.value as NoteRecord['type']) || '笔记';
 
   const newNote: NoteRecord = {
@@ -266,11 +264,11 @@ async function loadProfile(): Promise<void> {
   // 加载用户信息
   const profile = await sendMessage<UserProfile>('GET_PROFILE');
   if (profile) {
-    (document.getElementById('profile-name')!).textContent = profile.name;
-    (document.getElementById('profile-bio')!).textContent = profile.bio || '读万卷书，行万里路。';
-    (document.getElementById('stat-notes')!).textContent = String(profile.notes);
-    (document.getElementById('stat-favorites')!).textContent = String(profile.favorites);
-    (document.getElementById('stat-booklists')!).textContent = String(profile.booklists);
+    document.getElementById('profile-name')!.textContent = profile.name;
+    document.getElementById('profile-bio')!.textContent = profile.bio || '读万卷书，行万里路。';
+    document.getElementById('stat-notes')!.textContent = String(profile.notes);
+    document.getElementById('stat-favorites')!.textContent = String(profile.favorites);
+    document.getElementById('stat-booklists')!.textContent = String(profile.booklists);
   }
 
   // 加载阅读记录
@@ -305,7 +303,8 @@ async function loadProfile(): Promise<void> {
       })
       .join('');
   } else {
-    readingList.innerHTML = '<div class="empty-state" style="padding:16px 0;"><p>还没有阅读记录</p></div>';
+    readingList.innerHTML =
+      '<div class="empty-state" style="padding:16px 0;"><p>还没有阅读记录</p></div>';
   }
 
   // 加载我的笔记
@@ -313,10 +312,11 @@ async function loadProfile(): Promise<void> {
   const myNotes = document.getElementById('my-notes-list')!;
   if (notes && notes.length > 0) {
     myNotes.innerHTML = notes.map((n) => renderNoteCard(n, true)).join('');
-    (document.getElementById('my-notes-count')!).textContent = `共 ${notes.length} 篇笔记`;
+    document.getElementById('my-notes-count')!.textContent = `共 ${notes.length} 篇笔记`;
   } else {
-    myNotes.innerHTML = '<div class="empty-state" style="padding:16px 0;"><i class="far fa-pen"></i><p>还没有笔记</p></div>';
-    (document.getElementById('my-notes-count')!).textContent = '0 篇笔记';
+    myNotes.innerHTML =
+      '<div class="empty-state" style="padding:16px 0;"><i class="far fa-pen"></i><p>还没有笔记</p></div>';
+    document.getElementById('my-notes-count')!.textContent = '0 篇笔记';
   }
 }
 
@@ -341,7 +341,8 @@ async function loadRecentNotes(): Promise<void> {
       )
       .join('');
   } else {
-    container.innerHTML = '<div class="empty-state" style="padding:20px 0;"><p>发布你的第一篇笔记吧</p></div>';
+    container.innerHTML =
+      '<div class="empty-state" style="padding:20px 0;"><p>发布你的第一篇笔记吧</p></div>';
   }
 }
 

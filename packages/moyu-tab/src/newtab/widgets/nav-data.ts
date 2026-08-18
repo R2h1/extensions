@@ -187,7 +187,11 @@ export const NAV_GROUPS: NavGroup[] = [
           { name: 'immer', url: 'https://github.com/immerjs/immer', color: '#00e7c3' },
           { name: 'nanoid', url: 'https://github.com/ai/nanoid', color: '#ec4899' },
           { name: 'decimal.js', url: 'https://github.com/MikeMcl/decimal.js', color: '#f59e0b' },
-          { name: 'number-precision', url: 'https://github.com/nefe/number-precision', color: '#475569' },
+          {
+            name: 'number-precision',
+            url: 'https://github.com/nefe/number-precision',
+            color: '#475569',
+          },
           { name: 'howler.js', url: 'https://howlerjs.com/', color: '#111' },
           {
             name: 'screenfull',
@@ -235,9 +239,17 @@ export const NAV_GROUPS: NavGroup[] = [
           { name: 'pyscript', url: 'https://github.com/pyscript/pyscript', color: '#f7df1e' },
           { name: 'pdf2docx', url: 'https://github.com/dothinking/pdf2docx', color: '#3776ab' },
           { name: 'iswbm', url: 'https://github.com/iswbm', color: '#475569' },
-          { name: '量桨 API 文档', url: 'https://qml.baidu.com/api/introduction.html', color: '#2932e1' },
+          {
+            name: '量桨 API 文档',
+            url: 'https://qml.baidu.com/api/introduction.html',
+            color: '#2932e1',
+          },
           { name: 'QuTiP', url: 'https://qutip.org/', color: '#475569' },
-          { name: 'QPanda-2 优化算法', url: 'https://pyqpanda-toturial.readthedocs.io/zh/latest/Optimizer.html', color: '#1f78bf' },
+          {
+            name: 'QPanda-2 优化算法',
+            url: 'https://pyqpanda-toturial.readthedocs.io/zh/latest/Optimizer.html',
+            color: '#1f78bf',
+          },
         ],
       },
     ],
@@ -528,7 +540,11 @@ export const NAV_GROUPS: NavGroup[] = [
       {
         title: '监控 / 埋点 / 录制',
         links: [
-          { name: 'react-tracking', url: 'https://github.com/nytimes/react-tracking', color: '#149eca' },
+          {
+            name: 'react-tracking',
+            url: 'https://github.com/nytimes/react-tracking',
+            color: '#149eca',
+          },
           { name: 'rrweb (录屏)', url: 'https://www.rrweb.io/', color: '#f97316' },
           {
             name: '前端性能 SDK 实战',
@@ -587,7 +603,11 @@ export const NAV_GROUPS: NavGroup[] = [
           },
           { name: 'public-apis', url: 'https://github.com/public-apis/public-apis', color: '#111' },
           { name: '天行数据', url: 'https://www.tianapi.com/list/', color: '#0ea5e9' },
-          { name: '网易云音乐 Node API', url: 'https://docs-neteasecloudmusicapi.focalors.ltd/', color: '#c20c0c' },
+          {
+            name: '网易云音乐 Node API',
+            url: 'https://docs-neteasecloudmusicapi.focalors.ltd/',
+            color: '#c20c0c',
+          },
         ],
       },
       {
@@ -723,15 +743,31 @@ export const NAV_GROUPS: NavGroup[] = [
             url: 'https://www.nowcoder.com/jobs/fulltime/center',
             color: '#0cb856',
           },
-          { name: '咪咕招聘', url: 'https://www.migu.cn/about/join/social/job/0/0/4.html', color: '#e60012' },
+          {
+            name: '咪咕招聘',
+            url: 'https://www.migu.cn/about/join/social/job/0/0/4.html',
+            color: '#e60012',
+          },
           { name: '腾讯音乐招聘', url: 'https://join.tencentmusic.com/social', color: '#31c27c' },
           { name: '豆瓣招聘', url: 'https://jobs.douban.com/jobs/social/', color: '#00b51d' },
           { name: 'OPPO 招聘', url: 'https://career.oppo.com/pc/post/list', color: '#00a651' },
-          { name: 'TCL 招聘', url: 'https://sc.hotjob.cn/wt/TCL/mobweb/v8/position/list', color: '#1f78bf' },
+          {
+            name: 'TCL 招聘',
+            url: 'https://sc.hotjob.cn/wt/TCL/mobweb/v8/position/list',
+            color: '#1f78bf',
+          },
           { name: '快手招聘', url: 'https://zhaopin.kuaishou.cn/recruit/e/', color: '#ff4906' },
-          { name: '字节跳动招聘', url: 'https://jobs.bytedance.com/experienced/position', color: '#325ab4' },
+          {
+            name: '字节跳动招聘',
+            url: 'https://jobs.bytedance.com/experienced/position',
+            color: '#325ab4',
+          },
           { name: '百度招聘', url: 'https://talent.baidu.com/jobs/social-list', color: '#2932e1' },
-          { name: '拼多多招聘', url: 'https://m.zhipin.com/gongsir/ea9c5680f57d53d71HV90ty5.html', color: '#e02e24' },
+          {
+            name: '拼多多招聘',
+            url: 'https://m.zhipin.com/gongsir/ea9c5680f57d53d71HV90ty5.html',
+            color: '#e02e24',
+          },
           { name: '喜马拉雅招聘', url: 'https://jobs.ximalaya.com/social', color: '#e6162d' },
         ],
       },
@@ -761,7 +797,11 @@ export const NAV_GROUPS: NavGroup[] = [
           { name: 'Excalidraw', url: 'https://excalidraw.com/', color: '#111' },
           { name: 'MD2Card', url: 'https://md2card.com/zh', color: '#4f46e5' },
           { name: 'PDF24 Tools', url: 'https://tools.pdf24.org/zh/', color: '#111' },
-          { name: '影速 影视采集测速', url: 'https://github.com/fish2018/yingsu', color: '#475569' },
+          {
+            name: '影速 影视采集测速',
+            url: 'https://github.com/fish2018/yingsu',
+            color: '#475569',
+          },
         ],
       },
       {
@@ -792,10 +832,26 @@ export const NAV_GROUPS: NavGroup[] = [
           { name: '小霸王 FC 在线', url: 'https://www.yikm.net/', color: '#ef4444' },
           { name: 'Animeko', url: 'https://animeko.org/', color: '#7c3aed' },
           { name: 'B站录播姬', url: 'https://rec.danmuji.org/', color: '#fb7299' },
-          { name: 'KikoPlay 弹幕播放器', url: 'https://github.com/KikoPlayProject/KikoPlay', color: '#2563eb' },
-          { name: '柯南各卷目录', url: 'https://baike.baidu.com/item/名侦探柯南各卷目录/49790351', color: '#000' },
-          { name: '柯南各集列表', url: 'https://baike.baidu.com/item/名侦探柯南各集列表/49823770', color: '#000' },
-          { name: '数字直觉排行榜', url: 'https://numfeel.996.ninja/pages/leaderboard/', color: '#4f46e5' },
+          {
+            name: 'KikoPlay 弹幕播放器',
+            url: 'https://github.com/KikoPlayProject/KikoPlay',
+            color: '#2563eb',
+          },
+          {
+            name: '柯南各卷目录',
+            url: 'https://baike.baidu.com/item/名侦探柯南各卷目录/49790351',
+            color: '#000',
+          },
+          {
+            name: '柯南各集列表',
+            url: 'https://baike.baidu.com/item/名侦探柯南各集列表/49823770',
+            color: '#000',
+          },
+          {
+            name: '数字直觉排行榜',
+            url: 'https://numfeel.996.ninja/pages/leaderboard/',
+            color: '#4f46e5',
+          },
           { name: 'Bangumi 番组计划', url: 'https://bgm.tv/', color: '#f09199' },
           { name: '大麦抢票脚本', url: 'https://github.com/Guyungy/damaihelper', color: '#ff4906' },
         ],

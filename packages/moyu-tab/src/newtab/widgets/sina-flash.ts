@@ -35,7 +35,10 @@ function renderSF(error: boolean) {
   list.onclick = null;
   list.innerHTML = c.items
     .slice(0, 15)
-    .map((it) => `<div class="sina-row"><span class="sina-time">${esc(it.time)}</span><span class="sina-text">${esc(it.text)}</span></div>`)
+    .map(
+      (it) =>
+        `<div class="sina-row"><span class="sina-time">${esc(it.time)}</span><span class="sina-text">${esc(it.text)}</span></div>`,
+    )
     .join('');
 }
 export async function refreshSF() {

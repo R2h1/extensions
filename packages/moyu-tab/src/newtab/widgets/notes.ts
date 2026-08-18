@@ -164,9 +164,7 @@ function renderNotesContent(list: HTMLElement, b: NBBook, d: NBNoteContent) {
       const title = chMap.get(uid) || (uid ? '第 ' + uid + ' 节' : '未分组');
       const hs = d.highlights.filter((h) => h.chapterUid === uid);
       const ts = d.thoughts.filter((t) => t.chapterUid === uid);
-      const hHtml = hs
-        .map((h) => `<div class="wr-note-hl">${esc(h.markText)}</div>`)
-        .join('');
+      const hHtml = hs.map((h) => `<div class="wr-note-hl">${esc(h.markText)}</div>`).join('');
       const tHtml = ts
         .map((t) => {
           const abs = t.abstract ? `<div class="wr-note-abs">${esc(t.abstract)}</div>` : '';
@@ -198,7 +196,11 @@ async function refreshNB() {
   btn?.classList.add('spin');
   try {
     const res = (await chrome.runtime.sendMessage({ type: 'WEREAD_NOTES_FETCH', apiKey: key })) as
-      | { success: boolean; data?: { books: NBBook[]; totalBooks: number; totalNotes: number }; error?: string }
+      | {
+          success: boolean;
+          data?: { books: NBBook[]; totalBooks: number; totalNotes: number };
+          error?: string;
+        }
       | undefined;
     if (res?.success && res.data?.books?.length) {
       saveCache({

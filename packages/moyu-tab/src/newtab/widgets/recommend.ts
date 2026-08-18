@@ -110,9 +110,10 @@ async function refreshRC() {
   const btn = document.getElementById('recommendRefresh');
   btn?.classList.add('spin');
   try {
-    const res = (await chrome.runtime.sendMessage({ type: 'WEREAD_RECOMMEND_FETCH', apiKey: key })) as
-      | { success: boolean; data?: { books: RCBook[] }; error?: string }
-      | undefined;
+    const res = (await chrome.runtime.sendMessage({
+      type: 'WEREAD_RECOMMEND_FETCH',
+      apiKey: key,
+    })) as { success: boolean; data?: { books: RCBook[] }; error?: string } | undefined;
     if (res?.success && res.data?.books?.length) {
       saveCache({ books: res.data.books, ts: Date.now() });
       rcLastFetch = Date.now();

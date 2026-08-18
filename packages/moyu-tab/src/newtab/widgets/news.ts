@@ -12,9 +12,30 @@ interface NewsSource {
   hasSwap: boolean; // 是否有「换一换」分页
 }
 const NEWS_SOURCES: NewsSource[] = [
-  { id: 'aihot', name: 'AI精选', pane: 'aihotList', init: initAihot, refresh: refreshAH, hasSwap: true },
-  { id: 'zhihu', name: '知乎日报', pane: 'zhihuList', init: initZhihu, refresh: refreshZH, hasSwap: false },
-  { id: 'sina', name: '财经快讯', pane: 'sinaList', init: initSinaFlash, refresh: refreshSF, hasSwap: false },
+  {
+    id: 'aihot',
+    name: 'AI精选',
+    pane: 'aihotList',
+    init: initAihot,
+    refresh: refreshAH,
+    hasSwap: true,
+  },
+  {
+    id: 'zhihu',
+    name: '知乎日报',
+    pane: 'zhihuList',
+    init: initZhihu,
+    refresh: refreshZH,
+    hasSwap: false,
+  },
+  {
+    id: 'sina',
+    name: '财经快讯',
+    pane: 'sinaList',
+    init: initSinaFlash,
+    refresh: refreshSF,
+    hasSwap: false,
+  },
 ];
 
 let newsActive = NEWS_SOURCES[0].id;
@@ -45,12 +66,12 @@ function switchNews(id: string) {
   if (id === newsActive) return;
   newsActive = id;
   const src = NEWS_SOURCES.find((s) => s.id === id);
-  document.querySelectorAll('.hot-tab[data-source]').forEach((t) =>
-    t.classList.toggle('active', (t as HTMLElement).dataset.source === id),
-  );
-  document.querySelectorAll('.news-pane').forEach((p) =>
-    p.classList.toggle('active', (p as HTMLElement).id === src?.pane),
-  );
+  document
+    .querySelectorAll('.hot-tab[data-source]')
+    .forEach((t) => t.classList.toggle('active', (t as HTMLElement).dataset.source === id));
+  document
+    .querySelectorAll('.news-pane')
+    .forEach((p) => p.classList.toggle('active', (p as HTMLElement).id === src?.pane));
   const swap = document.getElementById('newsSwap');
   if (swap) swap.style.display = src?.hasSwap ? '' : 'none';
 }
